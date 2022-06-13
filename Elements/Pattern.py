@@ -1,0 +1,2 @@
+class Pattern:
+    satisfied = None
