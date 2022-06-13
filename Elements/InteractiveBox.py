@@ -3,9 +3,14 @@ from Elements.Pattern import Pattern
 
 class InteractiveBox:
     def __init__(self, id: int, pattern: Pattern = None):
+        """
+        # TODO
+        :param id:
+        :param pattern:
+        """
         self.id = id
         self.box = { "open": False, "ready": False, "active": True}
-        self.pattern = Pattern
+        self.pattern = pattern
 
     def press_button(self):
         opened = False
