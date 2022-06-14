@@ -5,7 +5,7 @@ from Elements.InteractiveBox import InteractiveBox
 
 
 class Environment:
-    def __init__(self, patterns, verbose):
+    def __init__(self, patterns: list, verbose):
         self.time = 0
         self.verbose = verbose
         # make one box per pattern
@@ -24,6 +24,7 @@ class Environment:
 
         context = self.internal_step()
 
+        if self.verbose: print("Step Done \n")
         return reward, context
 
     def internal_step(self):
