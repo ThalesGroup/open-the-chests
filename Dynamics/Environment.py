@@ -13,7 +13,7 @@ class Environment:
         if self.verbose: print(f"Initialising {num_boxes} boxes")
         self.boxes: list[InteractiveBox] = [InteractiveBox(i, patterns[i])for i in range(num_boxes)]
         # create context
-        self.context = Context()
+        self.context = Context(True)
         # make one step to generate new events
         self.internal_step()
 
@@ -32,6 +32,7 @@ class Environment:
         self.update_events_patterns()
         # observe context and advance time to new observation point
         t_current, context = self.context.observe()
+        if self.verbose: print(f"Advancing time to {t_current}")
         self.time = t_current
         return context
 
@@ -40,7 +41,7 @@ class Environment:
         new_events = []
         for box in self.boxes:
             # TODO workaround list concatenation
-            new_events.append(box.pattern.get_next(self.time))
+            new_events += box.pattern.get_next(self.time)
         self.context.active_events += new_events
         if self.verbose: print(f"\nFinished Sampling {self.context.active_events}")
 

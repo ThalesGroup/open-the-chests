@@ -20,16 +20,30 @@ def instructions_to_events(current_instruction, t):
     return events
 
 
+"""
+Currently event is sampled once previous has ended
+In the future event list according to pattern will be pre-generated
+"""
+
+
 class Pattern:
 
     def __init__(self, instruction: str, verbose):
+        # TODO generate full pattern at env reset
+        # TODO add reset pattern function that re-generates pattern at box activation
         self.verbose = verbose
         self.instruction = instruction
         self.instruction_buffer = []
         self.satisfied = False
-        self.current_time = 0
+        self.next_sample_time = 0
 
     def get_next(self, t):
-        event = Event(self.instruction, [0, 0, 0], t, t + random.random() * 5)
-        if self.verbose : print(f"Sampling event {self.instruction}", end=" ")
+        # TODO possible to add multiple events
+        event = []
+        if t >= self.next_sample_time:
+            t = min(t, self.next_sample_time)
+            event_time = t + random.random() * 5
+            self.next_sample_time = event_time
+            event.append(Event(self.instruction, [0, 0, 0], t, event_time))
+            if self.verbose: print(f"Sampling event {self.instruction}", end=" ")
         return event
