@@ -16,5 +16,7 @@ if __name__ == '__main__':
     # define patterns to be used for boxes
     patterns = [Pattern(["A"], True), Pattern(["B"], True), Pattern(["C"], True)]
     env = Environment(patterns, True)
+    for i in range(10):
+        env.step([])
 
 
