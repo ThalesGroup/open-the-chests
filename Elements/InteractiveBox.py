@@ -6,6 +6,7 @@ class InteractiveBox:
         """
         An openable box that allows interaction. It possesses three states indicators: open, ready and active.
         The box is initialised with a pattern which defines when the box changes states.
+        TODO: add reactivate after timeout
 
         :param id: id of box from 0 to (nb_boxes - 1)
         :param pattern: pattern object linked to box
