@@ -25,6 +25,7 @@ class Environment:
         self.context = Context(verbose=True)
 
         # make one step to generate new events
+        # TODO move to reset function to fit with gym code
         self.internal_step()
 
     def step(self, action: List[int]):
@@ -34,6 +35,9 @@ class Environment:
         :param action: List of box ids to attempt to open
         :return: Reward obtained from acting and context at the end of the environment step
         """
+
+        if self.verbose:
+            print("\nStart Step")
 
         # apply action and collect reward
         reward = []

@@ -29,19 +29,39 @@ In the future event list according to pattern will be pre-generated
 class Pattern:
 
     def __init__(self, instruction: list, verbose):
+        """
+        Initialise pattern allowing to generate events
+
+        :param instruction: Instruction that generates lists of events
+        :param verbose: Print information as it happens
+        """
         # TODO generate full pattern at env reset
         self.verbose = verbose
-        # suppose to be list of events following each other
-        self.instruction = instruction
-        self.events_stack = []
-        # initialise events stack
-        self.reset(0)
+
+        self.instruction = instruction  # suppose to be list of events for now
+        self.events_stack = []  # stack of events to generate with instruction
+        # TODO move to environment initialisation
+        self.reset(0)  # reset to fill stack
         self.satisfied = False
         self.next_sample_time = 0
 
-    def process_instruction(self):
-        # TODO create function that generates a list of events using a written events_stack
-        pass
+    def reset(self, t):
+        """
+        Reset pattern and generate new stack of events using instruction
+        TODO add reset pattern function that re-generates pattern at box activation
+
+        :param t: Time of reset used to regenerate event stack
+        """
+        self.instruction_to_event_stack(t)
+        self.satisfied = False
+
+    def instruction_to_event_stack(self, t):
+        """
+        Transform instruction into list of events
+        """
+        for instr in self.instruction:
+            self.events_stack.append(
+                Event(instr.symbol["e_type"], instr.symbol["attr"], instr.start + t, instr.end + t))
 
     def get_next(self, t):
         event = []
@@ -50,16 +70,13 @@ class Pattern:
             # get next event to be generated
             # TODO handle generations of multiple concurrent events
             # TODO handle wait time
-            next_event = self.events_stack.pop(0)
-            if not self.events_stack:
-                # TODO add pattern satisfaction to box
-                # If event stack has finished pattern is considered to be satisfied
-                self.satisfied = True
-            event.append(next_event)
-            if self.verbose: print(f"Sampling event {next_event}", end=" ")
+            if not self.satisfied:
+                next_event = self.events_stack.pop(0)
+                event.append(next_event)
+                if self.verbose:
+                    print(f"Sampling event {next_event}", end=" ")
+                if not self.events_stack:
+                    # TODO add pattern satisfaction to box
+                    # If event stack has finished pattern is considered to be satisfied
+                    self.satisfied = True
         return event
-
-    def reset(self, t):
-        # TODO add reset pattern function that re-generates pattern at box activation
-        for instr in self.instruction:
-            self.events_stack.append(Event(instr.symbol["e_type"], instr.symbol["attr"], instr.start + t, instr.end + t))

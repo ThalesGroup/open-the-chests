@@ -15,8 +15,11 @@ def print_hi(name):
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     # define patterns to be used for boxes
-    pattern1 = Pattern([Event("A", [0], 0, 5), Event("A", [0], 7, 12)], True)
-    pattern2 = Pattern([Event("B", [0], 4, 5), Event("B", [0], 6, 15)], True)
+    instr1 = [Event("A", [0], 0, 5), Event("A", [0], 7, 12)]
+    instr2 = [Event("B", [0], 4, 5), Event("B", [0], 6, 15)]
+
+    pattern1 = Pattern(instr1, True)
+    pattern2 = Pattern(instr2, True)
     env = Environment([pattern1, pattern2], True)
     for i in range(10):
         env.step([])
