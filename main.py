@@ -2,6 +2,8 @@
 
 # Press Shift+F10 to execute it or replace it with your code.
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+import random
+
 from Dynamics.Environment import Environment
 from Elements.Event import Event
 from Elements.Pattern import Pattern
@@ -21,7 +23,10 @@ if __name__ == '__main__':
     pattern1 = Pattern(instr1, True)
     pattern2 = Pattern(instr2, True)
     env = Environment([pattern1, pattern2], True)
-    for i in range(10):
-        env.step([])
+    env.reset()
+    done = False
+    while not done:
+        action = [random.randint(0,1) for i in range(2)]
+        reward, context, done = env.step(action)
 
 

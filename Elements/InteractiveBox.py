@@ -14,8 +14,11 @@ class InteractiveBox:
         """
         self.verbose = verbose
         self.id = id
-        self.box = {"open": False, "ready": False, "active": True}
+        self.box = {"open": False, "ready": False, "active": False}
         self.pattern = pattern
+
+    def is_active(self):
+        return self.box["active"]
 
     def open(self):
         """
@@ -59,7 +62,7 @@ class InteractiveBox:
         if self.verbose:
             print(f"Ready box {self.id}")
 
-        self.box["active"] = False
+        self.box["active"] = True
         self.box["ready"] = True
         self.box["open"] = False
 
