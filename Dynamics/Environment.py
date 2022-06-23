@@ -37,8 +37,7 @@ class Environment:
         for box in self.boxes:
             box.activate()
             box.pattern.reset(self.time)
-
-            end, events = box.pattern.get_next()
+            end, events = box.pattern.get_next(self.time)
             self.timeline[box.id] = events
             self.current_end_times[box.id] = end
         # make one step to generate new events
@@ -56,6 +55,7 @@ class Environment:
         # self.update_events_patterns()
         # observe context and get new time of context end
         t_current, context = self.observe_context()
+        self.update_boxes(t_current)
 
         if self.verbose:
             print(f"Advancing time to {t_current}")
@@ -67,7 +67,7 @@ class Environment:
     def observe_context(self):
         min_end_time = min(self.current_end_times.values())
         ending_boxes_ids = [box_id for box_id in self.current_end_times.keys()
-                            if self.current_end_times[box_id] == min_end_time and self.boxes[box_id].is_active()]
+                            if self.current_end_times[box_id] == min_end_time]
         # TODO does this really make sense to check if the box is active
         if self.verbose:
             print(f"Sampling from boxes {ending_boxes_ids}")
@@ -78,18 +78,17 @@ class Environment:
         context = []
         for box_id in ending_boxes_ids:
             context += self.timeline[box_id]
-            end, event = self.boxes[box_id].pattern.get_next()
+            end, event = self.boxes[box_id].pattern.get_next(t_current)
             self.current_end_times[box_id] = end
             self.timeline[box_id] = event
 
         print(f"Observing context {context}")
 
-        self.update_boxes()
         return t_current, context
 
-    def update_boxes(self):
+    def update_boxes(self, t):
         for box in self.boxes:
-            box.update()
+            box.update(t)
 
     def step(self, action: List[int]):
         """
@@ -103,12 +102,7 @@ class Environment:
             print("\nStart Step")
 
         # apply action and collect reward
-        reward = []
-        if self.verbose:
-            print(f"Applying action {action}")
-        for box_id in range(len(action)):
-            if action[box_id] == 1:
-                reward.append(self.boxes[box_id].press_button())
+        reward = self.apply_action(action)
 
         self.done = self.check_end()
 
@@ -119,6 +113,18 @@ class Environment:
             print("Step Done \n")
 
         return reward, context, self.done
+
+    def apply_action(self, action):
+        reward = []
+        if self.verbose:
+            print(f"Applying action {action}")
+        for box_id in range(len(action)):
+            if action[box_id] == 1:
+                opened = self.boxes[box_id].press_button()
+                if opened:
+                    self.current_end_times[box_id] = math.inf
+                reward.append(opened)
+        return reward
 
     def check_end(self):
         return all([time == math.inf for time in self.current_end_times.values()])

@@ -20,13 +20,14 @@ if __name__ == '__main__':
     instr1 = [Event("A", [0], 0, 5), Event("A", [0], 7, 12)]
     instr2 = [Event("B", [0], 4, 5), Event("B", [0], 6, 15)]
 
-    pattern1 = Pattern(instr1, True)
-    pattern2 = Pattern(instr2, True)
+    pattern1 = Pattern(instr1, True, 5)
+    pattern2 = Pattern(instr2, True, 7)
     env = Environment([pattern1, pattern2], True)
     env.reset()
     done = False
     while not done:
         action = [random.randint(0,1) for i in range(2)]
+        # action = [1,1]
         reward, context, done = env.step(action)
 
 
