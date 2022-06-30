@@ -11,8 +11,6 @@ import plotly.io as pio
 
 pio.renderers.default = "browser"
 
-import matplotlib.pyplot as plt
-
 all_event_types = ["A", "B", "C"]
 all_event_attributes = {"fg": ["red", "blue", "green"], "bg": ["red", "blue", "green"]}
 
