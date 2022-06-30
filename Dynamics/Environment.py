@@ -5,13 +5,17 @@ from Elements.InteractiveBox import InteractiveBox
 
 
 class Environment:
-    def __init__(self, patterns: list, verbose):
+    def __init__(self, patterns: list, verbose, types, attributes):
         """
         Symbolic environment that allows to interact and open boxes
 
+        :param types: 
+        :param attributes: 
         :param patterns: Patterns with which to create boxes
         :param verbose: Print details when executing for debugging
         """
+        self.attributes = attributes
+        self.types = types
         self.time = 0
         self.verbose = verbose
 
@@ -69,11 +73,12 @@ class Environment:
         ending_boxes_ids = [box_id for box_id in self.current_end_times.keys()
                             if self.current_end_times[box_id] == min_end_time]
         # TODO does this really make sense to check if the box is active
-        if self.verbose:
-            print(f"Sampling from boxes {ending_boxes_ids}")
         t_current = min_end_time
         if self.verbose:
+            print(f"Active timeline {self.timeline}")
+            print(f"Next event starts {self.current_end_times}")
             print(f"Finding closes end value {t_current}")
+            print(f"Sampling from boxes {ending_boxes_ids}")
 
         context = []
         for box_id in ending_boxes_ids:
@@ -123,6 +128,7 @@ class Environment:
                 opened = self.boxes[box_id].press_button()
                 if opened:
                     self.current_end_times[box_id] = math.inf
+                    self.timeline[box_id] = [42]
                 reward.append(opened)
         return reward
 

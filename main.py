@@ -17,17 +17,23 @@ def print_hi(name):
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     # define patterns to be used for boxes
-    instr1 = [Event("A", [0], 0, 5), Event("A", [0], 7, 12)]
-    instr2 = [Event("B", [0], 4, 5), Event("B", [0], 6, 15)]
 
+    all_event_types = ["A", "B", "C"]
+    all_event_attributes = {"fg": ["red", "blue", "green"], "bg": ["red", "blue", "green"]}
+
+    instr1 = [Event("A", {"fg": "blue"}, 0, 5), Event("A", {"fg": "red"}, 7, 12)]
+    instr2 = [Event("B", {"bg": "red"}, 4, 5), Event("B", {"fg": "blue"}, 6, 15)]
     pattern1 = Pattern(instr1, True, 5)
     pattern2 = Pattern(instr2, True, 7)
-    env = Environment([pattern1, pattern2], True)
+    all_patterns = [pattern1, pattern2]
+
+    env = Environment(patterns=all_patterns,
+                      verbose=True,
+                      types=all_event_types,
+                      attributes=all_event_attributes)
     env.reset()
     done = False
     while not done:
-        action = [random.randint(0,1) for i in range(2)]
+        action = [random.randint(0, 1) for i in range(2)]
         # action = [1,1]
         reward, context, done = env.step(action)
-
-
