@@ -118,12 +118,6 @@ def print_event_list(event_list):
         else:
             line_end_times.append(event.end)
 
-        from datetime import datetime, timedelta, timezone
-
-        # start = (datetime.min + timedelta(days=event.start/100)).strftime('%H:%M:%S')
-        # end = (datetime.min + timedelta(days=event.end/100)).strftime('%H:%M:%S')
-        # 14:03:59
-
         list_df.append(dict(Resource=event.symbol["e_type"],
                             Start=event.start,
                             Finish=event.end,

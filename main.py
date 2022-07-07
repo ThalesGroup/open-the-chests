@@ -33,7 +33,7 @@ if __name__ == '__main__':
 
     instr2 = [{"command": "instantiate", "parameters": ("B", {"bg": "blue"}, (4, 2)), "variable_name": "b1"},
               {"command": "instantiate", "parameters": ("B", {"fg": "red"}, (10, 1)), "variable_name": "b2"},
-              {"command": "after", "parameters": ("b2", "b1"), "variable_name": "c1", "gap_dist": (2, 1)}]
+              {"command": "after", "parameters": ("b2", "b1"), "variable_name": "b2", "gap_dist": (2, 1)}]
 
     pattern1 = Pattern(parser, instr1, True, 5)
     pattern2 = Pattern(parser, instr2, True, 7)
@@ -47,5 +47,4 @@ if __name__ == '__main__':
     done = False
     while not done:
         action = [random.randint(0, 1) for i in range(2)]
-        # action = [1,1]
         reward, context, done = env.step(action)

@@ -1,3 +1,4 @@
+from Dynamics.utils import print_event_list
 from Elements.Event import Event
 
 
@@ -47,6 +48,8 @@ class Pattern:
         for event in generated_events:
             event.start += t
             event.end += t
+
+        print_event_list(generated_events)
         self.events_stack = generated_events
 
     def get_next(self, t_current):

@@ -17,6 +17,7 @@ class Parser:
             if attr not in attributes:
                 attributes[attr] = random.choice(attr_values)
         duration_inst = random.normalvariate(*duration_dist)
+        duration_inst = max(duration_inst, duration_dist[0] - duration_dist[1])
         return Event(e_type, attributes, 0, duration_inst)
 
     def generate_pattern(self, instructions):
