@@ -7,7 +7,7 @@ from Elements.Pattern import Pattern
 
 
 class Environment:
-    def __init__(self, instructions: list, all_event_types, all_event_attributes,verbose):
+    def __init__(self, instructions: list, all_event_types, all_event_attributes, verbose):
         """
         Symbolic environment that allows to interact and open boxes
 
@@ -19,13 +19,14 @@ class Environment:
 
         self.parser = Parser(all_event_types, all_event_attributes)
         # TODO adapt wait to be processed by parser for pattern
-        self.patterns = [Pattern(self.parser, instr[1:], True, instr[0]["parameters"]) for instr in instructions]
+        self.patterns = [Pattern(self.parser, instr[1:], self.verbose, instr[0]["parameters"])
+                         for instr in instructions]
         # make one box per pattern
-        num_boxes = len(instructions)
-        self.boxes: list[InteractiveBox] = [InteractiveBox(i, self.patterns[i]) for i in range(num_boxes)]
+        self.num_boxes = len(instructions)
+        self.boxes: list[InteractiveBox] = [InteractiveBox(i, self.patterns[i]) for i in range(self.num_boxes)]
 
         if self.verbose:
-            print(f"Initialising {num_boxes} boxes")
+            print(f"Initialising {self.num_boxes} boxes")
 
         # create context
         self.timeline = {}
