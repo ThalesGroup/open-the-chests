@@ -1,6 +1,4 @@
-from Dynamics.utils import print_event_list
-from Elements.Event import Event
-
+from utils.utils import print_event_list
 
 
 class Pattern:
@@ -59,11 +57,15 @@ class Pattern:
             self.start_pattern_time = t_current + self.timeout
             self.reset(self.start_pattern_time)
 
-        next_events = [self.events_stack.pop(0)]
-        end_time = next_events[0].end
-        while self.events_stack and self.events_stack[0].end == end_time:
-            next_events.append(self.events_stack.pop(0))
-        return end_time, next_events
+        # next_events = [self.events_stack.pop(0)]
+        # end_time = next_events[0].end
+        # while self.events_stack and self.events_stack[0].end == end_time:
+        #     next_events.append(self.events_stack.pop(0))
+        # return end_time, next_events
+
+        next_event = self.events_stack.pop(0)
+        end_time = next_event.end
+        return end_time, next_event
 
 
 

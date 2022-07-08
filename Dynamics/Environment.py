@@ -1,7 +1,10 @@
 import math
 from typing import List
 
+import numpy as np
+
 from Dynamics.Parser import Parser
+from Elements.Event import Event
 from Elements.InteractiveBox import InteractiveBox
 from Elements.Pattern import Pattern
 
@@ -30,7 +33,6 @@ class Environment:
 
         # create context
         self.timeline = {}
-        self.current_end_times = {}
 
         # TODO move to reset function to fit with gym code
         self.done = False
@@ -43,9 +45,8 @@ class Environment:
         for box in self.boxes:
             box.activate()
             box.pattern.reset(self.time)
-            end, events = box.pattern.get_next(self.time)
-            self.timeline[box.id] = events
-            self.current_end_times[box.id] = end
+            end, event = box.pattern.get_next(self.time)
+            self.timeline[box.id] = event
         # make one step to generate new events
         return self.internal_step()
 
@@ -71,23 +72,31 @@ class Environment:
         return context
 
     def observe_context(self):
-        min_end_time = min(self.current_end_times.values())
-        ending_boxes_ids = [box_id for box_id in self.current_end_times.keys()
-                            if self.current_end_times[box_id] == min_end_time]
+        # min_end_time = min(self.current_end_times.values())
+        ending_box_id = min(self.timeline, key=self.timeline.get)
+        # ending_boxes_ids = [box_id for box_id in self.current_end_times.keys()
+        #                    if self.current_end_times[box_id] == min_end_time]
         # TODO does this really make sense to check if the box is active
-        t_current = min_end_time
+        # t_current = min_end_time
+        context = self.timeline[ending_box_id]
+        t_current = context.end
+        if not self.boxes[ending_box_id].is_open():
+            end, event = self.boxes[ending_box_id].pattern.get_next(t_current)
+            self.timeline[ending_box_id] = event
+
         if self.verbose:
             print(f"Active timeline {self.timeline}")
-            print(f"Next event starts {self.current_end_times}")
+            # print(f"Next event starts {self.current_end_times}")
             print(f"Finding closes end value {t_current}")
-            print(f"Sampling from boxes {ending_boxes_ids}")
+            print(f"Sampling from boxes {ending_box_id}")
+            # print(f"Sampling from boxes {ending_boxes_ids}")
 
-        context = []
-        for box_id in ending_boxes_ids:
-            context += self.timeline[box_id]
-            end, event = self.boxes[box_id].pattern.get_next(t_current)
-            self.current_end_times[box_id] = end
-            self.timeline[box_id] = event
+        # context = []
+        # for box_id in ending_boxes_ids:
+        #     context += self.timeline[box_id]
+        #     end, event = self.boxes[box_id].pattern.get_next(t_current)
+        #     self.current_end_times[box_id] = end
+        #     self.timeline[box_id] = event
 
         print(f"Observing context {context}")
 
@@ -129,10 +138,11 @@ class Environment:
             if action[box_id] == 1:
                 opened = self.boxes[box_id].press_button()
                 if opened:
-                    self.current_end_times[box_id] = math.inf
-                    self.timeline[box_id] = [42]
+                    # self.current_end_times[box_id] = math.inf
+                    self.timeline[box_id] = Event("end", dict(), math.inf, math.inf)
                 reward.append(opened)
         return reward
 
     def check_end(self):
-        return all([time == math.inf for time in self.current_end_times.values()])
+        # return all([time == math.inf for time in self.current_end_times.values()])
+        return all([box.is_open() for box in self.boxes])

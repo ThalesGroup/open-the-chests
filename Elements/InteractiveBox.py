@@ -17,6 +17,9 @@ class InteractiveBox:
         self.box = {"open": False, "ready": False, "active": False}
         self.pattern = pattern
 
+    def is_open(self):
+        return self.box["open"]
+
     def is_active(self):
         return self.box["active"]
 

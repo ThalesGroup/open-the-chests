@@ -1,6 +1,6 @@
 import random
 
-from Dynamics.utils import allen_functions
+from utils.utils import allen_functions
 from Elements.Event import Event
 
 

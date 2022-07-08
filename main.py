@@ -45,5 +45,7 @@ if __name__ == '__main__':
     env.reset()
     done = False
     while not done:
-        action = [random.randint(0, 1) for i in range(2)]
+    #for i in range(10):
+        #action = [random.randint(0, 1) for i in range(2)]
+        action = [1,1]
         reward, context, done = env.step(action)
