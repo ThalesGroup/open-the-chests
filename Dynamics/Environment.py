@@ -48,7 +48,12 @@ class Environment:
             end, event = box.pattern.get_next(self.time)
             self.timeline[box.id] = event
         # make one step to generate new events
-        return self.internal_step()
+        # TODO make getinfo function that returns obs
+        context = self.internal_step()
+        box_states = self.observe_box_states()
+        obs = {"state": box_states, "context": context}
+
+        return obs
 
     def internal_step(self):
         """
@@ -106,6 +111,14 @@ class Environment:
         for box in self.boxes:
             box.update(t)
 
+    def observe_box_states(self):
+        active = []
+        open = []
+        for box_id in range(self.num_boxes):
+            active.append(self.boxes[box_id].is_active())
+            open.append(self.boxes[box_id].is_open())
+        return {"active": active, "open": open}
+
     def step(self, action: List[int]):
         """
         Move forward the environment by one step using the selected action
@@ -124,11 +137,13 @@ class Environment:
 
         # advance environment and collect context
         context = self.internal_step()
+        box_states = self.observe_box_states()
+        obs = {"state": box_states, "context": context}
 
         if self.verbose:
             print("Step Done \n")
 
-        return reward, context, self.done
+        return reward, obs, self.done, dict()
 
     def apply_action(self, action):
         reward = []

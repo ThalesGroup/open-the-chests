@@ -4,6 +4,7 @@
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 import random
 
+from BoxEventEnv import BoxEventEnv
 from Dynamics.Environment import Environment
 from Dynamics.Parser import Parser
 from Elements.Event import Event
@@ -42,10 +43,20 @@ if __name__ == '__main__':
                       all_event_types=all_event_types,
                       all_event_attributes=all_event_attributes,
                       verbose=True)
+
+    env = BoxEventEnv(instructions=all_instructions,
+                      all_event_types=all_event_types,
+                      all_event_attributes=all_event_attributes,
+                      verbose=True)
+
+    from stable_baselines3.common.env_checker import check_env
+
+    check_env(env, warn=True)
+
     env.reset()
     done = False
     while not done:
     #for i in range(10):
         #action = [random.randint(0, 1) for i in range(2)]
         action = [1,1]
-        reward, context, done = env.step(action)
+        reward, context, done, info = env.step(action)

@@ -1,8 +1,9 @@
 import numpy as np
 import gym
-from gym import spaces
+from gym.spaces import Dict, MultiBinary
 
 from Dynamics.Environment import Environment
+from utils.EventSpace import EventSpace
 
 
 class BoxEventEnv(gym.Env):
@@ -15,16 +16,23 @@ class BoxEventEnv(gym.Env):
         self.instructions = instructions
 
         self.env = Environment(instructions, all_event_types, all_event_attributes, verbose)
-        self.action_space = spaces.MultiBinary(self.env.num_boxes)
+        self.action_space = MultiBinary(self.env.num_boxes)
 
         # TODO add state of boxes to observations
-        self.observation_space = spaces.MultiBinary([2, self.env.num_boxes])
+        state_space_dict = Dict({
+            "active": MultiBinary(self.env.num_boxes),
+            "open": MultiBinary(self.env.num_boxes)
+        })
+        self.observation_space = Dict({
+            "state": state_space_dict,
+            "context": EventSpace(all_event_types, all_event_attributes)
+        })
 
     def step(self, action):
-        pass
+        return self.env.step(action)
 
     def reset(self):
-        pass
+        return self.env.reset()
 
     def render(self, mode="human"):
         pass
