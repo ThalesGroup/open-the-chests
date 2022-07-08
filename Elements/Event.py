@@ -25,6 +25,18 @@ class Event:
         new.end += delta
         return new
 
+    def __lt__(self, other):
+        return self.end < other.end
+
+    def __le__(self, other):
+        return self.end <= other.endpass
+
+    def __gt__(self, other):
+        return self.end > other.end
+
+    def __ge__(self, other):
+        return self.end >= other.end
+
     def __str__(self):
         return str(self.symbol) + " : " + str(self.start) + " -> " + str(self.end)
 
