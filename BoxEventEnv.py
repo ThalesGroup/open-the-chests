@@ -32,9 +32,9 @@ class BoxEventEnv(gym.Env):
             "open": MultiBinary(self.env.num_boxes),
             "e_type": Discrete(num_types),
             **attr_space,
-            "start": Box(low=np.array(0), high=np.array(np.inf)),
-            "end": Box(low=np.array(0), high=np.array(np.inf)),
-            "duration": Box(low=np.array(0), high=np.array(np.inf))
+            "start": Box(low=0, high=np.inf, shape=(1,)),
+            "end": Box(low=0, high=np.inf, shape=(1,)),
+            "duration": Box(low=0, high=np.inf, shape=(1,))
         })
 
     def step(self, action):

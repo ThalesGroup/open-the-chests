@@ -67,6 +67,8 @@ def process_obs(obs: dict):
         # TODO total workaround must fix
         if key not in ["e_type", "fg", "bg"]:
             final_dict[key] = np.array(value)
+            if key in ["start", "end", "duration"]:
+                final_dict[key] = final_dict[key].reshape(-1)
     return final_dict
 
 

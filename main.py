@@ -57,14 +57,44 @@ if __name__ == '__main__':
 
     from stable_baselines3.common.env_checker import check_env
 
-    #check_env(env, warn=True)
+
+    # env.reset()
+    # done = False
+    # while not done:
+    # # for i in range(10):
+    #     action = [random.randint(0, 1) for i in range(2)]
+    #     # action = [1,1]
+    #     reward, observation, done, info = env.step(action)
+    #     print(observation)
+    #
+    # check_env(env, warn=True)
 
     env.reset()
-    done = False
-    while not done:
-    # for i in range(10):
-        action = [random.randint(0, 1) for i in range(2)]
-        # action = [1,1]
-        reward, observation, done, info = env.step(action)
-        print(observation)
+
+    from stable_baselines3 import A2C
+    from stable_baselines3.common.env_util import make_vec_env
+
+    # Instantiate the env
+    # wrap it
+    env = make_vec_env(lambda: env, n_envs=1)
+
+    # Train the agent
+    print("Learning")
+    model = A2C('MultiInputPolicy', env, verbose=1).learn(5000)
+
+    # Test the trained agent
+    obs = env.reset()
+    n_steps = 20
+    for step in range(n_steps):
+        action, _ = model.predict(obs, deterministic=True)
+        print("Step {}".format(step + 1))
+        print("Action: ", action)
+        obs, reward, done, info = env.step(action)
+        print('obs=', obs, 'reward=', reward, 'done=', done)
+        env.render(mode='console')
+        if done:
+            # Note that the VecEnv resets automatically
+            # when a done signal is encountered
+            print("Goal reached!", "reward=", reward)
+            break
 

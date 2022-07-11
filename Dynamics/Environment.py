@@ -48,6 +48,7 @@ class Environment:
         """
         self.time = 0
         for box in self.boxes:
+            box.reset()
             box.activate()
             box.pattern.reset(self.time)
             self.timeline[box.id] = box.pattern.get_next(self.time)
@@ -140,7 +141,7 @@ class Environment:
         if self.verbose:
             print("Step Done \n")
 
-        return reward, obs, self.done, dict()
+        return obs, reward, self.done, dict()
 
     def apply_action(self, action):
         if self.verbose:
@@ -154,7 +155,7 @@ class Environment:
                     # TODO sent this to get_next possibly via box opening?
                     self.timeline[box_id] = Event("end", dict(), math.inf, math.inf)
                 reward.append(opened)
-        return reward
+        return sum(reward)
 
     def check_end(self):
         # return all([time == math.inf for time in self.current_end_times.values()])
