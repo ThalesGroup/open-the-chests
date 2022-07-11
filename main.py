@@ -9,6 +9,7 @@ from Dynamics.Environment import Environment
 from Dynamics.Parser import Parser
 from Elements.Event import Event
 from Elements.Pattern import Pattern
+from utils.utils import numerise_types_and_attributes
 
 
 def print_hi(name):
@@ -22,6 +23,11 @@ if __name__ == '__main__':
 
     all_event_types = ["A", "B", "C"]
     all_event_attributes = {"fg": ["red", "blue", "green"], "bg": ["red", "blue", "green"]}
+
+    # all_event_types, all_event_attributes = numerise_types_and_attributes(all_event_types, all_event_attributes)
+
+    print(all_event_types)
+    print(all_event_attributes)
 
     instr1 = [{"command": "delay", "parameters": 5},
               {"command": "instantiate", "parameters": ("A", {"bg": "blue"}, (4, 2)), "variable_name": "a1"},
@@ -42,21 +48,23 @@ if __name__ == '__main__':
     env = Environment(instructions=all_instructions,
                       all_event_types=all_event_types,
                       all_event_attributes=all_event_attributes,
-                      verbose=True)
+                      verbose=False)
 
     env = BoxEventEnv(instructions=all_instructions,
                       all_event_types=all_event_types,
                       all_event_attributes=all_event_attributes,
-                      verbose=True)
+                      verbose=False)
 
     from stable_baselines3.common.env_checker import check_env
 
-    check_env(env, warn=True)
+    #check_env(env, warn=True)
 
     env.reset()
     done = False
     while not done:
-    #for i in range(10):
-        #action = [random.randint(0, 1) for i in range(2)]
-        action = [1,1]
-        reward, context, done, info = env.step(action)
+    # for i in range(10):
+        action = [random.randint(0, 1) for i in range(2)]
+        # action = [1,1]
+        reward, observation, done, info = env.step(action)
+        print(observation)
+

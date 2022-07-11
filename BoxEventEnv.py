@@ -1,6 +1,6 @@
 import numpy as np
 import gym
-from gym.spaces import Dict, MultiBinary
+from gym.spaces import Dict, MultiBinary, Discrete, Box
 
 from Dynamics.Environment import Environment
 from utils.EventSpace import EventSpace
@@ -15,17 +15,26 @@ class BoxEventEnv(gym.Env):
         self.all_event_types = all_event_types
         self.instructions = instructions
 
-        self.env = Environment(instructions, all_event_types, all_event_attributes, verbose)
+        self.env = Environment(instructions=instructions,
+                               all_event_types=all_event_types,
+                               all_event_attributes=all_event_attributes,
+                               verbose=verbose,
+                               stb3=True)
+
         self.action_space = MultiBinary(self.env.num_boxes)
 
-        # TODO add state of boxes to observations
-        state_space_dict = Dict({
-            "active": MultiBinary(self.env.num_boxes),
-            "open": MultiBinary(self.env.num_boxes)
-        })
+        num_types = len(all_event_types)
+        attr_space = {attr_name: Discrete(len(attr_values)) for (attr_name, attr_values) in
+                      all_event_attributes.items()}
+
         self.observation_space = Dict({
-            "state": state_space_dict,
-            "context": EventSpace(all_event_types, all_event_attributes)
+            "active": MultiBinary(self.env.num_boxes),
+            "open": MultiBinary(self.env.num_boxes),
+            "e_type": Discrete(num_types),
+            **attr_space,
+            "start": Box(low=np.array(0), high=np.array(np.inf)),
+            "end": Box(low=np.array(0), high=np.array(np.inf)),
+            "duration": Box(low=np.array(0), high=np.array(np.inf))
         })
 
     def step(self, action):

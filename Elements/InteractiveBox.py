@@ -71,6 +71,10 @@ class InteractiveBox:
         self.box["open"] = False
 
     def check_pattern(self, t):
+        """
+
+        :param t:
+        """
         if self.pattern.satisfied:
             self.ready()
 
@@ -85,7 +89,7 @@ class InteractiveBox:
                 return True
         return False  # in all other cases return false
 
-    def update(self, t):
+    def update(self, t_current):
         """
         Verifies bos state and updates its status
         """
@@ -96,7 +100,7 @@ class InteractiveBox:
                     self.deactivate()
                 # otherwise, check if pattern has been satisfied
                 else:
-                    self.check_pattern(t)
+                    self.check_pattern(t_current)
             else:
-                if t>=self.pattern.start_pattern_time:
+                if t_current >= self.pattern.start_pattern_time:
                     self.activate()

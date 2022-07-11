@@ -8,7 +8,7 @@ class Event:
                  t_start: float,
                  t_end: float):
         """
-        # TODO
+        # TODO reorganise event object structure all the dictionaries are awkward
         :param e_type:
         :param e_attributes:
         :param t_start:
@@ -20,10 +20,20 @@ class Event:
         self.duration = t_end - t_start
 
     def shift(self, delta):
+        """
+
+        :param delta:
+        :return:
+        """
         new = deepcopy(self)
         new.start += delta
         new.end += delta
         return new
+
+    def to_dict(self):
+        return {"e_type": self.symbol["e_type"]} | \
+               self.symbol["attr"] | \
+               {"start": self.start, "end": self.end, "duration": self.duration}
 
     def __lt__(self, other):
         return self.end < other.end
