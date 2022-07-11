@@ -19,6 +19,7 @@ class InteractiveBox:
 
     def reset(self):
         self.box = {"open": False, "ready": False, "active": False}
+        self.pattern.satisfied = False
 
     def is_open(self):
         return self.box["open"]

@@ -49,7 +49,8 @@ class Pattern:
 
     def get_next(self, t_current):
         if not self.events_stack:
-            print("Pattern finished")
+            if self.verbose:
+                print("Pattern finished")
             self.satisfied = True
             self.start_pattern_time = t_current + self.timeout
             self.reset(self.start_pattern_time)

@@ -33,7 +33,8 @@ class Environment:
         # TODO adapt wait to be processed by parser for pattern
         self.patterns = [Pattern(self.parser, instr, self.verbose) for instr in instructions]
 
-        self.boxes: list[InteractiveBox] = [InteractiveBox(i, self.patterns[i]) for i in range(self.num_boxes)]
+        self.boxes: list[InteractiveBox] = [InteractiveBox(i, self.patterns[i], self.verbose) for i in
+                                            range(self.num_boxes)]
 
         if self.verbose:
             print(f"Initialising {self.num_boxes} boxes")
