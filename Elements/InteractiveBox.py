@@ -2,23 +2,25 @@ from Elements.Pattern import Pattern
 
 
 class InteractiveBox:
-    def __init__(self, id: int, pattern: Pattern = None, verbose=True):
+    def __init__(self, id, pattern: Pattern = None, verbose=True):
         """
-        An openable box that allows interaction. It possesses three states indicators: open, ready and active.
-        The box is initialised with a pattern which defines when the box changes states.
-        TODO: add reactivate after timeout
+        An openable box that allows interaction.
+        It possesses three states indicators: open, ready and active.
+        The box is initialised with a pattern which defines how the box changes states.
 
-        :param verbose:
-        :param id: id of box from 0 to (nb_boxes - 1)
+        :param id:
         :param pattern: pattern object linked to box
+        :param verbose:
         """
-        self.verbose = verbose
         self.id = id
+        self.verbose = verbose
         self.box = {"open": False, "ready": False, "active": False}
         self.pattern = pattern
 
-    def reset(self):
+    def reset(self, time):
         self.box = {"open": False, "ready": False, "active": False}
+        self.activate()
+        self.pattern.fill_event_stack(time)
         self.pattern.satisfied = False
 
     def is_open(self):
@@ -74,10 +76,9 @@ class InteractiveBox:
         self.box["ready"] = True
         self.box["open"] = False
 
-    def check_pattern(self, t):
+    def check_pattern(self):
         """
 
-        :param t:
         """
         if self.pattern.satisfied:
             self.ready()
@@ -104,7 +105,8 @@ class InteractiveBox:
                     self.deactivate()
                 # otherwise, check if pattern has been satisfied
                 else:
-                    self.check_pattern(t_current)
+                    self.check_pattern()
             else:
+                # TODO: see if this can be moved somewhere else
                 if t_current >= self.pattern.start_pattern_time:
                     self.activate()

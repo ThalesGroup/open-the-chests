@@ -3,41 +3,46 @@ from typing import List
 
 import numpy as np
 
+from Dynamics.GUI import BoxEventGUI
 from Dynamics.Parser import Parser
 from Elements.Event import Event
 from Elements.InteractiveBox import InteractiveBox
 from Elements.Pattern import Pattern
-from utils.utils import process_obs
+from utils.utils import process_obs, print_event_list
 
 
 class Environment:
     def __init__(self,
-                 instructions,
-                 all_event_types,
-                 all_event_attributes,
-                 verbose,
-                 stb3=False):
+                 instructions: dict,
+                 all_event_types: list,
+                 all_event_attributes: dict,
+                 verbose: bool,
+                 stb3: bool = False):
         """
-        Symbolic environment that allows to interact and open boxes
+        Environment that allows to interact and open boxes after observing symbols.
 
-        :param instructions: Instructions with which to create boxes
+        :param instructions: Dictionary of commands allowing to define patterns for each box
+        :param all_event_types: List of all possible event types that can take place
+        :param all_event_attributes: Dictionary of al event types with a corresponding list of possible values
         :param verbose: Print details when executing for debugging
+        :param stb3: Use environment with stable baselines 3
         """
         self.stb3 = stb3
         self.time = 0
         self.verbose = verbose
         self.num_boxes = len(instructions)
 
-        self.parser = Parser(all_event_types, all_event_attributes)
+        self.past_events = []
 
-        # TODO adapt wait to be processed by parser for pattern
+        self.parser = Parser(all_event_types, all_event_attributes)
+        self.GUI = BoxEventGUI()
+
         self.patterns = [Pattern(self.parser, instr, self.verbose) for instr in instructions]
 
-        self.boxes: list[InteractiveBox] = [InteractiveBox(i, self.patterns[i], self.verbose) for i in
-                                            range(self.num_boxes)]
+        self.boxes = [InteractiveBox(idx, pattern, self.verbose) for idx, pattern in enumerate(self.patterns)]
 
         if self.verbose:
-            print(f"Initialising {self.num_boxes} boxes")
+            print(f"Initialising {self.num_boxes} boxes with patterns")
 
         self.timeline = {}
 
@@ -45,80 +50,19 @@ class Environment:
 
     def reset(self):
         """
+        Reset the environment.
+        Restart time, reset each box and its pattern and refill the timeline of events.
+        Get one observation of the newly reset environment.
 
+        :return: The first observation of the newly reset environment
         """
         self.time = 0
         for box in self.boxes:
-            box.reset()
-            box.activate()
-            box.pattern.reset(self.time)
-            self.timeline[box.id] = box.pattern.get_next(self.time)
+            box.reset(self.time)
+            self.timeline[box.id] = box.pattern.get_next()
 
         obs = self.get_obs()
-
         return obs
-
-    def get_obs(self):
-        context = self.internal_step()
-        box_states = self.observe_box_states()
-        obs = {"state": box_states, "context": context}
-        if self.stb3:
-            obs = process_obs(obs)
-        return obs
-
-    def internal_step(self):
-        """
-        Execute one internal step to advance internal environment state
-        :return: context resulting from environment exogenous development
-        """
-        if self.verbose:
-            print("Making one internal step to get context and advance timeline")
-
-        t_current, context = self.observe_context()
-        self.update_boxes(t_current)
-
-        if self.verbose:
-            print(f"Advancing time to {t_current}")
-
-        self.time = t_current  # advance time to match context end
-        return context
-
-    def observe_context(self):
-        """
-
-        :return:
-        """
-        ending_box_id = min(self.timeline, key=self.timeline.get)
-        context = self.timeline[ending_box_id]
-        t_current = context.end
-
-        if not self.boxes[ending_box_id].is_open():
-            event = self.boxes[ending_box_id].pattern.get_next(t_current)
-            self.timeline[ending_box_id] = event
-
-        if self.verbose:
-            print(f"Active timeline {self.timeline}")
-            print(f"Finding closes end value {t_current}")
-            print(f"Sampling from boxes {ending_box_id}")
-            print(f"Observing context {context}")
-
-        return t_current, context
-
-    def update_boxes(self, t_current):
-        """
-
-        :param t_current:
-        """
-        for box in self.boxes:
-            box.update(t_current)
-
-    def observe_box_states(self):
-        active = []
-        open = []
-        for box_id in range(self.num_boxes):
-            active.append(self.boxes[box_id].is_active())
-            open.append(self.boxes[box_id].is_open())
-        return {"active": active, "open": open}
 
     def step(self, action: List[int]):
         """
@@ -142,7 +86,84 @@ class Environment:
         if self.verbose:
             print("Step Done \n")
 
+        # print(self.observe_box_states())
+        # print(obs)
+        self.GUI.step(print_event_list(self.past_events), str(self.past_events[-1]))
         return obs, reward, self.done, dict()
+
+    def get_obs(self):
+        """
+        Return an observation of the elements visible to a player.
+        Return contains:
+            - State information showing if @self.boxes are active or open
+            - Context information showing last observed event
+        :return:
+        """
+        context = self.internal_step()
+        self.past_events.append(context)
+        box_states = self.observe_box_states()
+        obs = {"state": box_states, "context": context}
+        if self.stb3:
+            obs = process_obs(obs)
+        return obs
+
+    # TODO separate internal step and observations for clarity
+    def internal_step(self):
+        """
+        Execute one internal step to advance internal environment state
+        :return: context resulting from environment exogenous development
+        """
+        if self.verbose:
+            print("Making one internal step to get context and advance timeline")
+
+        t_current, context = self.observe_context()
+        self.update_boxes(t_current)
+
+        if self.verbose:
+            print(f"Advancing time to {t_current}")
+
+        self.time = t_current  # advance time to match context end
+        return context
+
+    def observe_context(self):
+        """
+
+        :return:
+        """
+
+        if self.verbose:
+            print(f"Active timeline {self.timeline}")
+
+        ending_box_id = min(self.timeline, key=self.timeline.get)
+        context = self.timeline[ending_box_id]
+        t_current = context.end
+
+        if not self.boxes[ending_box_id].is_open():
+            event = self.boxes[ending_box_id].pattern.get_next()
+            self.timeline[ending_box_id] = event
+
+        if self.verbose:
+            print(f"Finding closes end value {t_current}")
+            print(f"Sampling from boxes {ending_box_id}")
+            print(f"Observing context {context}")
+
+        return t_current, context
+
+    def update_boxes(self, t_current):
+        """
+
+        :param t_current:
+        """
+        for box in self.boxes:
+            box.update(t_current)
+
+    def observe_box_states(self):
+        active = []
+        open = []
+        for box_id in range(self.num_boxes):
+            active.append(self.boxes[box_id].is_active())
+            open.append(self.boxes[box_id].is_open())
+        return {"active": active, "open": open}
 
     def apply_action(self, action):
         if self.verbose:

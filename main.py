@@ -6,10 +6,10 @@ import random
 
 from BoxEventEnv import BoxEventEnv
 from Dynamics.Environment import Environment
-from Dynamics.Parser import Parser
-from Elements.Event import Event
-from Elements.Pattern import Pattern
-from utils.utils import numerise_types_and_attributes
+
+
+import plotly.io as pio
+pio.renderers.default = "png"
 
 
 def print_hi(name):
@@ -53,12 +53,12 @@ if __name__ == '__main__':
     env = BoxEventEnv(instructions=all_instructions,
                       all_event_types=all_event_types,
                       all_event_attributes=all_event_attributes,
-                      verbose=False)
+                      verbose=True)
 
     from stable_baselines3.common.env_checker import check_env
 
 
-    # env.reset()
+    # env.fill_event_stack()
     # done = False
     # while not done:
     # # for i in range(10):
@@ -80,11 +80,12 @@ if __name__ == '__main__':
 
     # Train the agent
     print("Learning")
-    model = A2C('MultiInputPolicy', env, verbose=1).learn(5000)
+    model = A2C('MultiInputPolicy', env, verbose=1)#.learn(10)
 
     # Test the trained agent
     obs = env.reset()
     n_steps = 20
+    print("------------------------ START -------------------------")
     for step in range(n_steps):
         action, _ = model.predict(obs, deterministic=True)
         print("Step {}".format(step + 1))

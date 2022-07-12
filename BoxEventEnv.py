@@ -38,7 +38,9 @@ class BoxEventEnv(gym.Env):
         })
 
     def step(self, action):
-        return self.env.step(action)
+        obs, reward, done, info = self.env.step(action)
+        # print(obs)
+        return obs, reward, done, info
 
     def reset(self):
         return self.env.reset()

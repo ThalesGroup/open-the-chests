@@ -1,3 +1,4 @@
+import math
 from copy import deepcopy
 
 
@@ -17,7 +18,7 @@ class Event:
         self.symbol = {"e_type": e_type, "attr": e_attributes}
         self.start = t_start
         self.end = t_end
-        self.duration = t_end - t_start
+        self.duration = t_end - t_start if (t_end != math.inf) else math.inf
 
     def shift(self, delta):
         """

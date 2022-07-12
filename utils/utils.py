@@ -39,18 +39,17 @@ def print_event_list(event_list):
         else:
             line_end_times.append(event.end)
 
-        list_df.append(dict(Resource=event.symbol["e_type"],
+        list_df.append(dict(Resource=str(event.symbol["e_type"]),
                             Start=event.start,
                             Finish=event.end,
-                            Color=event.symbol["attr"]["bg"],
-                            Task=str(line_index)))
+                            Task=line_index))
 
     df = pd.DataFrame(list_df)
 
     fig = ff.create_gantt(df, index_col='Resource', group_tasks=True)
     fig.update_layout(xaxis_type='linear')
     fig.update_yaxes(autorange="reversed")  # otherwise, tasks are listed from the bottom up
-    fig.show()
+    return fig.to_image()
 
 
 def process_obs(obs: dict):
@@ -69,6 +68,8 @@ def process_obs(obs: dict):
             final_dict[key] = np.array(value)
             if key in ["start", "end", "duration"]:
                 final_dict[key] = final_dict[key].reshape(-1)
+            if key in ["open", "active"]:
+                final_dict[key] = np.array([int(xi) for xi in final_dict[key]])
     return final_dict
 
 

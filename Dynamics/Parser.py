@@ -47,4 +47,4 @@ class Parser:
                     event = allen_functions[instr["command"]](*params)
                 variables[instr["variable_name"]] = event
                 event_list.append(event)
-        return event_list
+        return sorted(event_list)

@@ -7,10 +7,6 @@ import pandas as pd
 import plotly.figure_factory as ff
 import plotly.express as px
 
-import plotly.io as pio
-
-pio.renderers.default = "browser"
-
 all_event_types = ["A", "B", "C"]
 all_event_attributes = {"fg": ["red", "blue", "green"], "bg": ["red", "blue", "green"]}
 
@@ -118,7 +114,7 @@ def print_event_list(event_list):
         else:
             line_end_times.append(event.end)
 
-        list_df.append(dict(Resource=event.symbol["e_type"],
+        list_df.append(dict(Resource=str(event.symbol["e_type"]),
                             Start=event.start,
                             Finish=event.end,
                             Color=event.symbol["attr"]["bg"],
@@ -138,7 +134,6 @@ def print_event_list(event_list):
     fig = ff.create_gantt(df, index_col='Resource', group_tasks=True)
     fig.update_layout(xaxis_type='linear')
     fig.update_yaxes(autorange="reversed")  # otherwise, tasks are listed from the bottom up
-    fig.show()
 
 
 """
