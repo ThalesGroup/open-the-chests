@@ -9,7 +9,7 @@ from Dynamics.Environment import Environment
 
 
 import plotly.io as pio
-pio.renderers.default = "png"
+pio.renderers.default = "browser"
 
 
 def print_hi(name):
@@ -45,12 +45,17 @@ if __name__ == '__main__':
 
     all_instructions = [instr1, instr2]
 
-    env = Environment(instructions=all_instructions,
+    # env = Environment(instructions=all_instructions,
+    #                   all_event_types=all_event_types,
+    #                   all_event_attributes=all_event_attributes,
+    #                   verbose=False)
+
+    env = BoxEventEnv(instructions=all_instructions,
                       all_event_types=all_event_types,
                       all_event_attributes=all_event_attributes,
                       verbose=False)
 
-    env = BoxEventEnv(instructions=all_instructions,
+    verbose_env = BoxEventEnv(instructions=all_instructions,
                       all_event_types=all_event_types,
                       all_event_attributes=all_event_attributes,
                       verbose=True)
@@ -69,7 +74,7 @@ if __name__ == '__main__':
     #
     # check_env(env, warn=True)
 
-    env.reset()
+    #env.reset()
 
     from stable_baselines3 import A2C
     from stable_baselines3.common.env_util import make_vec_env
@@ -77,20 +82,23 @@ if __name__ == '__main__':
     # Instantiate the env
     # wrap it
     env = make_vec_env(lambda: env, n_envs=1)
+    verbose_env = make_vec_env(lambda: verbose_env, n_envs=1)
 
     # Train the agent
     print("Learning")
-    model = A2C('MultiInputPolicy', env, verbose=1)#.learn(10)
+    model = A2C('MultiInputPolicy', env, verbose=1).learn(5000)
 
     # Test the trained agent
-    obs = env.reset()
-    n_steps = 20
+    obs = verbose_env.reset()
+    n_steps = 100
     print("------------------------ START -------------------------")
     for step in range(n_steps):
         action, _ = model.predict(obs, deterministic=True)
+        sure_action = [[1, 1]]
+        random_action = [[random.randint(0, 1) for i in range(2)]]
         print("Step {}".format(step + 1))
         print("Action: ", action)
-        obs, reward, done, info = env.step(action)
+        obs, reward, done, info = verbose_env.step(random_action)
         print('obs =', obs, 'reward=', reward, 'done=', done)
         # env.render(mode='console')
         if done:

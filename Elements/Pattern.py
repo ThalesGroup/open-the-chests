@@ -1,5 +1,4 @@
-from utils.utils import print_event_list
-
+import copy
 
 class Pattern:
 
@@ -17,6 +16,7 @@ class Pattern:
         self.verbose = verbose
 
         self.events_stack = []  # stack of events to generate with instruction
+        self.full_pattern = []
         self.satisfied = False
         self.start_pattern_time = 0
         self.last_event_end = 0
@@ -34,9 +34,10 @@ class Pattern:
             event.end += t
 
         self.events_stack = generated_events
+        self.full_pattern = copy.deepcopy(generated_events)
 
         if self.verbose:
-            print_event_list(generated_events)
+            # print_event_list(generated_events, show=True)
             print(f"Sampling pattern {self.events_stack}")
 
     def get_next(self):

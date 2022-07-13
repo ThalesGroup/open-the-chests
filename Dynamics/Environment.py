@@ -8,7 +8,7 @@ from Dynamics.Parser import Parser
 from Elements.Event import Event
 from Elements.InteractiveBox import InteractiveBox
 from Elements.Pattern import Pattern
-from utils.utils import process_obs, print_event_list
+from utils.utils import process_obs
 
 
 class Environment:
@@ -28,19 +28,20 @@ class Environment:
         :param stb3: Use environment with stable baselines 3
         """
         self.context = None
+        self.last_action = None
         self.stb3 = stb3
         self.time = 0
         self.verbose = verbose
         self.done = False
+        self.num_boxes = len(instructions)
 
         self.parser = Parser(all_event_types, all_event_attributes)
-        self.GUI = BoxEventGUI()
+        self.GUI = BoxEventGUI(self.num_boxes)
 
         self.patterns = [Pattern(self.parser, instr, self.verbose) for instr in instructions]
         self.timeline = {}
         self.past_events = []
 
-        self.num_boxes = len(instructions)
         self.boxes = [InteractiveBox(idx, pattern, self.verbose) for idx, pattern in enumerate(self.patterns)]
 
         if self.verbose:
@@ -54,13 +55,20 @@ class Environment:
 
         :return: The first observation of the newly reset environment
         """
+        if self.verbose:
+            print("Starting Reset")
         self.time = 0
         for box in self.boxes:
             box.reset(self.time)
             self.timeline[box.id] = box.pattern.get_next()
+
         self.internal_step()
 
         obs = self.get_observations()
+
+        if self.verbose:
+            print("Reset Done")
+
         return obs
 
     def step(self, action: List[int]):
@@ -76,18 +84,18 @@ class Environment:
 
         # apply action and collect reward
         reward = self.apply_action(action)
+        self.last_action = action
 
         self.internal_step()
-
-        self.done = self.check_end()
 
         # advance environment and collect context
         obs = self.get_observations()
 
+        self.done = self.check_end()
+
         if self.verbose:
             print("Step Done \n")
 
-        self.GUI.step(print_event_list(self.past_events), str(self.past_events[-1]))
         return obs, reward, self.done, dict()
 
     def get_observations(self):
@@ -124,6 +132,15 @@ class Environment:
 
         self.advance_timeline()
         self.update_boxes(self.time)
+
+        # TODO move GUI to render function
+        if self.verbose:
+            self.GUI.step(self.past_events,
+                          str(self.past_events[-1]),
+                          self.time,
+                          [box.pattern.full_pattern for box in self.boxes],
+                          [box.box for box in self.boxes],
+                          self.last_action)
 
     def advance_timeline(self):
         """
@@ -173,5 +190,4 @@ class Environment:
         return sum(reward)
 
     def check_end(self):
-        # return all([time == math.inf for time in self.current_end_times.values()])
         return all([box.is_open() for box in self.boxes])

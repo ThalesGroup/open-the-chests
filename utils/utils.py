@@ -27,12 +27,12 @@ def met_by(second: Event, first: Event):
     return second.shift(first.end)
 
 
-def print_event_list(event_list):
+def print_event_list(event_list, title = "", show = False, line = None):
     list_df = []
-    line_end_times = [0]
+    line_end_times = [-1]
     for event in event_list:
         line_index = 0
-        while line_index + 1 <= len(line_end_times) and line_end_times[line_index] >= event.end:
+        while line_index + 1 <= len(line_end_times) and line_end_times[line_index] >= event.start:
             line_index += 1
         if line_index + 1 <= len(line_end_times):
             line_end_times[line_index] = event.end
@@ -42,14 +42,30 @@ def print_event_list(event_list):
         list_df.append(dict(Resource=str(event.symbol["e_type"]),
                             Start=event.start,
                             Finish=event.end,
-                            Task=line_index))
+                            Task=str(line_index)))
 
     df = pd.DataFrame(list_df)
 
-    fig = ff.create_gantt(df, index_col='Resource', group_tasks=True)
+    # print("--------------------------------------------")
+    # for x in list_df:
+    #     print(x)
+    # print("--------------------------------------------")
+
+    fig = ff.create_gantt(df,
+                          index_col='Resource',
+                          group_tasks=True,
+                          height=400,
+                          title = title)
     fig.update_layout(xaxis_type='linear')
     fig.update_yaxes(autorange="reversed")  # otherwise, tasks are listed from the bottom up
-    return fig.to_image()
+
+    if line:
+        fig.update_layout(shapes=[line])
+
+    if show:
+        fig.show()
+    else:
+        return fig.to_image()
 
 
 def process_obs(obs: dict):
