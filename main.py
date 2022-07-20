@@ -7,8 +7,8 @@ import random
 from BoxEventEnv import BoxEventEnv
 from Dynamics.Environment import Environment
 
-
 import plotly.io as pio
+
 pio.renderers.default = "browser"
 
 
@@ -43,6 +43,11 @@ if __name__ == '__main__':
               {"command": "instantiate", "parameters": ("B", {"fg": "red"}, (10, 1)), "variable_name": "b2"},
               {"command": "after", "parameters": ("b2", "b1"), "variable_name": "b2", "gap_dist": (2, 1)}]
 
+    instr3 = [{"command": "delay", "parameters": 7},
+              {"command": "instantiate", "parameters": ("B", {"bg": "blue"}, (4, 2)), "variable_name": "b1"},
+              {"command": "instantiate", "parameters": ("B", {"fg": "red"}, (10, 1)), "variable_name": "b2"},
+              {"command": "after", "parameters": ("b2", "b1"), "variable_name": "b2", "gap_dist": (2, 1)}]
+
     all_instructions = [instr1, instr2]
 
     # env = Environment(instructions=all_instructions,
@@ -56,12 +61,11 @@ if __name__ == '__main__':
                       verbose=False)
 
     verbose_env = BoxEventEnv(instructions=all_instructions,
-                      all_event_types=all_event_types,
-                      all_event_attributes=all_event_attributes,
-                      verbose=True)
+                              all_event_types=all_event_types,
+                              all_event_attributes=all_event_attributes,
+                              verbose=True)
 
     from stable_baselines3.common.env_checker import check_env
-
 
     # env.fill_event_stack()
     # done = False
@@ -74,7 +78,7 @@ if __name__ == '__main__':
     #
     # check_env(env, warn=True)
 
-    #env.reset()
+    # env.reset()
 
     from stable_baselines3 import A2C
     from stable_baselines3.common.env_util import make_vec_env
@@ -86,7 +90,7 @@ if __name__ == '__main__':
 
     # Train the agent
     print("Learning")
-    model = A2C('MultiInputPolicy', env, verbose=1).learn(5000)
+    model = A2C('MultiInputPolicy', env, verbose=1)  # .learn(5000)
 
     # Test the trained agent
     obs = verbose_env.reset()
@@ -95,10 +99,11 @@ if __name__ == '__main__':
     for step in range(n_steps):
         action, _ = model.predict(obs, deterministic=True)
         sure_action = [[1, 1]]
+        empty_action = [[0, 0]]
         random_action = [[random.randint(0, 1) for i in range(2)]]
         print("Step {}".format(step + 1))
         print("Action: ", action)
-        obs, reward, done, info = verbose_env.step(random_action)
+        obs, reward, done, info = verbose_env.step(empty_action)
         print('obs =', obs, 'reward=', reward, 'done=', done)
         # env.render(mode='console')
         if done:
@@ -106,4 +111,3 @@ if __name__ == '__main__':
             # when a done signal is encountered
             print("Goal reached!", "reward=", reward)
             break
-

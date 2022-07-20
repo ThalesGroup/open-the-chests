@@ -11,6 +11,7 @@ class Pattern:
         :param parser: parser to use for generating list of Events from instructions
         """
         self.parser = parser
+        # TODO move wait instruction time to parser
         self.timeout = instruction[0]["parameters"]
         self.instruction = instruction[1:]  # list of instructions under the form of dictionaries
         self.verbose = verbose

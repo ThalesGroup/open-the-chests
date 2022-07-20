@@ -1,11 +1,8 @@
 import random
 
 import numpy as np
-import pandas as pd
 
 from Elements.Event import Event
-
-import plotly.figure_factory as ff
 
 
 def after(second: Event, first: Event, gap_dist: (int, int)):
@@ -27,45 +24,18 @@ def met_by(second: Event, first: Event):
     return second.shift(first.end)
 
 
-def print_event_list(event_list, title = "", show = False, line = None):
-    list_df = []
-    line_end_times = [-1]
-    for event in event_list:
-        line_index = 0
-        while line_index + 1 <= len(line_end_times) and line_end_times[line_index] >= event.start:
-            line_index += 1
-        if line_index + 1 <= len(line_end_times):
-            line_end_times[line_index] = event.end
-        else:
-            line_end_times.append(event.end)
-
-        list_df.append(dict(Resource=str(event.symbol["e_type"]),
-                            Start=event.start,
-                            Finish=event.end,
-                            Task=str(line_index)))
-
-    df = pd.DataFrame(list_df)
-
-    # print("--------------------------------------------")
-    # for x in list_df:
-    #     print(x)
-    # print("--------------------------------------------")
-
-    fig = ff.create_gantt(df,
-                          index_col='Resource',
-                          group_tasks=True,
-                          height=400,
-                          title = title)
-    fig.update_layout(xaxis_type='linear')
-    fig.update_yaxes(autorange="reversed")  # otherwise, tasks are listed from the bottom up
-
-    if line:
-        fig.update_layout(shapes=[line])
-
-    if show:
-        fig.show()
-    else:
-        return fig.to_image()
+def addAnnot(df, fig):
+    for i in df:
+        x_pos = (i['Finish'] - i['Start']) / 2 + i['Start']
+        for j in fig['data']:
+            print("-------------------------")
+            print(i)
+            print("-------------------------")
+            print(j)
+            print("-------------------------")
+            if j['name'] == i['Label']:
+                y_pos = (j['y'][0] + j['y'][1] + j['y'][2] + j['y'][3]) / 4
+        fig['layout']['annotations'] += tuple([dict(x=x_pos, y=y_pos, text=i['Label'], font={'color': 'black'})])
 
 
 def process_obs(obs: dict):

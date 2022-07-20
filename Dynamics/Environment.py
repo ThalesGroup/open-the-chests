@@ -36,7 +36,7 @@ class Environment:
         self.num_boxes = len(instructions)
 
         self.parser = Parser(all_event_types, all_event_attributes)
-        self.GUI = BoxEventGUI(self.num_boxes)
+        self.GUI = BoxEventGUI(self.num_boxes, self.parser.label_to_color)
 
         self.patterns = [Pattern(self.parser, instr, self.verbose) for instr in instructions]
         self.timeline = {}

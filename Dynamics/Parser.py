@@ -1,5 +1,7 @@
 import random
 
+from matplotlib import colors
+
 from utils.utils import allen_functions
 from Elements.Event import Event
 
@@ -10,10 +12,14 @@ class Parser:
         self.all_event_attributes = all_event_attributes
         self.all_event_types = all_event_types
 
-        self.type_to_label = {all_event_types[i] : i for i in range(len(all_event_types))}
-        self.attr_to_label = {attr_name: {attr_vals[i]: i for i in range(len(attr_vals))}
-                              for attr_name, attr_vals in all_event_attributes.items()}
+        self.type_to_label = {all_event_types[i]: i for i in range(len(all_event_types))}
+        self.attr_to_label = dict()
+        self.label_to_color = dict()
+        for attr_name, attr_vals in all_event_attributes.items():
+            self.attr_to_label[attr_name] = {attr_vals[i]: i for i in range(len(attr_vals))}
+            self.label_to_color[attr_name] = {str(i): attr_vals[i] for i in range(len(attr_vals))}
 
+    # TODO move labelise elsewhere?
     def labelise(self, e_type, attributes):
         e_type = self.type_to_label[e_type]
         attributes = {key: self.attr_to_label[key][value] for key, value in attributes.items()}
