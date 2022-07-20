@@ -84,11 +84,11 @@ class Environment:
 
         # apply action and collect reward
         reward = self.apply_action(action)
+        # TODO why was this needed? can it be moved elsewhere?
         self.last_action = action
 
-        self.internal_step()
-
         # advance environment and collect context
+        self.internal_step()
         obs = self.get_observations()
 
         self.done = self.check_end()
@@ -96,6 +96,7 @@ class Environment:
         if self.verbose:
             print("Step Done \n")
 
+        # TODO fill info dict? use it somehow?
         return obs, reward, self.done, dict()
 
     def get_observations(self):
@@ -118,6 +119,7 @@ class Environment:
 
         obs = {"state": box_states, "context": self.context}
 
+        # TODO explain and document the need for this step
         if self.stb3:
             obs = process_obs(obs)
         return obs
@@ -135,6 +137,7 @@ class Environment:
 
         # TODO move GUI to render function
         if self.verbose:
+            # TODO optimise GUI parameter usage
             self.GUI.step(self.past_events,
                           str(self.past_events[-1]),
                           self.time,
@@ -143,6 +146,7 @@ class Environment:
                           self.last_action)
 
     def advance_timeline(self):
+        # TODO doc
         """
 
         :return:
@@ -152,11 +156,14 @@ class Environment:
             print(f"Active timeline {self.timeline}")
 
         ending_box_id = min(self.timeline, key=self.timeline.get)
+        # TODO use this for GUI to show last observed element before pattern regeneration
         self.context = self.timeline[ending_box_id]
         self.time = self.context.end
 
+        # TODO move this somewhere else possibly in GUI interface usage not clear
         self.past_events.append(self.context)
 
+        # TODO what is the interest of this if? make it clear or move it somewhere
         if not self.boxes[ending_box_id].is_open():
             event = self.boxes[ending_box_id].pattern.get_next()
             self.timeline[ending_box_id] = event
@@ -168,6 +175,7 @@ class Environment:
             print(f"Observing context {self.context}")
 
     def update_boxes(self, t_current):
+        # TODO doc and optimise
         """
 
         :param t_current:
@@ -176,6 +184,7 @@ class Environment:
             box.update(t_current)
 
     def apply_action(self, action):
+        # TODO doc
         if self.verbose:
             print(f"Applying action {action}")
 
@@ -190,4 +199,5 @@ class Environment:
         return sum(reward)
 
     def check_end(self):
+        # TODO doc
         return all([box.is_open() for box in self.boxes])

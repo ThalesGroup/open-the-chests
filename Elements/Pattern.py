@@ -30,6 +30,7 @@ class Pattern:
         """
 
         generated_events = self.parser.generate_pattern(self.instruction)
+        # TODO could this be done without a for loop
         for event in generated_events:
             event.start += t
             event.end += t
@@ -38,7 +39,6 @@ class Pattern:
         self.full_pattern = copy.deepcopy(generated_events)
 
         if self.verbose:
-            # print_event_list(generated_events, show=True)
             print(f"Sampling pattern {self.events_stack}")
 
     def get_next(self):
@@ -50,6 +50,7 @@ class Pattern:
 
         :return: The next event on the stack
         """
+        # TODO print last event when regenerating pattern for GUI, use self.context of env, maybe return boolean to know when it has been regenerated
         if not self.events_stack:
             if self.verbose:
                 print("Pattern finished generating new one")

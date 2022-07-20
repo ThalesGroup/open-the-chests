@@ -1,6 +1,6 @@
 from Elements.Pattern import Pattern
 
-
+# TODO doc
 class InteractiveBox:
     def __init__(self, id, pattern: Pattern = None, verbose=True):
         """
@@ -14,6 +14,7 @@ class InteractiveBox:
         """
         self.id = id
         self.verbose = verbose
+        # TODO rename this can cause confusion box.box?
         self.box = {"open": False, "ready": False, "active": False}
         self.pattern = pattern
 
@@ -107,6 +108,6 @@ class InteractiveBox:
                 else:
                     self.check_pattern()
             else:
-                # TODO: see if this can be moved somewhere else
+                # TODO: see if this can be moved somewhere else, not very clear
                 if t_current >= self.pattern.start_pattern_time:
                     self.activate()

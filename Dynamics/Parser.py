@@ -1,10 +1,13 @@
 import random
-
 from matplotlib import colors
-
 from utils.utils import allen_functions
 from Elements.Event import Event
 
+
+# TODO doc
+# TODO rethink class structure and use input all items to generate dictionaries
+# TODO rethink labelisation
+# TODO add more allen functions
 
 class Parser:
 

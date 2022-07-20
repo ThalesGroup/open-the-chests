@@ -7,6 +7,9 @@ from plotly import figure_factory as ff
 import plotly.express as px
 
 
+# TODO change background color depending on box state
+# TODO rework whole class to be more logically organised and with less parameters
+
 class BoxEventGUI:
 
     def __init__(self, num_patterns, attr_to_color):
@@ -131,6 +134,7 @@ class BoxEventGUI:
                           x_end="Finish",
                           y="Task",
                           color="BG",
+                          # TODO
                           color_discrete_map={'0': 'red', '1': 'blue', '2': 'green'})
 
         for d in fig.data:

@@ -1,6 +1,7 @@
 import math
 from copy import deepcopy
 
+# TODO doc
 
 class Event:
     def __init__(self,
