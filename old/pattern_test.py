@@ -11,7 +11,7 @@ all_event_types = ["A", "B", "C"]
 all_event_attributes = {"fg": ["red", "blue", "green"], "bg": ["red", "blue", "green"]}
 
 
-# TODO replace with truncated normal
+# TODO (priority 2) replace with truncated normal
 def instantiate(e_type: str = None, attributes: dict = {}, duration_dist: (int, int) = (2, 1)):
     if e_type is None:
         e_type = random.choice(all_event_types)
@@ -22,7 +22,7 @@ def instantiate(e_type: str = None, attributes: dict = {}, duration_dist: (int, 
     return Event(e_type, attributes, 0, duration_inst)
 
 
-# TODO is deepcopy really needed?
+# TODO (priority 3) is deepcopy really needed?
 def after(second: Event, first: Event, gap_dist: (int, int)):
     gap_duration = random.normalvariate(*gap_dist)
     second_start = first.end + gap_duration

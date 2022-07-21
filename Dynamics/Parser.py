@@ -4,10 +4,11 @@ from utils.utils import allen_functions
 from Elements.Event import Event
 
 
-# TODO doc
-# TODO rethink class structure and use input all items to generate dictionaries
-# TODO rethink labelisation
-# TODO add more allen functions
+# TODO (priority 4) doc
+# TODO (priority 3) rethink class structure and use input all items to generate dictionaries
+# TODO (priority 3) rethink labelisation
+# TODO (priority 1) add more allen functions
+# TODO (priority 1) add noise
 
 class Parser:
 
@@ -22,7 +23,6 @@ class Parser:
             self.attr_to_label[attr_name] = {attr_vals[i]: i for i in range(len(attr_vals))}
             self.label_to_color[attr_name] = {str(i): attr_vals[i] for i in range(len(attr_vals))}
 
-    # TODO move labelise elsewhere?
     def labelise(self, e_type, attributes):
         e_type = self.type_to_label[e_type]
         attributes = {key: self.attr_to_label[key][value] for key, value in attributes.items()}

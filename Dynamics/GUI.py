@@ -7,8 +7,8 @@ from plotly import figure_factory as ff
 import plotly.express as px
 
 
-# TODO change background color depending on box state
-# TODO rework whole class to be more logically organised and with less parameters
+# TODO (priority 2) change background color depending on box state
+# TODO (priority 2) rework whole class to be more logically organised and with less parameters
 
 class BoxEventGUI:
 
@@ -16,6 +16,8 @@ class BoxEventGUI:
 
         self.attr_to_color = attr_to_color
         self.pattern_list = None
+        self.variables = dict()
+        self.history = []
 
         timeline_viewer_column = [
             [sg.Image(key="-IMAGE-")],
@@ -48,18 +50,23 @@ class BoxEventGUI:
         ]
         self.window = sg.Window("Symbolic Event Environment", self.layout)
 
-    def step(self,
-             past_events,
-             context,
-             current_time,
-             patterns,
-             box_states,
-             action=None):
+    def add_event_to_history(self,event):
+        self.history.append(event)
+
+    def update_variable(self, name, value):
+        self.variables[name] = value
+
+    def get_variable(self, name):
+        return self.variables[name] if (name in self.variables) else None
+
+    def step(self, boxes):
         event, values = self.window.read()
-        past_events_img = self.print_event_list(past_events)
+        patterns = [box.pattern.full_pattern for box in boxes]
+        box_states = [box.box for box in boxes]
+        past_events_img = self.print_event_list(self.history)
         self.window["-IMAGE-"].update(data=past_events_img)
-        self.window["-TOUT-"].update(context)
-        self.window["-action-"].update(f"action : {action}")
+        self.window["-TOUT-"].update(self.get_variable("context"))
+        self.window["-action-"].update("action : " + str(self.get_variable("last_action")))
         # Refresh the update
         self.window.refresh()
         # Update for scroll area of Column element
@@ -76,7 +83,7 @@ class BoxEventGUI:
 
         for i in range(len(patterns)):
             pattern_img = self.print_event_list(patterns[i],
-                                                current_time=current_time,
+                                                current_time=self.get_variable("time"),
                                                 patterns_range=patterns_range)
             self.window["-pattern-" + str(i)].update(data=pattern_img)
             self.window["-box-" + str(i)].update(f"box state : {box_states[i]}")
@@ -134,8 +141,7 @@ class BoxEventGUI:
                           x_end="Finish",
                           y="Task",
                           color="BG",
-                          # TODO
-                          color_discrete_map={'0': 'red', '1': 'blue', '2': 'green'})
+                          color_discrete_map=self.attr_to_color["bg"])
 
         for d in fig.data:
             filt = df['BG'] == d.name

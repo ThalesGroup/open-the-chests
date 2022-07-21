@@ -7,6 +7,8 @@ import random
 from BoxEventEnv import BoxEventEnv
 from Dynamics.Environment import Environment
 
+# TODO (priority 1) add config
+
 import plotly.io as pio
 
 pio.renderers.default = "browser"

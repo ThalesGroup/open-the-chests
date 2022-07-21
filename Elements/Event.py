@@ -1,7 +1,7 @@
 import math
 from copy import deepcopy
 
-# TODO doc
+# TODO doc (priority 4)
 
 class Event:
     def __init__(self,
@@ -10,7 +10,7 @@ class Event:
                  t_start: float,
                  t_end: float):
         """
-        # TODO reorganise event object structure all the dictionaries are awkward
+        # TODO (priority 2) reorganise event object structure all the dictionaries are awkward
         :param e_type:
         :param e_attributes:
         :param t_start:

@@ -40,7 +40,6 @@ class Environment:
 
         self.patterns = [Pattern(self.parser, instr, self.verbose) for instr in instructions]
         self.timeline = {}
-        self.past_events = []
 
         self.boxes = [InteractiveBox(idx, pattern, self.verbose) for idx, pattern in enumerate(self.patterns)]
 
@@ -84,8 +83,6 @@ class Environment:
 
         # apply action and collect reward
         reward = self.apply_action(action)
-        # TODO why was this needed? can it be moved elsewhere?
-        self.last_action = action
 
         # advance environment and collect context
         self.internal_step()
@@ -93,10 +90,18 @@ class Environment:
 
         self.done = self.check_end()
 
+        # TODO (priority 1) move GUI to render function
+        if self.verbose:
+            self.GUI.add_event_to_history(self.context)
+            self.GUI.update_variable("context", self.context)
+            self.GUI.update_variable("time", self.time)
+            self.GUI.update_variable("last_action", action)
+            self.GUI.step(self.boxes)
+
         if self.verbose:
             print("Step Done \n")
 
-        # TODO fill info dict? use it somehow?
+        # TODO (priority 2) fill info dict? use it somehow?
         return obs, reward, self.done, dict()
 
     def get_observations(self):
@@ -110,7 +115,7 @@ class Environment:
         active = []
         open = []
 
-        # TODO this can be optimised
+        # TODO (priority 3) this can be optimised
         for box_id in range(self.num_boxes):
             active.append(self.boxes[box_id].is_active())
             open.append(self.boxes[box_id].is_open())
@@ -119,7 +124,7 @@ class Environment:
 
         obs = {"state": box_states, "context": self.context}
 
-        # TODO explain and document the need for this step
+        # TODO (priority 4) explain and document the need for this step
         if self.stb3:
             obs = process_obs(obs)
         return obs
@@ -135,18 +140,9 @@ class Environment:
         self.advance_timeline()
         self.update_boxes(self.time)
 
-        # TODO move GUI to render function
-        if self.verbose:
-            # TODO optimise GUI parameter usage
-            self.GUI.step(self.past_events,
-                          str(self.past_events[-1]),
-                          self.time,
-                          [box.pattern.full_pattern for box in self.boxes],
-                          [box.box for box in self.boxes],
-                          self.last_action)
 
     def advance_timeline(self):
-        # TODO doc
+        # TODO (priority 4) doc
         """
 
         :return:
@@ -156,14 +152,11 @@ class Environment:
             print(f"Active timeline {self.timeline}")
 
         ending_box_id = min(self.timeline, key=self.timeline.get)
-        # TODO use this for GUI to show last observed element before pattern regeneration
+        # TODO (priority 2) use this for GUI to show last observed element before pattern regeneration
         self.context = self.timeline[ending_box_id]
         self.time = self.context.end
 
-        # TODO move this somewhere else possibly in GUI interface usage not clear
-        self.past_events.append(self.context)
-
-        # TODO what is the interest of this if? make it clear or move it somewhere
+        # TODO (priority 2) what is the interest of this if? make it clear or move it somewhere
         if not self.boxes[ending_box_id].is_open():
             event = self.boxes[ending_box_id].pattern.get_next()
             self.timeline[ending_box_id] = event
@@ -175,7 +168,7 @@ class Environment:
             print(f"Observing context {self.context}")
 
     def update_boxes(self, t_current):
-        # TODO doc and optimise
+        # TODO (priority 4) doc and optimise
         """
 
         :param t_current:
@@ -184,7 +177,7 @@ class Environment:
             box.update(t_current)
 
     def apply_action(self, action):
-        # TODO doc
+        # TODO (priority 4) doc
         if self.verbose:
             print(f"Applying action {action}")
 
@@ -193,11 +186,11 @@ class Environment:
             if action[box_id] == 1:
                 opened = self.boxes[box_id].press_button()
                 if opened:
-                    # TODO sent this to get_next possibly via box opening?
+                    # TODO (priority 2) sent this to get_next possibly via box opening?
                     self.timeline[box_id] = Event("end", dict(), math.inf, math.inf)
                 reward.append(opened)
         return sum(reward)
 
     def check_end(self):
-        # TODO doc
+        # TODO (priority 4) doc
         return all([box.is_open() for box in self.boxes])

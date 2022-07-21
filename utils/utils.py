@@ -49,7 +49,7 @@ def process_obs(obs: dict):
             final_dict[key] = value
 
     for key, value in final_dict.items():
-        # TODO total workaround must fix
+        # TODO (priority 2) total workaround must fix
         if key not in ["e_type", "fg", "bg"]:
             final_dict[key] = np.array(value)
             if key in ["start", "end", "duration"]:

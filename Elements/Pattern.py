@@ -11,7 +11,7 @@ class Pattern:
         :param parser: parser to use for generating list of Events from instructions
         """
         self.parser = parser
-        # TODO move wait instruction time to parser
+        # TODO (priority 2) move wait instruction time to parser
         self.timeout = instruction[0]["parameters"]
         self.instruction = instruction[1:]  # list of instructions under the form of dictionaries
         self.verbose = verbose
@@ -30,7 +30,7 @@ class Pattern:
         """
 
         generated_events = self.parser.generate_pattern(self.instruction)
-        # TODO could this be done without a for loop
+        # TODO (priority 3) could this be done without a for loop
         for event in generated_events:
             event.start += t
             event.end += t
@@ -50,7 +50,8 @@ class Pattern:
 
         :return: The next event on the stack
         """
-        # TODO print last event when regenerating pattern for GUI, use self.context of env, maybe return boolean to know when it has been regenerated
+        # TODO (priority 2) print last event when regenerating pattern for GUI, use self.context of env,
+        #  maybe return boolean to know when it has been regenerated
         if not self.events_stack:
             if self.verbose:
                 print("Pattern finished generating new one")
