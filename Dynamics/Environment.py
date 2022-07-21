@@ -27,6 +27,7 @@ class Environment:
         :param verbose: Print details when executing for debugging
         :param stb3: Use environment with stable baselines 3
         """
+        self.action = None
         self.context = None
         self.last_action = None
         self.stb3 = stb3
@@ -90,14 +91,6 @@ class Environment:
 
         self.done = self.check_end()
 
-        # TODO (priority 1) move GUI to render function
-        if self.verbose:
-            self.GUI.add_event_to_history(self.context)
-            self.GUI.update_variable("context", self.context)
-            self.GUI.update_variable("time", self.time)
-            self.GUI.update_variable("last_action", action)
-            self.GUI.step(self.boxes)
-
         if self.verbose:
             print("Step Done \n")
 
@@ -140,7 +133,6 @@ class Environment:
         self.advance_timeline()
         self.update_boxes(self.time)
 
-
     def advance_timeline(self):
         # TODO (priority 4) doc
         """
@@ -178,6 +170,7 @@ class Environment:
 
     def apply_action(self, action):
         # TODO (priority 4) doc
+        self.action = action
         if self.verbose:
             print(f"Applying action {action}")
 
@@ -194,3 +187,10 @@ class Environment:
     def check_end(self):
         # TODO (priority 4) doc
         return all([box.is_open() for box in self.boxes])
+
+    def render(self):
+        self.GUI.add_event_to_history(self.context)
+        self.GUI.update_variable("context", self.context)
+        self.GUI.update_variable("time", self.time)
+        self.GUI.update_variable("last_action", self.action)
+        self.GUI.step(self.boxes)

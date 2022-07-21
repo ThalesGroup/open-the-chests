@@ -106,6 +106,7 @@ if __name__ == '__main__':
         print("Step {}".format(step + 1))
         print("Action: ", action)
         obs, reward, done, info = verbose_env.step(empty_action)
+        verbose_env.render()
         print('obs =', obs, 'reward=', reward, 'done=', done)
         # env.render(mode='console')
         if done:

@@ -9,8 +9,8 @@ class Event:
                  e_attributes: dict,
                  t_start: float,
                  t_end: float):
-        """
         # TODO (priority 2) reorganise event object structure all the dictionaries are awkward
+        """
         :param e_type:
         :param e_attributes:
         :param t_start:

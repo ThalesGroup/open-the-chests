@@ -60,6 +60,7 @@ class BoxEventGUI:
         return self.variables[name] if (name in self.variables) else None
 
     def step(self, boxes):
+        # TODO (priority 2) fix this to add option with smooth transitions with no button
         event, values = self.window.read()
         patterns = [box.pattern.full_pattern for box in boxes]
         box_states = [box.box for box in boxes]

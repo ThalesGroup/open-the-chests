@@ -1,6 +1,6 @@
 import random
 from matplotlib import colors
-from utils.utils import allen_functions
+from utils.allen import allen_functions
 from Elements.Event import Event
 
 
@@ -13,9 +13,16 @@ from Elements.Event import Event
 class Parser:
 
     def __init__(self, all_event_types, all_event_attributes):
+        """
+        Parser class that allows to generate event patterns using instructions
+        :param all_event_types: list of all possible event types to be used in the environment
+        :param all_event_attributes: dictionary of lists of all possible corresponding values for each event type
+        """
         self.all_event_attributes = all_event_attributes
         self.all_event_types = all_event_types
 
+        # TODO (priority 3) establish language for event type and optimise value usage
+        # TODO (priority 3) externalise and make value usage independent
         self.type_to_label = {all_event_types[i]: i for i in range(len(all_event_types))}
         self.attr_to_label = dict()
         self.label_to_color = dict()

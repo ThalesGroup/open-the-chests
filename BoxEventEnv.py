@@ -44,5 +44,6 @@ class BoxEventEnv(gym.Env):
     def reset(self):
         return self.env.reset()
 
+    # TODO (priority 3) add different rendering modes of possible
     def render(self, mode="human"):
-        pass
+        self.env.render()
