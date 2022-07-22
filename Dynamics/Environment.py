@@ -39,12 +39,15 @@ class Environment:
         self.parser = Parser(all_event_types, all_event_attributes)
         self.GUI = BoxEventGUI(self.num_boxes, self.parser.label_to_attr)
 
+        # TODO (priority 1) don't pass parser if
         self.patterns = [Pattern(self.parser, instr, self.verbose) for instr in instructions]
         self.timeline = {}
 
         self.boxes = [InteractiveBox(idx, pattern, self.verbose) for idx, pattern in enumerate(self.patterns)]
 
         if self.verbose:
+            print(f"All event types : {all_event_types}")
+            print(f"All event attributes : {all_event_attributes}")
             print(f"Initialising {self.num_boxes} boxes with patterns")
 
     def reset(self):

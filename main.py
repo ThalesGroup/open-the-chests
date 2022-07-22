@@ -1,35 +1,19 @@
-# This is a sample Python script.
-
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 import random
 
 from BoxEventEnv import BoxEventEnv
 from Dynamics.Environment import Environment
+from stable_baselines3.common.env_checker import check_env
+import plotly.io as pio
 
 # TODO (priority 1) add config
-
-import plotly.io as pio
 
 pio.renderers.default = "browser"
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
-
-
-# Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    # define patterns to be used for boxes
 
     all_event_types = ["A", "B", "C"]
     all_event_attributes = {"fg": ["red", "blue", "green"], "bg": ["red", "blue", "green"]}
-
-    # all_event_types, all_event_attributes = numerise_types_and_attributes(all_event_types, all_event_attributes)
-
-    print(all_event_types)
-    print(all_event_attributes)
 
     instr1 = [{"command": "delay", "parameters": 5},
               {"command": "instantiate", "parameters": ("A", {"bg": "blue"}, (4, 2)), "variable_name": "a1"},
@@ -52,11 +36,6 @@ if __name__ == '__main__':
 
     all_instructions = [instr1, instr2]
 
-    # env = Environment(instructions=all_instructions,
-    #                   all_event_types=all_event_types,
-    #                   all_event_attributes=all_event_attributes,
-    #                   verbose=False)
-
     env = BoxEventEnv(instructions=all_instructions,
                       all_event_types=all_event_types,
                       all_event_attributes=all_event_attributes,
@@ -66,21 +45,6 @@ if __name__ == '__main__':
                               all_event_types=all_event_types,
                               all_event_attributes=all_event_attributes,
                               verbose=True)
-
-    from stable_baselines3.common.env_checker import check_env
-
-    # env.fill_event_stack()
-    # done = False
-    # while not done:
-    # # for i in range(10):
-    #     action = [random.randint(0, 1) for i in range(2)]
-    #     # action = [1,1]
-    #     reward, observation, done, info = env.step(action)
-    #     print(observation)
-    #
-    # check_env(env, warn=True)
-
-    # env.reset()
 
     from stable_baselines3 import A2C
     from stable_baselines3.common.env_util import make_vec_env
@@ -92,7 +56,8 @@ if __name__ == '__main__':
 
     # Train the agent
     print("Learning")
-    model = A2C('MultiInputPolicy', env, verbose=1)  # .learn(5000)
+    # model = A2C('MultiInputPolicy', env, verbose=1).learn(5000)
+    model = A2C('MultiInputPolicy', env, verbose=1)
 
     # Test the trained agent
     obs = verbose_env.reset()

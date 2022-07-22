@@ -8,7 +8,7 @@ from Elements.Event import Event
 # TODO (priority 3) rethink labelisation
 # TODO (priority 1) add more allen functions
 # TODO (priority 1) add noise
-from utils.utils import list_to_labels, bug_print
+from utils.utils import list_to_labels
 
 
 class Parser:
@@ -72,3 +72,4 @@ class Parser:
                 variables[allen_op] = event
                 event_list.append(event)
         return sorted(event_list)
+

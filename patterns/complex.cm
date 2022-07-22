@@ -1,0 +1,8 @@
+delay 5
+instantiate a1 A{bg:blue} duration (4,2)
+instantiate c1 C{fg:red} duration (10,1)
+c1 allen after a1 gap (2,1)
+instantiate c2 C{} duration (4,1)
+c2 allen during c1
+instantiate a2 A{}
+a2 allen metby c1

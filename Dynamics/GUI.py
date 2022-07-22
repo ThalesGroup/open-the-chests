@@ -9,7 +9,6 @@ import plotly.express as px
 
 # TODO (priority 2) change background color depending on box state
 # TODO (priority 2) rework whole class to be more logically organised and with less parameters
-from utils.utils import bug_print
 
 
 class BoxEventGUI:
@@ -133,8 +132,6 @@ class BoxEventGUI:
 
         df = pd.DataFrame(list_df)
         df['delta'] = df['Finish'] - df['Start']
-
-        bug_print(self.attr_to_color, "wut")
 
         if not patterns_range:
             patterns_range = [event_list[0].start, event_list[-1].end]
