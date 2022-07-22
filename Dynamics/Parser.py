@@ -1,14 +1,15 @@
 import random
-from matplotlib import colors
+
 from utils.allen import allen_functions
 from Elements.Event import Event
-
 
 # TODO (priority 4) doc
 # TODO (priority 3) rethink class structure and use input all items to generate dictionaries
 # TODO (priority 3) rethink labelisation
 # TODO (priority 1) add more allen functions
 # TODO (priority 1) add noise
+from utils.utils import list_to_labels, bug_print
+
 
 class Parser:
 
@@ -23,44 +24,51 @@ class Parser:
 
         # TODO (priority 3) establish language for event type and optimise value usage
         # TODO (priority 3) externalise and make value usage independent
-        self.type_to_label = {all_event_types[i]: i for i in range(len(all_event_types))}
+        # TODO (priority 3) change for official labelisation function
+        self.all_event_types_labels = list_to_labels(all_event_types)
+        self.all_event_attributes_labels = {key: list_to_labels(l) for key, l in all_event_attributes.items()}
+
+        self.type_to_label = dict(zip(self.all_event_types, self.all_event_types_labels))
+        self.label_to_type = dict(zip(self.all_event_types_labels, self.all_event_types))
         self.attr_to_label = dict()
-        self.label_to_color = dict()
+        self.label_to_attr = dict()
+        # TODO (priority 3) make this prettier later somehow
         for attr_name, attr_vals in all_event_attributes.items():
-            self.attr_to_label[attr_name] = {attr_vals[i]: i for i in range(len(attr_vals))}
-            self.label_to_color[attr_name] = {str(i): attr_vals[i] for i in range(len(attr_vals))}
+            self.attr_to_label[attr_name] = dict(zip(attr_vals, list_to_labels(attr_vals)))
+            self.label_to_attr[attr_name] = dict(zip(map(str,list_to_labels(attr_vals)), attr_vals))
 
     def labelise(self, e_type, attributes):
         e_type = self.type_to_label[e_type]
         attributes = {key: self.attr_to_label[key][value] for key, value in attributes.items()}
         return e_type, attributes
 
-    def instantiate(self, e_type: str = None, attributes: dict = {}, duration_dist: (int, int) = (2, 1)):
-        if e_type is None:
+    # TODO (priority 3) add function to check if values are correct
+    def instantiate(self, e_type: str = None, attributes: dict = {}, duration_distribution: (int, int) = (2, 1)):
+        if e_type not in self.all_event_types:
             e_type = random.choice(self.all_event_types)
         for attr, attr_values in self.all_event_attributes.items():
             if attr not in attributes:
                 attributes[attr] = random.choice(attr_values)
-        duration_inst = random.normalvariate(*duration_dist)
-        duration_inst = max(duration_inst, duration_dist[0] - duration_dist[1])
+        duration_inst = random.normalvariate(*duration_distribution)
+        duration_inst = max(duration_inst, duration_distribution[0] - duration_distribution[1])
         e_type, attributes = self.labelise(e_type, attributes)
         return Event(e_type, attributes, 0, duration_inst)
 
     def generate_pattern(self, instructions):
         event_list = []
         variables = dict()
-        for instr in instructions:
-            if instr["command"] == "instantiate":
-                event = self.instantiate(*instr["parameters"])
-                variables[instr["variable_name"]] = event
+        for instr_line in instructions:
+            if instr_line["command"] == "instantiate":
+                event = self.instantiate(*instr_line["parameters"])
+                variables[instr_line["variable_name"]] = event
                 if not event_list:
                     event_list.append(event)
             else:
-                params = (variables[param] for param in instr["parameters"])
-                if instr["command"] == "after":
-                    event = allen_functions[instr["command"]](*params, instr["gap_dist"])
-                else:
-                    event = allen_functions[instr["command"]](*params)
-                variables[instr["variable_name"]] = event
+                # allen command for positioning
+                events = (variables[var_name] for var_name in instr_line["parameters"])
+                allen_op = instr_line["command"]
+                bonus_params = instr_line["other"] if "other" in instr_line else dict()
+                event = allen_functions[allen_op](*events, **bonus_params)
+                variables[allen_op] = event
                 event_list.append(event)
         return sorted(event_list)

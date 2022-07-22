@@ -34,7 +34,7 @@ if __name__ == '__main__':
     instr1 = [{"command": "delay", "parameters": 5},
               {"command": "instantiate", "parameters": ("A", {"bg": "blue"}, (4, 2)), "variable_name": "a1"},
               {"command": "instantiate", "parameters": ("C", {"fg": "red"}, (10, 1)), "variable_name": "c1"},
-              {"command": "after", "parameters": ("c1", "a1"), "variable_name": "c1", "gap_dist": (2, 1)},
+              {"command": "after", "parameters": ("c1", "a1"), "variable_name": "c1", "other": {"gap_dist": (2, 1)}},
               {"command": "instantiate", "parameters": ("C", {}, (4, 1)), "variable_name": "c2"},
               {"command": "during", "parameters": ("c2", "c1"), "variable_name": "c2"},
               {"command": "instantiate", "parameters": ("A",), "variable_name": "a2"},
@@ -43,12 +43,12 @@ if __name__ == '__main__':
     instr2 = [{"command": "delay", "parameters": 7},
               {"command": "instantiate", "parameters": ("B", {"bg": "blue"}, (4, 2)), "variable_name": "b1"},
               {"command": "instantiate", "parameters": ("B", {"fg": "red"}, (10, 1)), "variable_name": "b2"},
-              {"command": "after", "parameters": ("b2", "b1"), "variable_name": "b2", "gap_dist": (2, 1)}]
+              {"command": "after", "parameters": ("b2", "b1"), "variable_name": "b2", "other": {"gap_dist": (2, 1)}}]
 
     instr3 = [{"command": "delay", "parameters": 7},
               {"command": "instantiate", "parameters": ("B", {"bg": "blue"}, (4, 2)), "variable_name": "b1"},
               {"command": "instantiate", "parameters": ("B", {"fg": "red"}, (10, 1)), "variable_name": "b2"},
-              {"command": "after", "parameters": ("b2", "b1"), "variable_name": "b2", "gap_dist": (2, 1)}]
+              {"command": "after", "parameters": ("b2", "b1"), "variable_name": "b2", "other": {"gap_dist": (2, 1)}}]
 
     all_instructions = [instr1, instr2]
 

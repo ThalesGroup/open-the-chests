@@ -3,6 +3,17 @@ import numpy as np
 from Elements.Event import Event
 
 
+def bug_print(something, msg):
+    print("################################")
+    print(msg)
+    print(something)
+    print("################################")
+
+
+def list_to_labels(l):
+    return [i for i in range(len(l))]
+
+
 def process_obs(obs: dict):
     final_dict = dict()
     for key, value in obs.items():

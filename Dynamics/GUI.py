@@ -9,6 +9,8 @@ import plotly.express as px
 
 # TODO (priority 2) change background color depending on box state
 # TODO (priority 2) rework whole class to be more logically organised and with less parameters
+from utils.utils import bug_print
+
 
 class BoxEventGUI:
 
@@ -89,6 +91,7 @@ class BoxEventGUI:
             self.window["-pattern-" + str(i)].update(data=pattern_img)
             self.window["-box-" + str(i)].update(f"box state : {box_states[i]}")
 
+    # TODO (priority 2) make this part of the code prettier
     def print_event_list(self, event_list, show=False, current_time=None, patterns_range=None):
         list_df = []
         annots = []
@@ -103,7 +106,6 @@ class BoxEventGUI:
                 line_end_times.append(event.end)
 
             list_df.append(dict(BG=str(event.symbol["attr"]["bg"]),
-                                FG=str(event.symbol["attr"]["fg"]),
                                 Start=event.start,
                                 Finish=event.end,
                                 Task=str(line_index),
@@ -131,6 +133,8 @@ class BoxEventGUI:
 
         df = pd.DataFrame(list_df)
         df['delta'] = df['Finish'] - df['Start']
+
+        bug_print(self.attr_to_color, "wut")
 
         if not patterns_range:
             patterns_range = [event_list[0].start, event_list[-1].end]
