@@ -52,7 +52,7 @@ def params_to_dict(s):
 
 
 def parse_tuple(s):
-    return  tuple(map(int, re.findall(r'[0-9]+', s)))
+    return tuple(map(int, re.findall(r'[0-9]+', s)))
 
 
 # TODO (priority 2) add safety for adding random white spaces
@@ -71,7 +71,8 @@ def line_to_command_dict(line: str):
         if "duration" in line:
             duration_ind = line.index("duration")
             duration_params = parse_tuple(line[duration_ind + 1])
-            return {"command": "instantiate", "parameters": (event_type, event_params, duration_params), "variable_name": var_name}
+            return {"command": "instantiate", "parameters": (event_type, event_params, duration_params),
+                    "variable_name": var_name}
         return {"command": "instantiate", "parameters": (event_type, event_params), "variable_name": var_name}
 
     elif "allen" in line:
@@ -85,14 +86,15 @@ def line_to_command_dict(line: str):
                 other_params[line[i]] = parse_tuple(line[i + 1])
             return {"command": allen_op, "parameters": (e1, e2), "variable_name": e1, "other": other_params}
         # TODO (priority 2) is variable name necessary and what is its place
-        return {"command": allen_op, "parameters": (e1,e2), "variable_name": e1}
+        return {"command": allen_op, "parameters": (e1, e2), "variable_name": e1}
 
 
 def parse_file(filename):
     with open(filename) as f:
         lines = [line.rstrip() for line in f]
-
-    print(lines)
     return list(map(line_to_command_dict, lines))
 
 
+def read_yaml(file_path):
+    with open(file_path, "r") as f:
+        return yaml.safe_load(f)

@@ -1,35 +1,31 @@
 import random
 
+import yaml
+
 from BoxEventEnv import BoxEventEnv
 from Dynamics.Environment import Environment
 from stable_baselines3.common.env_checker import check_env
 import plotly.io as pio
 
 # TODO (priority 1) add config
+from utils.utils import parse_file
 
 pio.renderers.default = "browser"
 
 
 if __name__ == '__main__':
 
-    all_event_types = ["A", "B", "C"]
-    all_event_attributes = {"fg": ["red", "blue", "green"], "bg": ["red", "blue", "green"]}
+    with open("/home/S3G-LABS/u1226/dev/openchests/config/config.yaml", "r") as f:
+        conf = yaml.safe_load(f)
 
-    instr1 = [{"command": "delay", "parameters": 5},
-              {"command": "instantiate", "parameters": ("A", {"bg": "blue"}, (4, 2)), "variable_name": "a1"},
-              {"command": "instantiate", "parameters": ("C", {"fg": "red"}, (10, 1)), "variable_name": "c1"},
-              {"command": "after", "parameters": ("c1", "a1"), "variable_name": "c1", "other": {"gap_dist": (2, 1)}},
-              {"command": "instantiate", "parameters": ("C", {}, (4, 1)), "variable_name": "c2"},
-              {"command": "during", "parameters": ("c2", "c1"), "variable_name": "c2"},
-              {"command": "instantiate", "parameters": ("A", {}), "variable_name": "a2"},
-              {"command": "met_by", "parameters": ("a2", "c1"), "variable_name": "a2"}]
+    all_event_types = conf["EVENT_TYPES"]
+    all_event_attributes = conf["EVENT_ATTRIBUTES"]
 
-    instr2 = [{"command": "delay", "parameters": 7},
-              {"command": "instantiate", "parameters": ("B", {"bg": "blue"}, (4, 2)), "variable_name": "b1"},
-              {"command": "instantiate", "parameters": ("B", {"fg": "red"}, (10, 1)), "variable_name": "b2"},
-              {"command": "after", "parameters": ("b2", "b1"), "variable_name": "b2", "other": {"gap_dist": (2, 1)}}]
+    all_instructions = []
+    for file in conf["INSTRUCTIONS"]:
+        instr = parse_file("config/patterns/"+file)
+        all_instructions.append(instr)
 
-    all_instructions = [instr1, instr2]
 
     env = BoxEventEnv(instructions=all_instructions,
                       all_event_types=all_event_types,
@@ -56,6 +52,7 @@ if __name__ == '__main__':
 
     # Test the trained agent
     obs = verbose_env.reset()
+    verbose_env.render()
     n_steps = 100
     print("------------------------ START -------------------------")
     for step in range(n_steps):

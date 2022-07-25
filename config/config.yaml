@@ -1,0 +1,16 @@
+EVENT_TYPES:
+  - A
+  - B
+  - C
+EVENT_ATTRIBUTES:
+  fg:
+    - red
+    - blue
+    - green
+  bg:
+    - red
+    - blue
+    - green
+INSTRUCTIONS:
+  - complex.cm
+  - simple.cm
