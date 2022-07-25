@@ -8,7 +8,7 @@ from Dynamics.Parser import Parser
 from Elements.Event import Event
 from Elements.InteractiveBox import InteractiveBox
 from Elements.Pattern import Pattern
-from utils.utils import process_obs
+from utils.utils import process_obs, bug_print
 
 
 class Environment:
@@ -39,7 +39,6 @@ class Environment:
         self.parser = Parser(all_event_types, all_event_attributes)
         self.GUI = BoxEventGUI(self.num_boxes, self.parser.label_to_attr)
 
-        # TODO (priority 1) don't pass parser if
         self.patterns = [Pattern(self.parser, instr, self.verbose) for instr in instructions]
         self.timeline = {}
 
@@ -147,11 +146,11 @@ class Environment:
             print(f"Active timeline {self.timeline}")
 
         ending_box_id = min(self.timeline, key=self.timeline.get)
-        # TODO (priority 2) use this for GUI to show last observed element before pattern regeneration
         self.context = self.timeline[ending_box_id]
         self.time = self.context.end
 
-        # TODO (priority 2) what is the interest of this if? make it clear or move it somewhere
+        # TODO (priority 3) what is the interest of this if? make it clear or move it somewhere
+        # if only useful at end when selected box is open since all boxes are open
         if not self.boxes[ending_box_id].is_open():
             event = self.boxes[ending_box_id].pattern.get_next()
             self.timeline[ending_box_id] = event
@@ -182,10 +181,13 @@ class Environment:
             if action[box_id] == 1:
                 opened = self.boxes[box_id].press_button()
                 if opened:
-                    # TODO (priority 2) sent this to get_next possibly via box opening?
-                    self.timeline[box_id] = Event("end", dict(), math.inf, math.inf)
+                    self.disable_timeline(box_id)
                 reward.append(opened)
         return sum(reward)
+
+    def disable_timeline(self, box_id):
+        # TODO (priority 3) sent this to get_next possibly via box opening? remove event stack to prevent problems?
+        self.timeline[box_id] = Event("end", dict(), math.inf, math.inf)
 
     def check_end(self):
         # TODO (priority 4) doc

@@ -11,13 +11,14 @@ class Pattern:
         :param parser: parser to use for generating list of Events from instructions
         """
         self.parser = parser
-        # TODO (priority 2) move wait instruction time to parser
+        # TODO (priority 2) move wait instruction time to parser?or not?
         self.timeout = instruction[0]["parameters"]
         self.instruction = instruction[1:]  # list of instructions under the form of dictionaries
         self.verbose = verbose
 
         self.events_stack = []  # stack of events to generate with instruction
         self.full_pattern = []
+        self.last_generated_event = None
         self.satisfied = False
         self.start_pattern_time = 0
         self.last_event_end = 0
@@ -37,6 +38,8 @@ class Pattern:
 
         self.events_stack = generated_events
         self.full_pattern = copy.deepcopy(generated_events)
+        if self.last_generated_event:
+            self.full_pattern.insert(0, self.last_generated_event)
 
         if self.verbose:
             print(f"Sampling pattern {self.events_stack}")
@@ -50,8 +53,6 @@ class Pattern:
 
         :return: The next event on the stack
         """
-        # TODO (priority 2) print last event when regenerating pattern for GUI, use self.context of env,
-        #  maybe return boolean to know when it has been regenerated
         if not self.events_stack:
             if self.verbose:
                 print("Pattern finished generating new one")
@@ -60,5 +61,6 @@ class Pattern:
             self.fill_event_stack(self.start_pattern_time)
 
         next_event = self.events_stack.pop(0)
+        self.last_generated_event = next_event
         self.last_event_end = next_event.end
         return next_event

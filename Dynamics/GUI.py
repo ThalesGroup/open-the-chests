@@ -51,7 +51,7 @@ class BoxEventGUI:
         ]
         self.window = sg.Window("Symbolic Event Environment", self.layout)
 
-    def add_event_to_history(self,event):
+    def add_event_to_history(self, event):
         self.history.append(event)
 
     def update_variable(self, name, value):
@@ -84,14 +84,26 @@ class BoxEventGUI:
                 patterns_range[1] = pattern[0].end
 
         for i in range(len(patterns)):
+            if boxes[i].is_open():
+                bg_color = "green"
+            elif not boxes[i].is_active():
+                bg_color = "red"
+            else:
+                bg_color = "white"
             pattern_img = self.print_event_list(patterns[i],
                                                 current_time=self.get_variable("time"),
-                                                patterns_range=patterns_range)
+                                                patterns_range=patterns_range,
+                                                bg_color=bg_color)
             self.window["-pattern-" + str(i)].update(data=pattern_img)
             self.window["-box-" + str(i)].update(f"box state : {box_states[i]}")
 
     # TODO (priority 2) make this part of the code prettier
-    def print_event_list(self, event_list, show=False, current_time=None, patterns_range=None):
+    def print_event_list(self,
+                         event_list,
+                         show=False,
+                         current_time=None,
+                         patterns_range=None,
+                         bg_color=None):
         list_df = []
         annots = []
         line_end_times = [-1]
@@ -152,6 +164,11 @@ class BoxEventGUI:
         fig.update_yaxes(autorange="reversed")  # otherwise, tasks are listed from the bottom up
         fig.layout.xaxis.type = 'linear'
         fig['layout']['annotations'] = annots
+
+        if bg_color:
+            fig.update_layout({
+                "paper_bgcolor": bg_color,
+            })
 
         if current_time:
             line = dict(

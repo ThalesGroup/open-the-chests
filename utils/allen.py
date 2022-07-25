@@ -4,8 +4,6 @@ from Elements.Event import Event
 
 
 def after(second: Event, first: Event, gap_dist: (int, int)):
-    print("blebelblele")
-    print(gap_dist)
     gap_duration = random.normalvariate(*gap_dist)
     second_start = first.end + gap_duration
     new_event = second.shift(second_start)

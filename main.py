@@ -1,17 +1,12 @@
 import random
 
+import plotly.io as pio
 import yaml
 
 from BoxEventEnv import BoxEventEnv
-from Dynamics.Environment import Environment
-from stable_baselines3.common.env_checker import check_env
-import plotly.io as pio
-
-# TODO (priority 1) add config
 from utils.utils import parse_file
 
 pio.renderers.default = "browser"
-
 
 if __name__ == '__main__':
 
@@ -23,9 +18,9 @@ if __name__ == '__main__':
 
     all_instructions = []
     for file in conf["INSTRUCTIONS"]:
-        instr = parse_file("config/patterns/"+file)
+        instr = parse_file("config/patterns/" + file)
         all_instructions.append(instr)
-
+        print(instr)
 
     env = BoxEventEnv(instructions=all_instructions,
                       all_event_types=all_event_types,
@@ -62,7 +57,7 @@ if __name__ == '__main__':
         random_action = [[random.randint(0, 1) for i in range(2)]]
         print("Step {}".format(step + 1))
         print("Action: ", action)
-        obs, reward, done, info = verbose_env.step(empty_action)
+        obs, reward, done, info = verbose_env.step(random_action)
         verbose_env.render()
         print('obs =', obs, 'reward=', reward, 'done=', done)
         # env.render(mode='console')

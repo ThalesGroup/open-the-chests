@@ -6,7 +6,7 @@ import yaml
 from Elements.Event import Event
 
 
-def bug_print(something, msg):
+def bug_print(something="", msg=""):
     print("################################")
     print(msg)
     print(something)
