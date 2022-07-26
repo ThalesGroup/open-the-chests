@@ -7,18 +7,20 @@ import pandas as pd
 import plotly.figure_factory as ff
 import plotly.express as px
 
+from utils.utils import my_normal
+
 all_event_types = ["A", "B", "C"]
 all_event_attributes = {"fg": ["red", "blue", "green"], "bg": ["red", "blue", "green"]}
 
 
-# TODO (priority 2) replace with truncated normal
+# TODO (priority 3) replace with more sophisticated sampling
 def instantiate(e_type: str = None, attributes: dict = {}, duration_dist: (int, int) = (2, 1)):
     if e_type is None:
         e_type = random.choice(all_event_types)
     for attr, attr_values in all_event_attributes.items():
         if attr not in attributes:
             attributes[attr] = random.choice(attr_values)
-    duration_inst = random.normalvariate(*duration_dist)
+    duration_inst = my_normal(*duration_dist)
     return Event(e_type, attributes, 0, duration_inst)
 
 

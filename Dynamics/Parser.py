@@ -8,7 +8,7 @@ from Elements.Event import Event
 # TODO (priority 3) rethink labelisation
 # TODO (priority 1) add more allen functions
 # TODO (priority 1) add noise
-from utils.utils import list_to_labels
+from utils.utils import list_to_labels, my_normal
 
 
 class Parser:
@@ -68,7 +68,7 @@ class Parser:
         for attr, attr_values in self.all_event_attributes.items():
             if attr not in attributes:
                 attributes[attr] = random.choice(attr_values)
-        duration_inst = random.normalvariate(*duration_distribution)
+        duration_inst = my_normal(*duration_distribution)
         duration_inst = max(duration_inst, duration_distribution[0] - duration_distribution[1])
         e_type, attributes = self.labelise(e_type, attributes)
         return Event(e_type, attributes, 0, duration_inst)

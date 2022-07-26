@@ -7,7 +7,6 @@ from plotly import figure_factory as ff
 import plotly.express as px
 
 
-# TODO (priority 2) change background color depending on box state
 # TODO (priority 2) rework whole class to be more logically organised and with less parameters
 
 

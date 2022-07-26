@@ -1,4 +1,5 @@
 import re
+import random
 
 import numpy as np
 import yaml
@@ -13,28 +14,33 @@ def bug_print(something="", msg=""):
     print("################################")
 
 
+def my_normal(mu, sigma):
+    assert mu - sigma >= 0, "Allows negative time durations"
+    res = random.normalvariate(mu, sigma)
+    return max((mu - sigma), res)
+
+
 def list_to_labels(l):
     return [i for i in range(len(l))]
 
 
+# TODO (priority 3) can this be more general?
 def process_obs(obs: dict):
     final_dict = dict()
     for key, value in obs.items():
-        if type(value) == dict:
-            final_dict = final_dict | value
-        elif type(value) == Event:
-            final_dict = final_dict | value.to_dict()
-        else:
-            final_dict[key] = value
+        if key == "state":
+            for state_key, state_value in obs[key].items():
+                obs[key][state_key] = np.array([int(xi) for xi in obs[key][state_key]])
+        elif key == "context":
+            event_dict = obs[key].to_dict()
+            for event_time_key in ["start", "end", "duration"]:
+                event_dict[event_time_key] = np.array(event_dict[event_time_key]).reshape(-1)
+            obs[key] = event_dict
 
-    for key, value in final_dict.items():
-        # TODO (priority 2) total workaround must fix
-        if key not in ["e_type", "fg", "bg"]:
-            final_dict[key] = np.array(value)
-            if key in ["start", "end", "duration"]:
-                final_dict[key] = final_dict[key].reshape(-1)
-            if key in ["open", "active"]:
-                final_dict[key] = np.array([int(xi) for xi in final_dict[key]])
+        if type(obs[key]) == dict:
+            final_dict = final_dict | obs[key]
+        else:
+            final_dict[key] = obs[key]
     return final_dict
 
 
