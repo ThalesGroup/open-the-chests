@@ -175,7 +175,6 @@ class Environment:
         self.action = action
         if self.verbose:
             print(f"Applying action {action}")
-
         reward = []
         for box_id in range(len(action)):
             if action[box_id] == 1:

@@ -1,6 +1,7 @@
 import math
 from copy import deepcopy
 
+
 # TODO doc (priority 4)
 
 class Event:
@@ -20,6 +21,11 @@ class Event:
         self.start = t_start
         self.end = t_end
         self.duration = t_end - t_start if (t_end != math.inf) else math.inf
+
+    def set_time(self, t_start, t_end):
+        self.start = t_start
+        self.end = t_end
+        self.duration = t_end - t_start
 
     def shift(self, delta):
         """

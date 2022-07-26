@@ -1,6 +1,9 @@
 from Elements.Pattern import Pattern
 
 # TODO (priority 4) doc
+from utils.utils import bug_print
+
+
 class InteractiveBox:
     def __init__(self, id, pattern: Pattern = None, verbose=True):
         """
@@ -107,7 +110,7 @@ class InteractiveBox:
                 # otherwise, check if pattern has been satisfied
                 else:
                     self.check_pattern()
-            else:
+            if not self.box["active"]:
                 # TODO (priority 2) see if this can be moved somewhere else, not very clear
                 if t_current >= self.pattern.start_pattern_time:
                     self.activate()

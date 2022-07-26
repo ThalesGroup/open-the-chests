@@ -3,7 +3,7 @@ import random
 import plotly.io as pio
 import yaml
 
-from BoxEventEnv import BoxEventEnv
+from mygym.BoxEventEnv import BoxEventEnv
 from utils.utils import parse_file
 
 pio.renderers.default = "browser"
@@ -42,8 +42,8 @@ if __name__ == '__main__':
 
     # Train the agent
     print("Learning")
-    model = A2C('MultiInputPolicy', env, verbose=1).learn(5000)
-    #model = A2C('MultiInputPolicy', env, verbose=1)
+    # model = A2C('MultiInputPolicy', env, verbose=1).learn(5000)
+    model = A2C('MultiInputPolicy', env, verbose=1)
 
     # Test the trained agent
     obs = verbose_env.reset()
@@ -57,7 +57,7 @@ if __name__ == '__main__':
         random_action = [[random.randint(0, 1) for i in range(2)]]
         print("Step {}".format(step + 1))
         print("Action: ", action)
-        obs, reward, done, info = verbose_env.step(action)
+        obs, reward, done, info = verbose_env.step(random_action)
         verbose_env.render()
         print('obs =', obs, 'reward=', reward, 'done=', done)
         # env.render(mode='console')

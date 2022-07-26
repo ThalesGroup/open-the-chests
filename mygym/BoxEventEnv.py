@@ -3,7 +3,6 @@ import gym
 from gym.spaces import Dict, MultiBinary, Discrete, Box
 
 from Dynamics.Environment import Environment
-from utils.EventSpace import EventSpace
 
 
 class BoxEventEnv(gym.Env):

@@ -1,4 +1,5 @@
 delay 7
+noise 0
 instantiate b1 B{bg:blue} duration (4,2)
 instantiate b2 B{fg:red} duration (10,1)
 b2 allen after b1 gap_dist (2,1)

@@ -17,7 +17,9 @@ def bug_print(something="", msg=""):
 def my_normal(mu, sigma):
     assert mu - sigma >= 0, "Allows negative time durations"
     res = random.normalvariate(mu, sigma)
-    return max((mu - sigma), res)
+    res = max((mu - sigma), res)
+    res = min((mu + sigma), res)
+    return res
 
 
 def list_to_labels(l):
@@ -61,12 +63,32 @@ def parse_tuple(s):
     return tuple(map(int, re.findall(r'[0-9]+', s)))
 
 
+# instr1 = [{"command": "delay", "parameters": 5},
+#           {"command": "instantiate", "parameters": ("A", {"bg": "blue"}, (4, 2)), "variable_name": "a1"},
+#           {"command": "instantiate", "parameters": ("C", {"fg": "red"}, (10, 1)), "variable_name": "c1"},
+#           {"command": "after", "parameters": ("c1", "a1"), "variable_name": "c1", "other": {"gap_dist": (2, 1)}},
+#           {"command": "instantiate", "parameters": ("C", {}, (4, 1)), "variable_name": "c2"},
+#           {"command": "during", "parameters": ("c2", "c1"), "variable_name": "c2"},
+#           {"command": "instantiate", "parameters": ("A", {}), "variable_name": "a2"},
+#           {"command": "met_by", "parameters": ("a2", "c1"), "variable_name": "a2"}]
+#
+# instr2 = [{"command": "delay", "parameters": 7},
+#           {"command": "instantiate", "parameters": ("B", {"bg": "blue"}, (4, 2)), "variable_name": "b1"},
+#           {"command": "instantiate", "parameters": ("B", {"fg": "red"}, (10, 1)), "variable_name": "b2"},
+#           {"command": "after", "parameters": ("b2", "b1"), "variable_name": "b2", "other": {"gap_dist": (2, 1)}}]
+#
+
+
 # TODO (priority 2) add safety for adding random white spaces
 def line_to_command_dict(line: str):
     line = line.split(" ")
     if "delay" in line:
         delay_val_ind = line.index("delay") + 1
         return {"command": "delay", "parameters": int(line[delay_val_ind])}
+
+    elif "noise" in line:
+        noise_val_ind = line.index("noise") + 1
+        return {"command": "noise", "parameters": float(line[noise_val_ind])}
 
     elif "instantiate" in line:
         instantiate_ind = line.index("instantiate")

@@ -8,6 +8,7 @@ import plotly.express as px
 
 
 # TODO (priority 2) rework whole class to be more logically organised and with less parameters
+from utils.utils import bug_print
 
 
 class BoxEventGUI:
@@ -63,24 +64,19 @@ class BoxEventGUI:
         # TODO (priority 2) fix this to add option with smooth transitions with no button
         event, values = self.window.read()
         patterns = [box.pattern.full_pattern for box in boxes]
+        patterns_closed = [box.pattern.full_pattern for box in boxes if not box.is_open()]
         box_states = [box.box for box in boxes]
         past_events_img = self.print_event_list(self.history)
         self.window["-IMAGE-"].update(data=past_events_img)
         self.window["-TOUT-"].update(self.get_variable("context"))
         self.window["-action-"].update("action : " + str(self.get_variable("last_action")))
-        # Refresh the update
-        self.window.refresh()
-        # Update for scroll area of Column element
-        self.window['Column0'].contents_changed()
-        self.window['Column1'].contents_changed()
-        self.window['Column0'].Widget.canvas.xview_moveto(1.0)
 
-        patterns_range = [patterns[0][0].start, patterns[0][-1].end]
-        for pattern in patterns[1:]:
+        patterns_range = [math.inf, -math.inf]
+        for pattern in patterns_closed:
             if pattern[0].start < patterns_range[0]:
                 patterns_range[0] = pattern[0].start
-            if pattern[0].end > patterns_range[1]:
-                patterns_range[1] = pattern[0].end
+            if pattern[-1].end > patterns_range[1]:
+                patterns_range[1] = pattern[-1].end
 
         for i in range(len(patterns)):
             if boxes[i].is_open():
@@ -95,6 +91,13 @@ class BoxEventGUI:
                                                 bg_color=bg_color)
             self.window["-pattern-" + str(i)].update(data=pattern_img)
             self.window["-box-" + str(i)].update(f"box state : {box_states[i]}")
+
+        # Refresh the update
+        self.window.refresh()
+        # Update for scroll area of Column element
+        self.window['Column0'].contents_changed()
+        self.window['Column1'].contents_changed()
+        self.window['Column0'].Widget.canvas.xview_moveto(1.0)
 
     # TODO (priority 2) make this part of the code prettier
     def print_event_list(self,

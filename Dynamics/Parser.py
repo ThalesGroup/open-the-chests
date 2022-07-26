@@ -21,6 +21,7 @@ class Parser:
         """
         self.all_event_attributes = all_event_attributes
         self.all_event_types = all_event_types
+        self.min_max_durations = {"min": 1, "max": 1}
 
         # TODO (priority 3) establish language for event type and optimise value usage
         # TODO (priority 3) externalise and make value usage independent
@@ -35,7 +36,7 @@ class Parser:
         # TODO (priority 3) make this prettier later somehow
         for attr_name, attr_vals in all_event_attributes.items():
             self.attr_to_label[attr_name] = dict(zip(attr_vals, list_to_labels(attr_vals)))
-            self.label_to_attr[attr_name] = dict(zip(map(str,list_to_labels(attr_vals)), attr_vals))
+            self.label_to_attr[attr_name] = dict(zip(map(str, list_to_labels(attr_vals)), attr_vals))
 
     def labelise(self, e_type: str, attributes: dict):
         """
@@ -50,8 +51,26 @@ class Parser:
         attributes = {key: self.attr_to_label[key][value] for key, value in attributes.items()}
         return e_type, attributes
 
+    def noise(self, before):
+        t1, t2 = random.uniform(0,before), random.uniform(0,before)
+        start, end = min(t1, t2), max(t1, t2)
+        noise = self.instantiate(duration_distribution=(1,1))
+        noise.set_time(start, end)
+        return noise
+
+    def record_duration(self, duration):
+        if duration < self.min_max_durations["min"]:
+            self.min_max_durations["min"] = duration
+        elif duration > self.min_max_durations["max"]:
+            self.min_max_durations["max"] = duration
+
+    def get_random_duration_dist(self):
+        sigma = (self.min_max_durations["max"] - self.min_max_durations["min"])/2
+        mu = self.min_max_durations["min"] + sigma
+        return mu, sigma
+
     # TODO (priority 3) add function to check if values are correct
-    def instantiate(self, e_type: str = None, attributes: dict = {}, duration_distribution: (int, int) = (2, 1)):
+    def instantiate(self, e_type: str = None, attributes: dict = {}, duration_distribution: (int, int) = None):
         """
         Instantiates an event of given parameters of duration drawn according to a truncated normal distribution.
         If event parameters or type are not specified they are randomly drawn from the list of available ones.
@@ -68,25 +87,16 @@ class Parser:
         for attr, attr_values in self.all_event_attributes.items():
             if attr not in attributes:
                 attributes[attr] = random.choice(attr_values)
+
+        if duration_distribution:
+            self.record_duration(duration_distribution[0])
+        else:
+            duration_distribution = self.get_random_duration_dist()
+
         duration_inst = my_normal(*duration_distribution)
         duration_inst = max(duration_inst, duration_distribution[0] - duration_distribution[1])
         e_type, attributes = self.labelise(e_type, attributes)
         return Event(e_type, attributes, 0, duration_inst)
-
-    # instr1 = [{"command": "delay", "parameters": 5},
-    #           {"command": "instantiate", "parameters": ("A", {"bg": "blue"}, (4, 2)), "variable_name": "a1"},
-    #           {"command": "instantiate", "parameters": ("C", {"fg": "red"}, (10, 1)), "variable_name": "c1"},
-    #           {"command": "after", "parameters": ("c1", "a1"), "variable_name": "c1", "other": {"gap_dist": (2, 1)}},
-    #           {"command": "instantiate", "parameters": ("C", {}, (4, 1)), "variable_name": "c2"},
-    #           {"command": "during", "parameters": ("c2", "c1"), "variable_name": "c2"},
-    #           {"command": "instantiate", "parameters": ("A", {}), "variable_name": "a2"},
-    #           {"command": "met_by", "parameters": ("a2", "c1"), "variable_name": "a2"}]
-    #
-    # instr2 = [{"command": "delay", "parameters": 7},
-    #           {"command": "instantiate", "parameters": ("B", {"bg": "blue"}, (4, 2)), "variable_name": "b1"},
-    #           {"command": "instantiate", "parameters": ("B", {"fg": "red"}, (10, 1)), "variable_name": "b2"},
-    #           {"command": "after", "parameters": ("b2", "b1"), "variable_name": "b2", "other": {"gap_dist": (2, 1)}}]
-    #
 
     def generate_pattern(self, instructions: dict):
         """
@@ -115,4 +125,3 @@ class Parser:
                 # TODO (priority 3) add more errors and tests for correctly used values
                 raise ValueError("Unknown allen command: " + str(instr_line["command"]))
         return sorted(event_list)
-
