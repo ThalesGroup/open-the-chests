@@ -66,7 +66,7 @@ if __name__ == '__main__':
         random_action = [[random.randint(0, 1) for i in range(2)]]
         print("Step {}".format(step + 1))
         print("Action: ", action)
-        obs, reward, done, info = verbose_env.step(random_action)
+        obs, reward, done, info = verbose_env.step(sure_action)
         verbose_env.render()
         print('obs =', obs, 'reward=', reward, 'done=', done)
         # env.render(mode='console')

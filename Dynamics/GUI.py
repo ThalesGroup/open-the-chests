@@ -71,12 +71,10 @@ class BoxEventGUI:
         self.window["-TOUT-"].update(self.get_variable("context"))
         self.window["-action-"].update("action : " + str(self.get_variable("last_action")))
 
-        patterns_range = [math.inf, -math.inf]
+        patterns_range = [0,0]
         for pattern in patterns_closed:
-            if pattern[0].start < patterns_range[0]:
-                patterns_range[0] = pattern[0].start
-            if pattern[-1].end > patterns_range[1]:
-                patterns_range[1] = pattern[-1].end
+            patterns_range[0] = min(patterns_range[0], pattern[0].start) if patterns_range[0] == 0 else pattern[0].start
+            patterns_range[1] = max(patterns_range[1], pattern[-1].end) if patterns_range[0] == 0 else pattern[-1].end
 
         for i in range(len(patterns)):
             if boxes[i].is_open():
