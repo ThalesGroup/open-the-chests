@@ -15,6 +15,8 @@ def bug_print(something="", msg=""):
 
 
 def my_normal(mu, sigma):
+    print("mu: " + str(mu))
+    print("sigma: " + str(sigma))
     assert mu - sigma >= 0, "Allows negative time durations"
     res = random.normalvariate(mu, sigma)
     res = max((mu - sigma), res)
@@ -99,7 +101,8 @@ def line_to_command_dict(line: str):
         if "duration" in line:
             duration_ind = line.index("duration")
             duration_params = parse_tuple(line[duration_ind + 1])
-            return {"command": "instantiate", "parameters": (event_type, event_params, duration_params),
+            return {"command": "instantiate",
+                    "parameters": (event_type, event_params, duration_params),
                     "variable_name": var_name}
         return {"command": "instantiate", "parameters": (event_type, event_params), "variable_name": var_name}
 
@@ -121,6 +124,30 @@ def parse_file(filename):
     with open(filename) as f:
         lines = [line.rstrip() for line in f]
     return list(map(line_to_command_dict, lines))
+
+
+def parse_yaml_file(filename):
+    instructions = []
+    with open(filename, "r") as f:
+        conf = yaml.safe_load(f)
+    instructions.append({"command": "delay", "parameters": conf["GENERAL"]["delay"]})
+    instructions.append({"command": "noise", "parameters": conf["GENERAL"]["noise"]})
+    for event in conf["INSTANTIATE"]:
+        attr = event["params"] if "params" in event else {}
+        duration_dist = {"mu": event["duration"]["mu"],
+                         "sigma": event["duration"]["sigma"]} if "duration" in event else None
+        instr = {"command": "instantiate",
+                 "parameters": (event["type"], attr, duration_dist),
+                 "variable_name": event["name"]}
+        instructions.append(instr)
+    for relation in conf["RELATIONSHIP"]:
+        other_params = relation["other"] if "other" in relation else {}
+        instr = {"command": relation["type"],
+                 "parameters": relation["events"],
+                 "variable_name": relation["events"][0],
+                 "other": other_params}
+        instructions.append(instr)
+    return instructions
 
 
 def read_yaml(file_path):

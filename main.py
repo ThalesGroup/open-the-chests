@@ -3,8 +3,17 @@ import random
 import plotly.io as pio
 import yaml
 
+# instr1 = [{"command": "delay", "parameters": 5},
+#           {"command": "instantiate", "parameters": ("A", {"bg": "blue"}, (4, 2)), "variable_name": "a1"},
+#           {"command": "instantiate", "parameters": ("C", {"fg": "red"}, (10, 1)), "variable_name": "c1"},
+#           {"command": "after", "parameters": ("c1", "a1"), "variable_name": "c1", "other": {"gap_dist": (2, 1)}},
+#           {"command": "instantiate", "parameters": ("C", {}, (4, 1)), "variable_name": "c2"},
+#           {"command": "during", "parameters": ("c2", "c1"), "variable_name": "c2"},
+#           {"command": "instantiate", "parameters": ("A", {}), "variable_name": "a2"},
+#           {"command": "met_by", "parameters": ("a2", "c1"), "variable_name": "a2"}]
+
 from mygym.BoxEventEnv import BoxEventEnv
-from utils.utils import parse_file
+from utils.utils import parse_file, parse_yaml_file
 
 pio.renderers.default = "browser"
 
@@ -18,7 +27,7 @@ if __name__ == '__main__':
 
     all_instructions = []
     for file in conf["INSTRUCTIONS"]:
-        instr = parse_file("config/patterns/" + file)
+        instr = parse_yaml_file("config/patterns/" + file)
         all_instructions.append(instr)
         print(instr)
 

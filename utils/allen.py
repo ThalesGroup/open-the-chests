@@ -1,11 +1,11 @@
 import random
 
 from Elements.Event import Event
-from utils.utils import my_normal
+from utils.utils import my_normal, bug_print
 
 
 def after(second: Event, first: Event, gap_dist: (int, int)):
-    gap_duration = my_normal(*gap_dist)
+    gap_duration = my_normal(**gap_dist)
     second_start = first.end + gap_duration
     new_event = second.shift(second_start)
     return new_event

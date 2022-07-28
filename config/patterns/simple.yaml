@@ -1,0 +1,27 @@
+GENERAL:
+  delay: 7
+  noise: 0.9
+INSTANTIATE:
+  - name: b1
+    type: B
+    params:
+      bg: blue
+    duration:
+      mu: 4
+      sigma: 2
+  - name: b2
+    type: B
+    params:
+      fg: red
+    duration:
+      mu: 10
+      sigma: 1
+RELATIONSHIP:
+  - type: after
+    events:
+      - b2
+      - b1
+    other:
+      gap_dist:
+        mu: 2
+        sigma: 1

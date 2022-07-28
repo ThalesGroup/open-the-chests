@@ -12,5 +12,5 @@ EVENT_ATTRIBUTES:
     - blue
     - green
 INSTRUCTIONS:
-  - complex.cm
-  - simple.cm
+  - complex.yaml
+  - simple.yaml

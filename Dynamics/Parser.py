@@ -8,7 +8,7 @@ from Elements.Event import Event
 # TODO (priority 3) rethink labelisation
 # TODO (priority 1) add more allen functions
 # TODO (priority 1) add noise
-from utils.utils import list_to_labels, my_normal
+from utils.utils import list_to_labels, my_normal, bug_print
 
 
 class Parser:
@@ -54,7 +54,7 @@ class Parser:
     def noise(self, before):
         t1, t2 = random.uniform(0,before), random.uniform(0,before)
         start, end = min(t1, t2), max(t1, t2)
-        noise = self.instantiate(duration_distribution=(1,1))
+        noise = self.instantiate()
         noise.set_time(start, end)
         return noise
 
@@ -67,10 +67,10 @@ class Parser:
     def get_random_duration_dist(self):
         sigma = (self.min_max_durations["max"] - self.min_max_durations["min"])/2
         mu = self.min_max_durations["min"] + sigma
-        return mu, sigma
+        return {"mu": mu, "sigma": sigma}
 
     # TODO (priority 3) add function to check if values are correct
-    def instantiate(self, e_type: str = None, attributes: dict = {}, duration_distribution: (int, int) = None):
+    def instantiate(self, e_type: str = None, attributes: dict = {}, duration_distribution: dict() = {"mu": 1, "sigma": 1}):
         """
         Instantiates an event of given parameters of duration drawn according to a truncated normal distribution.
         If event parameters or type are not specified they are randomly drawn from the list of available ones.
@@ -88,13 +88,13 @@ class Parser:
             if attr not in attributes:
                 attributes[attr] = random.choice(attr_values)
 
+        bug_print(duration_distribution)
         if duration_distribution:
-            self.record_duration(duration_distribution[0])
+            self.record_duration(duration_distribution["mu"])
         else:
             duration_distribution = self.get_random_duration_dist()
 
-        duration_inst = my_normal(*duration_distribution)
-        duration_inst = max(duration_inst, duration_distribution[0] - duration_distribution[1])
+        duration_inst = my_normal(**duration_distribution)
         e_type, attributes = self.labelise(e_type, attributes)
         return Event(e_type, attributes, 0, duration_inst)
 

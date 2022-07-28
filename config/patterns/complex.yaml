@@ -1,0 +1,51 @@
+GENERAL:
+  delay: 5
+  noise: 0
+INSTANTIATE:
+  - name: a1
+    type: A
+    params:
+      bg: blue
+    duration:
+      mu: 4
+      sigma: 2
+
+  - name: c1
+    type: A
+    params:
+      bg: red
+    duration:
+      mu: 10
+      sigma: 1
+
+  - name: c2
+    type: C
+    params:
+      bg: red
+    duration:
+      mu: 4
+      sigma: 1
+
+  - name: a2
+    type: A
+    params:
+      bg: blue
+
+RELATIONSHIP:
+  - type: after
+    events:
+        - c1
+        - a1
+    other:
+      gap_dist:
+        mu: 2
+        sigma: 1
+
+  - type: during
+    events:
+        - c2
+        - c1
+  - type: met_by
+    events:
+        - a2
+        - c1
