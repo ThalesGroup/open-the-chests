@@ -17,6 +17,19 @@ from utils.utils import parse_file, parse_yaml_file
 
 pio.renderers.default = "browser"
 
+"""
+TODO after holidays
+- Report
+- Start tests with exCog
+- Write test modules for code and use as excuse to rework code and reformat
+    (do this in parallel with setup for excog and documentation)
+- Implement mini-features for environment
+    - Multiple Patterns satisfied by same observation
+    - Rethink noise generation and add event specific noise 
+    - Noise different from all next events? add different type for noise?
+"""
+
+
 if __name__ == '__main__':
 
     with open("/home/S3G-LABS/u1226/dev/openchests/config/config.yaml", "r") as f:
@@ -69,7 +82,6 @@ if __name__ == '__main__':
         obs, reward, done, info = verbose_env.step(sure_action)
         verbose_env.render()
         print('obs =', obs, 'reward=', reward, 'done=', done)
-        # env.render(mode='console')
         if done:
             # Note that the VecEnv resets automatically
             # when a done signal is encountered

@@ -7,7 +7,6 @@ from Elements.Event import Event
 # TODO (priority 3) rethink class structure and use input all items to generate dictionaries
 # TODO (priority 3) rethink labelisation
 # TODO (priority 1) add more allen functions
-# TODO (priority 1) add noise
 from utils.utils import list_to_labels, my_normal, bug_print
 
 

@@ -75,7 +75,7 @@ class Environment:
 
     def step(self, action: List[int]):
         """
-        Move forward the environment by one step using the selected action
+        Move forward the environment by one step using the selected action.
 
         :param action: List of box ids to attempt to open
         :return: Reward obtained from acting and context at the end of the environment step
@@ -138,8 +138,7 @@ class Environment:
     def advance_timeline(self):
         # TODO (priority 4) doc
         """
-
-        :return:
+        Advance internal environment event activity by one step in order to obtain new observations.
         """
 
         if self.verbose:
@@ -164,13 +163,20 @@ class Environment:
     def update_boxes(self, t_current):
         # TODO (priority 4) doc and optimise
         """
+        Update all boxes states in coherence with system evolution.
 
-        :param t_current:
+        :param t_current: the current system time used to re-activate boxes if needed.
         """
         for box in self.boxes:
             box.update(t_current)
 
     def apply_action(self, action):
+        """
+        Apply given action to system and update environment according to action effects.
+
+        :param action: The action to apply
+        :return: Reward obtained for the selected action.
+        """
         # TODO (priority 4) doc
         self.action = action
         if self.verbose:
@@ -185,10 +191,18 @@ class Environment:
         return sum(reward)
 
     def disable_timeline(self, box_id):
+        """
+        Disable the timeline for a certain box id.
+        :param box_id: The box id to remove from the game.
+        """
         # TODO (priority 3) sent this to get_next possibly via box opening? remove event stack to prevent problems?
         self.timeline[box_id] = Event("end", dict(), math.inf, math.inf)
 
     def check_end(self):
+        """
+        Verify if all boxes have been opened and thus the end of the game has been reached.
+        :return: Boolean indicating the end of the game
+        """
         # TODO (priority 4) doc
         return all([box.is_open() for box in self.boxes])
 
