@@ -65,7 +65,7 @@ class BoxEventGUI:
         event, values = self.window.read()
         patterns = [box.pattern.full_pattern for box in boxes]
         patterns_closed = [box.pattern.full_pattern for box in boxes if not box.is_open()]
-        box_states = [box.box for box in boxes]
+        box_states = [box.get_state() for box in boxes]
         past_events_img = self.print_event_list(self.history)
         self.window["-IMAGE-"].update(data=past_events_img)
         self.window["-TOUT-"].update(self.get_variable("context"))
@@ -137,7 +137,7 @@ class BoxEventGUI:
                 opacity=0.8,
                 font=dict(
                     family="Courier New, monospace",
-                    size=25 * (1 - math.exp(-event.end + event.start)),
+                    size=1 + 25 * (1 - math.exp(-event.end + event.start)),
                     color="#ffffff"
                 ),
             ))

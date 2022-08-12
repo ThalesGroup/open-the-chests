@@ -105,7 +105,7 @@ class Environment:
         Return contains:
             - State information showing if @self.boxes are active or open
             - Context information showing last observed event
-        :return:
+        :return: dictionary containing environment information
         """
         active = []
         open = []
@@ -120,6 +120,7 @@ class Environment:
         obs = {"state": box_states, "context": self.context}
 
         # TODO (priority 4) explain and document the need for this step
+        # TODO (priority 2) move to more obvious place maybe right before returning observation to user
         if self.stb3:
             obs = process_obs(obs)
         return obs
@@ -144,21 +145,21 @@ class Environment:
         if self.verbose:
             print(f"Active timeline {self.timeline}")
 
-        ending_box_id = min(self.timeline, key=self.timeline.get)
-        self.context = self.timeline[ending_box_id]
-        self.time = self.context.end
-
-        # TODO (priority 3) what is the interest of this if? make it clear or move it somewhere
-        # if only useful at end when selected box is open since all boxes are open
-        if not self.boxes[ending_box_id].is_open():
+        if self.timeline:
+            ending_box_id = min(self.timeline, key=self.timeline.get)
+            self.context = self.timeline[ending_box_id]
+            self.time = self.context.end
             event = self.boxes[ending_box_id].pattern.get_next()
             self.timeline[ending_box_id] = event
 
-        if self.verbose:
-            print(f"Finding closes end value {self.time}")
-            print(f"Advancing time to {self.time}")
-            print(f"Sampling from boxes {ending_box_id}")
-            print(f"Observing context {self.context}")
+            if self.verbose:
+                print(f"Finding closes end value {self.time}")
+                print(f"Advancing time to {self.time}")
+                print(f"Sampling from boxes {ending_box_id}")
+                print(f"Observing context {self.context}")
+        else:
+            if self.verbose:
+                print("Timeline is empty as all boxes are opened")
 
     def update_boxes(self, t_current):
         # TODO (priority 4) doc and optimise
@@ -178,16 +179,25 @@ class Environment:
         :return: Reward obtained for the selected action.
         """
         # TODO (priority 4) doc
+        # TODO (priority 2) make code prettier reduce all ifs and separate press and reward if possible
         self.action = action
         if self.verbose:
             print(f"Applying action {action}")
         reward = []
         for box_id in range(len(action)):
+            current_box = self.boxes[box_id]
             if action[box_id] == 1:
-                opened = self.boxes[box_id].press_button()
+                opened = current_box.press_button()
                 if opened:
                     self.disable_timeline(box_id)
-                reward.append(opened)
+                    reward.append(1)
+                else:
+                    reward.append(-1)
+            else:
+                if current_box.is_ready():
+                    reward.append(-1)
+                else:
+                    reward.append(0)
         return sum(reward)
 
     def disable_timeline(self, box_id):
@@ -196,7 +206,7 @@ class Environment:
         :param box_id: The box id to remove from the game.
         """
         # TODO (priority 3) sent this to get_next possibly via box opening? remove event stack to prevent problems?
-        self.timeline[box_id] = Event("end", dict(), math.inf, math.inf)
+        self.timeline.pop(box_id, None)
 
     def check_end(self):
         """

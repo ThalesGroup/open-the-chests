@@ -18,20 +18,39 @@ class InteractiveBox:
         self.id = id
         self.verbose = verbose
         # TODO (priority 3) rename this can cause confusion box.box?
-        self.box = {"open": False, "ready": False, "active": False}
+        self.state = {"open": False, "ready": False, "active": False}
         self.pattern = pattern
 
-    def reset(self, time):
-        self.box = {"open": False, "ready": False, "active": False}
-        self.activate()
-        self.pattern.fill_event_stack(time)
-        self.pattern.satisfied = False
+    def get_state(self):
+        return self.state
+
+    def is_ready(self):
+        return self.state["ready"]
 
     def is_open(self):
-        return self.box["open"]
+        return self.state["open"]
 
     def is_active(self):
-        return self.box["active"]
+        return self.state["active"]
+
+    def check_pattern(self):
+        """
+        Check if box pattern has been fully displayed and change box state to ready if this is the case
+        """
+        if self.pattern.satisfied:
+            self.ready()
+
+    def reset(self, time):
+        """
+        Reset a box to initial conditions, not opened, not ready and active and regenerate its event stack starting
+        at a selected time.
+        :param time: The time to use as a start for the box pattern
+        """
+        self.state = {"open": False, "ready": False, "active": False}
+        self.activate()
+        self.pattern.fill_event_stack(time)
+        # TODO (priority 3) can this be moved to some more pattern related place?
+        self.pattern.satisfied = False
 
     def open(self):
         """
@@ -39,23 +58,23 @@ class InteractiveBox:
         """
         if self.verbose:
             print(f"Opening box {self.id}")
-        self.box["open"] = True
-        self.box["ready"] = False
-        self.box["active"] = False
+        self.state["open"] = True
+        self.state["ready"] = False
+        self.state["active"] = False
 
     def activate(self):
         """
         Activates box, marks it as not ready and not opened
         """
-        assert not self.box["open"], "Cannot activate an opened box"
-        assert not self.box["ready"], "Newly activated boxes shouldn't be ready"
+        assert not self.state["open"], "Cannot activate an opened box"
+        assert not self.state["ready"], "Newly activated boxes shouldn't be ready"
 
         if self.verbose:
             print(f"Activating box {self.id}")
 
-        self.box["active"] = True
-        self.box["ready"] = False
-        self.box["open"] = False
+        self.state["active"] = True
+        self.state["ready"] = False
+        self.state["open"] = False
 
     def deactivate(self):
         """
@@ -64,9 +83,9 @@ class InteractiveBox:
         if self.verbose:
             print(f"Deactivating box {self.id}")
 
-        self.box["active"] = False
-        self.box["ready"] = False
-        self.box["open"] = False
+        self.state["active"] = False
+        self.state["ready"] = False
+        self.state["open"] = False
         self.pattern.satisfied = False
 
     def ready(self):
@@ -76,24 +95,17 @@ class InteractiveBox:
         if self.verbose:
             print(f"Ready box {self.id}")
 
-        self.box["active"] = True
-        self.box["ready"] = True
-        self.box["open"] = False
-
-    def check_pattern(self):
-        """
-
-        """
-        if self.pattern.satisfied:
-            self.ready()
+        self.state["active"] = True
+        self.state["ready"] = True
+        self.state["open"] = False
 
     def press_button(self):
         """
         Attempt to open box via button press. If box is active and ready it will open.
         :return: success of attempt
         """
-        if not self.box["open"]:  # if the box has not been opened already
-            if self.box["active"] and self.box["ready"]:  # if the box is active and ready to open
+        if not self.state["open"]:  # if the box has not been opened already
+            if self.state["active"] and self.state["ready"]:  # if the box is active and ready to open
                 self.open()
                 return True
         return False  # in all other cases return false
@@ -102,15 +114,15 @@ class InteractiveBox:
         """
         Verifies bos state and updates its status
         """
-        if not self.box["open"]:
-            if self.box["active"]:
+        if not self.state["open"]:
+            if self.state["active"]:
                 # if the box has been ready it should be timed out
-                if self.box["ready"]:
+                if self.state["ready"]:
                     self.deactivate()
                 # otherwise, check if pattern has been satisfied
                 else:
                     self.check_pattern()
-            if not self.box["active"]:
-                # TODO (priority 2) see if this can be moved somewhere else, not very clear
+            if not self.state["active"]:
+                # TODO (priority 3) see if this can be moved somewhere else, not very clear maybe?
                 if t_current >= self.pattern.start_pattern_time:
                     self.activate()

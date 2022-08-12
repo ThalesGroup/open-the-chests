@@ -1,0 +1,12 @@
+processing_sequence:
+  - module: process
+    function: process_1
+    params:
+      param1: 1
+      param2: 0.2
+
+  - module: process
+    function: process_2
+    params:
+      param1: 0.03
+      param2: 0.004

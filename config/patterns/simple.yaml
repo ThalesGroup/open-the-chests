@@ -6,6 +6,7 @@ INSTANTIATE:
     type: B
     params:
       bg: blue
+      fg: red
     duration:
       mu: 4
       sigma: 2
@@ -13,6 +14,7 @@ INSTANTIATE:
     type: B
     params:
       fg: red
+      bg: blue
     duration:
       mu: 10
       sigma: 1

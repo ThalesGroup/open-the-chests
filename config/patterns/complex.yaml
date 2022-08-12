@@ -30,6 +30,19 @@ INSTANTIATE:
     type: A
     params:
       bg: blue
+      fg: red
+    duration:
+      mu: 5
+      sigma: 2
+
+  - name: a3
+    type: A
+    params:
+      bg: blue
+      fg: red
+    duration:
+      mu: 5
+      sigma: 2
 
 RELATIONSHIP:
   - type: after
@@ -45,7 +58,17 @@ RELATIONSHIP:
     events:
         - c2
         - c1
+
   - type: met_by
     events:
         - a2
         - c1
+
+  - type: after
+    events:
+      - a3
+      - c2
+    other:
+      gap_dist:
+        mu: 2
+        sigma: 1

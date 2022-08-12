@@ -15,8 +15,6 @@ def bug_print(something="", msg=""):
 
 
 def my_normal(mu, sigma):
-    print("mu: " + str(mu))
-    print("sigma: " + str(sigma))
     assert mu - sigma >= 0, "Allows negative time durations"
     res = random.normalvariate(mu, sigma)
     res = max((mu - sigma), res)

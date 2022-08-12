@@ -6,7 +6,7 @@ from Elements.Event import Event
 # TODO (priority 4) doc
 # TODO (priority 3) rethink class structure and use input all items to generate dictionaries
 # TODO (priority 3) rethink labelisation
-# TODO (priority 1) add more allen functions
+# TODO (priority 2) add more allen functions
 from utils.utils import list_to_labels, my_normal, bug_print
 
 
@@ -28,12 +28,12 @@ class Parser:
         self.all_event_types_labels = list_to_labels(all_event_types)
         self.all_event_attributes_labels = {key: list_to_labels(l) for key, l in all_event_attributes.items()}
 
+        # TODO (priority 3) make this prettier later somehow
         self.type_to_label = dict(zip(self.all_event_types, self.all_event_types_labels))
         self.label_to_type = dict(zip(self.all_event_types_labels, self.all_event_types))
         self.attr_to_label = dict()
         self.label_to_attr = dict()
-        # TODO (priority 3) make this prettier later somehow
-        for attr_name, attr_vals in all_event_attributes.items():
+        for attr_name, attr_vals in self.all_event_attributes.items():
             self.attr_to_label[attr_name] = dict(zip(attr_vals, list_to_labels(attr_vals)))
             self.label_to_attr[attr_name] = dict(zip(map(str, list_to_labels(attr_vals)), attr_vals))
 
@@ -57,19 +57,8 @@ class Parser:
         noise.set_time(start, end)
         return noise
 
-    def record_duration(self, duration):
-        if duration < self.min_max_durations["min"]:
-            self.min_max_durations["min"] = duration
-        elif duration > self.min_max_durations["max"]:
-            self.min_max_durations["max"] = duration
-
-    def get_random_duration_dist(self):
-        sigma = (self.min_max_durations["max"] - self.min_max_durations["min"])/2
-        mu = self.min_max_durations["min"] + sigma
-        return {"mu": mu, "sigma": sigma}
-
     # TODO (priority 3) add function to check if values are correct
-    def instantiate(self, e_type: str = None, attributes: dict = {}, duration_distribution: dict() = {"mu": 1, "sigma": 1}):
+    def instantiate(self, e_type: str = None, attributes: dict = {}, duration_distribution: dict() = {}):
         """
         Instantiates an event of given parameters of duration drawn according to a truncated normal distribution.
         If event parameters or type are not specified they are randomly drawn from the list of available ones.
@@ -87,7 +76,6 @@ class Parser:
             if attr not in attributes:
                 attributes[attr] = random.choice(attr_values)
 
-        bug_print(duration_distribution)
         if duration_distribution:
             self.record_duration(duration_distribution["mu"])
         else:
@@ -96,6 +84,17 @@ class Parser:
         duration_inst = my_normal(**duration_distribution)
         e_type, attributes = self.labelise(e_type, attributes)
         return Event(e_type, attributes, 0, duration_inst)
+
+    def record_duration(self, duration):
+        if duration < self.min_max_durations["min"]:
+            self.min_max_durations["min"] = duration
+        elif duration > self.min_max_durations["max"]:
+            self.min_max_durations["max"] = duration
+
+    def get_random_duration_dist(self):
+        sigma = (self.min_max_durations["max"] - self.min_max_durations["min"])/2
+        mu = self.min_max_durations["min"] + sigma
+        return {"mu": mu, "sigma": sigma}
 
     def generate_pattern(self, instructions: dict):
         """
