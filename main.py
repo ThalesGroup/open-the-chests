@@ -15,8 +15,9 @@ from stable_baselines3.common.evaluation import evaluate_policy
 from stable_baselines3.common.monitor import Monitor
 from torch import nn
 
+from globals import ENV_CONFIG_FOLDER
 from mygym.BoxEventEnv import BoxEventEnv
-from utils.utils import parse_file, parse_yaml_file
+from utils.utils import parse_file, parse_yaml_file, bug_print, my_evaluate
 
 pio.renderers.default = "browser"
 
@@ -39,15 +40,15 @@ TODO after holidays
 
 if __name__ == '__main__':
 
-    env = BoxEventEnv.from_config_file("/home/S3G-LABS/u1226/dev/openchests/config/config.yaml", False)
-    verbose_env = BoxEventEnv.from_config_file("/home/S3G-LABS/u1226/dev/openchests/config/config.yaml", True)
+    env = BoxEventEnv.from_config_file(ENV_CONFIG_FOLDER + "config.yaml", False)
+    verbose_env = BoxEventEnv.from_config_file(ENV_CONFIG_FOLDER + "config.yaml", True)
 
     from stable_baselines3 import A2C
     from stable_baselines3.common.env_util import make_vec_env
 
     # Instantiate the env
     # wrap it
-    env = Monitor(env, "/home/S3G-LABS/u1226/dev/openchests/excog_experiments/")
+    # env = Monitor(env, EXCOG_EXP_FOLDER)
     env = make_vec_env(lambda: env, n_envs=1)
     verbose_env = make_vec_env(lambda: verbose_env, n_envs=1)
 
@@ -58,7 +59,7 @@ if __name__ == '__main__':
     net_arch = {
         "small": [dict(pi=[64, 64], vf=[64, 64])],
         "medium": [dict(pi=[256, 256], vf=[256, 256])],
-        }[net_arch]
+    }[net_arch]
     activation_fn = "tanh"
     activation_fn = {"tanh": nn.Tanh,
                      "relu": nn.ReLU,
@@ -92,22 +93,23 @@ if __name__ == '__main__':
     # model = A2C('MultiInputPolicy', env, verbose=1)
 
     # Test the trained agent
-    obs = verbose_env.reset()
-    verbose_env.render()
     n_steps = 100
     print("------------------------ START -------------------------")
-    for step in range(n_steps):
-        action, _ = model.predict(obs, deterministic=True)
-        sure_action = [[1, 1]]
-        empty_action = [[0, 0]]
-        random_action = [[random.randint(0, 1) for i in range(2)]]
-        print("Step {}".format(step + 1))
-        print("Action: ", action)
-        obs, reward, done, info = verbose_env.step(action)
-        verbose_env.render()
-        print('obs =', obs, 'reward=', reward, 'done=', done)
-        if done:
-            # Note that the VecEnv resets automatically
-            # when a done signal is encountered
-            print("Goal reached!", "reward=", reward)
-            break
+    # obs = verbose_env.reset()
+    # verbose_env.render()
+    # for step in range(n_steps):
+    #     action, _ = model.predict(obs, deterministic=True)
+    #     sure_action = [[1, 1]]
+    #     empty_action = [[0, 0]]
+    #     random_action = [[random.randint(0, 1) for i in range(2)]]
+    #     print("Step {}".format(step + 1))
+    #     print("Action: ", action)
+    #     obs, reward, done, info = verbose_env.step(action)
+    #     verbose_env.render()
+    #     print('obs =', obs, 'reward=', reward, 'done=', done)
+    #     if done:
+    #         # Note that the VecEnv resets automatically
+    #         # when a done signal is encountered
+    #         print("Goal reached!", "reward=", reward)
+    #         break
+

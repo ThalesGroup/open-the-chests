@@ -1,6 +1,0 @@
-,datasets,output,output,output
-,data1,mean_reward,std_reward,monitor_file
-0,some_data,0,0,temp/0/
-1,more_data,0,0,temp/1/
-2,some_data,0,0,temp/2/
-3,more_data,0,0,temp/3/

@@ -10,7 +10,12 @@ from utils.utils import parse_yaml_file
 
 class BoxEventEnv(gym.Env):
 
-    def __init__(self, instructions: list, all_event_types, all_event_attributes, verbose):
+    def __init__(self, instructions: list,
+                 all_event_types,
+                 all_event_attributes,
+                 all_noise_types,
+                 all_noise_attributes,
+                 verbose):
         super(BoxEventEnv, self).__init__()
         self.verbose = verbose
         self.all_event_attributes = all_event_attributes
@@ -20,14 +25,16 @@ class BoxEventEnv(gym.Env):
         self.env = Environment(instructions=instructions,
                                all_event_types=all_event_types,
                                all_event_attributes=all_event_attributes,
+                               all_noise_types=all_noise_types,
+                               all_noise_attributes=all_noise_attributes,
                                verbose=verbose,
                                stb3=True)
 
         self.action_space = MultiBinary(self.env.num_boxes)
 
-        num_types = len(all_event_types)
+        num_types = len(self.env.parser.all_types)
         attr_space = {attr_name: Discrete(len(attr_values)) for (attr_name, attr_values) in
-                      all_event_attributes.items()}
+                      self.env.parser.all_attributes.items()}
 
         self.observation_space = Dict({
             "active": MultiBinary(self.env.num_boxes),
@@ -44,8 +51,11 @@ class BoxEventEnv(gym.Env):
         with open(config_file_name, "r") as f:
             conf = yaml.safe_load(f)
 
-        all_event_types = conf["EVENT_TYPES"]
-        all_event_attributes = conf["EVENT_ATTRIBUTES"]
+        all_event_types = conf["EVENT_TYPES"]["NORMAL"]
+        all_event_attributes = conf["EVENT_ATTRIBUTES"]["NORMAL"]
+
+        all_noise_types = conf["EVENT_TYPES"]["NOISE"]
+        all_noise_attributes = conf["EVENT_ATTRIBUTES"]["NOISE"]
 
         all_instructions = []
         for file in conf["INSTRUCTIONS"]:
@@ -55,6 +65,8 @@ class BoxEventEnv(gym.Env):
         env = cls(instructions=all_instructions,
                   all_event_types=all_event_types,
                   all_event_attributes=all_event_attributes,
+                  all_noise_types=all_noise_types,
+                  all_noise_attributes=all_noise_attributes,
                   verbose=verbose)
 
         return env

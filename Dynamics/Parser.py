@@ -12,30 +12,25 @@ from utils.utils import list_to_labels, my_normal, bug_print
 
 class Parser:
 
-    def __init__(self, all_event_types, all_event_attributes):
+    def __init__(self,
+                 all_event_types,
+                 all_noise_types,
+                 all_event_attributes,
+                 all_noise_attributes):
         """
         Parser class that allows to generate event patterns using instructions.
         :param all_event_types: list of all possible event types to be used in the environment.
         :param all_event_attributes: dictionary of lists of all possible corresponding values for each event type.
         """
-        self.all_event_attributes = all_event_attributes
         self.all_event_types = all_event_types
+        self.all_noise_types = all_noise_types
+        self.all_event_attributes = all_event_attributes
+        self.all_noise_attributes = all_noise_attributes
         self.min_max_durations = {"min": 1, "max": 1}
 
-        # TODO (priority 3) establish language for event type and optimise value usage
-        # TODO (priority 3) externalise and make value usage independent
-        # TODO (priority 3) change for official labelisation function
-        self.all_event_types_labels = list_to_labels(all_event_types)
-        self.all_event_attributes_labels = {key: list_to_labels(l) for key, l in all_event_attributes.items()}
-
-        # TODO (priority 3) make this prettier later somehow
-        self.type_to_label = dict(zip(self.all_event_types, self.all_event_types_labels))
-        self.label_to_type = dict(zip(self.all_event_types_labels, self.all_event_types))
-        self.attr_to_label = dict()
-        self.label_to_attr = dict()
-        for attr_name, attr_vals in self.all_event_attributes.items():
-            self.attr_to_label[attr_name] = dict(zip(attr_vals, list_to_labels(attr_vals)))
-            self.label_to_attr[attr_name] = dict(zip(map(str, list_to_labels(attr_vals)), attr_vals))
+        self.all_types = all_event_types + all_noise_types
+        self.all_attributes = {key: all_noise_attributes[key] + all_event_attributes[key]
+                               for key in all_event_attributes}
 
     def labelise(self, e_type: str, attributes: dict):
         """
@@ -46,14 +41,21 @@ class Parser:
         :param attributes: The dictionary of attributes to transform. Each value becomes an integer label while parameter names stay unchanged.
         :return: Integer label type and dictionary of integer value attributes.
         """
-        e_type = self.type_to_label[e_type]
-        attributes = {key: self.attr_to_label[key][value] for key, value in attributes.items()}
+        e_type = self.all_types.index(e_type)
+        attributes = {key: self.all_attributes[key].index(value) for key, value in attributes.items()}
         return e_type, attributes
 
     def noise(self, before):
-        t1, t2 = random.uniform(0,before), random.uniform(0,before)
+        t1, t2 = random.uniform(0, before), random.uniform(0, before)
         start, end = min(t1, t2), max(t1, t2)
-        noise = self.instantiate()
+        e_type = random.choice(self.all_noise_types)
+        attributes = dict()
+        for attr, attr_values in self.all_noise_attributes.items():
+            if attr not in attributes:
+                attributes[attr] = random.choice(attr_values)
+        # TODO (priority 3) move somewhere else repeats in instantiate
+        e_type, attributes = self.labelise(e_type, attributes)
+        noise = Event(e_type, attributes, 0, 1)
         noise.set_time(start, end)
         return noise
 
@@ -92,7 +94,7 @@ class Parser:
             self.min_max_durations["max"] = duration
 
     def get_random_duration_dist(self):
-        sigma = (self.min_max_durations["max"] - self.min_max_durations["min"])/2
+        sigma = (self.min_max_durations["max"] - self.min_max_durations["min"]) / 2
         mu = self.min_max_durations["min"] + sigma
         return {"mu": mu, "sigma": sigma}
 

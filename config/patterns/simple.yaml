@@ -1,6 +1,6 @@
 GENERAL:
   delay: 7
-  noise: 0
+  noise: 0.2
 INSTANTIATE:
   - name: b1
     type: B

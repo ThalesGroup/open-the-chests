@@ -1,16 +1,31 @@
 EVENT_TYPES:
-  - A
-  - B
-  - C
+  NORMAL:
+    - A
+    - B
+    - C
+  NOISE:
+    - D
+    - E
+    - F
 EVENT_ATTRIBUTES:
-  fg:
-    - red
-    - blue
-    - green
-  bg:
-    - red
-    - blue
-    - green
+  NORMAL:
+    fg:
+      - red
+      - blue
+      - green
+    bg:
+      - red
+      - blue
+      - green
+  NOISE:
+    fg:
+      - yellow
+      - purple
+      - black
+    bg:
+      - yellow
+      - purple
+      - black
 INSTRUCTIONS:
   - similar_simple.yaml
   - simple.yaml

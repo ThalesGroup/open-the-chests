@@ -12,6 +12,8 @@ class Environment:
                  instructions: dict,
                  all_event_types: list,
                  all_event_attributes: dict,
+                 all_noise_types: list,
+                 all_noise_attributes: dict,
                  verbose: bool,
                  stb3: bool = False):
         """
@@ -32,8 +34,8 @@ class Environment:
         self.done = False
         self.num_boxes = len(instructions)
 
-        self.parser = Parser(all_event_types, all_event_attributes)
-        self.GUI = BoxEventGUI(self.num_boxes, self.parser.label_to_attr)
+        self.parser = Parser(all_event_types, all_noise_types, all_event_attributes, all_noise_attributes)
+        self.GUI = BoxEventGUI(self.num_boxes, self.parser.all_attributes)
 
         self.patterns = [Pattern(self.parser, instr, self.verbose) for instr in instructions]
         self.timeline = {}
@@ -42,7 +44,9 @@ class Environment:
 
         if self.verbose:
             print(f"All event types : {all_event_types}")
+            print(f"All noise types : {all_noise_types}")
             print(f"All event attributes : {all_event_attributes}")
+            print(f"All noise attributes : {all_noise_attributes}")
             print(f"Initialising {self.num_boxes} boxes with patterns")
 
     def reset(self):

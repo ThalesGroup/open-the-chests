@@ -6,6 +6,9 @@ import plotly.express as px
 
 
 # TODO (priority 2) rework whole class to be more logically organised and with less parameters
+from matplotlib import colors
+
+from utils.utils import bug_print
 
 
 class BoxEventGUI:
@@ -120,7 +123,7 @@ class BoxEventGUI:
                                 Label="Event type " + str(event.symbol["e_type"])
                                 ))
 
-            fg_color = self.attr_to_color["fg"][str(event.symbol["attr"]["fg"])]
+            fg_color = self.attr_to_color["fg"][event.symbol["attr"]["fg"]]
             annots.append(dict(
                 x=event.start + (event.end - event.start) / 2,
                 y=line_index,
@@ -145,6 +148,7 @@ class BoxEventGUI:
         if not patterns_range:
             patterns_range = [event_list[0].start, event_list[-1].end]
 
+        color_map = dict((str(i), colors.cnames[col]) for i, col in enumerate(self.attr_to_color["bg"]))
         fig = px.timeline(df,
                           height=90 * len(line_end_times) + 100,
                           width=(patterns_range[1] - patterns_range[0]) * 45 + 100,
@@ -152,7 +156,7 @@ class BoxEventGUI:
                           x_end="Finish",
                           y="Task",
                           color="BG",
-                          color_discrete_map=self.attr_to_color["bg"])
+                          color_discrete_map=color_map)
 
         for d in fig.data:
             filt = df['BG'] == d.name

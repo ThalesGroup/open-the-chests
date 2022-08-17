@@ -150,3 +150,16 @@ def read_yaml(file_path):
     with open(file_path, "r") as f:
         return yaml.safe_load(f)
 
+
+def my_evaluate(model, env, steps=100):
+    rewards = []
+    actions = []
+    obs = env.reset()
+    for i in range(steps):
+        action, _ = model.predict(obs, deterministic=True)
+        obs, reward, done, info = env.step(action)
+        rewards.append(reward[0])
+        actions.append(action)
+        if done:
+            break
+    return sum(rewards), rewards, actions, i

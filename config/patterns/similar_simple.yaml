@@ -3,7 +3,7 @@ GENERAL:
   noise: 0
 INSTANTIATE:
   - name: b1
-    type: B
+    type: A
     params:
       bg: blue
       fg: red
@@ -11,7 +11,7 @@ INSTANTIATE:
       mu: 4
       sigma: 2
   - name: b2
-    type: A
+    type: B
     params:
       fg: red
       bg: blue
