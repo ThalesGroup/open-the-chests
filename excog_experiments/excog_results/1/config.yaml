@@ -35,22 +35,6 @@ processing_sequence:
           activation_fn: "tanh"
         global: monitor_file
 
-      - module: Process
-        function: TRPO_process
-        params:
-          batch_size: 16
-          n_steps: 64
-          gamma: 0.95
-          learning_rate: 1
-          n_critic_updates:  10
-          cg_max_steps: 20
-          target_kl: 0.05
-          gae_lambda: 0.8
-          net_arch: "small"
-          ortho_init: False
-          activation_fn: "tanh"
-        global: monitor_file
-
     shared_params:
       param2: pass
     shared_data:

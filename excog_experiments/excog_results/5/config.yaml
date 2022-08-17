@@ -38,14 +38,16 @@ processing_sequence:
       - module: Process
         function: TRPO_process
         params:
-          batch_size: 16
-          n_steps: 64
-          gamma: 0.95
+          batch_size: 8
+          n_steps: 8
+          gamma: 0.9
           learning_rate: 1
-          n_critic_updates:  10
-          cg_max_steps: 20
-          target_kl: 0.05
-          gae_lambda: 0.8
+          ent_coef: 0.1
+          clip_range: 0.4
+          n_epochs: 10
+          gae_lambda: 0.9
+          max_grad_norm: 0.5
+          vf_coef: 0
           net_arch: "small"
           ortho_init: False
           activation_fn: "tanh"
