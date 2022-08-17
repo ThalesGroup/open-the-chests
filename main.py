@@ -11,6 +11,9 @@ import yaml
 #           {"command": "during", "parameters": ("c2", "c1"), "variable_name": "c2"},
 #           {"command": "instantiate", "parameters": ("A", {}), "variable_name": "a2"},
 #           {"command": "met_by", "parameters": ("a2", "c1"), "variable_name": "a2"}]
+from stable_baselines3.common.evaluation import evaluate_policy
+from stable_baselines3.common.monitor import Monitor
+from torch import nn
 
 from mygym.BoxEventEnv import BoxEventEnv
 from utils.utils import parse_file, parse_yaml_file
@@ -34,42 +37,58 @@ TODO after holidays
     - Change Event class structure to remove dictionaries and make easir to use
 """
 
-
 if __name__ == '__main__':
 
-    with open("/home/S3G-LABS/u1226/dev/openchests/config/config.yaml", "r") as f:
-        conf = yaml.safe_load(f)
-
-    all_event_types = conf["EVENT_TYPES"]
-    all_event_attributes = conf["EVENT_ATTRIBUTES"]
-
-    all_instructions = []
-    for file in conf["INSTRUCTIONS"]:
-        instr = parse_yaml_file("config/patterns/" + file)
-        all_instructions.append(instr)
-        print(instr)
-
-    env = BoxEventEnv(instructions=all_instructions,
-                      all_event_types=all_event_types,
-                      all_event_attributes=all_event_attributes,
-                      verbose=False)
-
-    verbose_env = BoxEventEnv(instructions=all_instructions,
-                              all_event_types=all_event_types,
-                              all_event_attributes=all_event_attributes,
-                              verbose=True)
+    env = BoxEventEnv.from_config_file("/home/S3G-LABS/u1226/dev/openchests/config/config.yaml", False)
+    verbose_env = BoxEventEnv.from_config_file("/home/S3G-LABS/u1226/dev/openchests/config/config.yaml", True)
 
     from stable_baselines3 import A2C
     from stable_baselines3.common.env_util import make_vec_env
 
     # Instantiate the env
     # wrap it
+    env = Monitor(env, "/home/S3G-LABS/u1226/dev/openchests/excog_experiments/")
     env = make_vec_env(lambda: env, n_envs=1)
     verbose_env = make_vec_env(lambda: verbose_env, n_envs=1)
 
     # Train the agent
     print("Learning")
-    model = A2C('MultiInputPolicy', env, verbose=1).learn(10000)
+
+    net_arch = "small"
+    net_arch = {
+        "small": [dict(pi=[64, 64], vf=[64, 64])],
+        "medium": [dict(pi=[256, 256], vf=[256, 256])],
+        }[net_arch]
+    activation_fn = "tanh"
+    activation_fn = {"tanh": nn.Tanh,
+                     "relu": nn.ReLU,
+                     "elu": nn.ELU,
+                     "leaky_relu": nn.LeakyReLU
+                     }[activation_fn]
+
+    model = A2C('MultiInputPolicy', env,
+                verbose=1,
+                gamma=0.9,
+                normalize_advantage=False,
+                max_grad_norm=0.3,
+                use_rms_prop=False,
+                gae_lambda=0.8,
+                n_steps=8,
+                learning_rate=1e-5,
+                ent_coef=0.00000000001,
+                vf_coef=0,
+                policy_kwargs=dict(ortho_init=False,
+                                   net_arch=net_arch,
+                                   activation_fn=activation_fn)
+                )
+
+    # model.learn(10000)
+
+    print("Evaluating")
+    # TODO (priority 1) give timeout to avoid infinite run
+    # print(evaluate_policy(model, verbose_env, n_eval_episodes=2))
+
+    # model = A2C('MultiInputPolicy', env, verbose=1).learn(10000)
     # model = A2C('MultiInputPolicy', env, verbose=1)
 
     # Test the trained agent

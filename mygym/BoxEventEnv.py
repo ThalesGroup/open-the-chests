@@ -1,8 +1,11 @@
 import numpy as np
 import gym
+import yaml
 from gym.spaces import Dict, MultiBinary, Discrete, Box
 
 from Dynamics.Environment import Environment
+from globals import ENV_PATTERNS_FOLDER
+from utils.utils import parse_yaml_file
 
 
 class BoxEventEnv(gym.Env):
@@ -35,6 +38,26 @@ class BoxEventEnv(gym.Env):
             "end": Box(low=0, high=np.inf, shape=(1,)),
             "duration": Box(low=0, high=np.inf, shape=(1,))
         })
+
+    @classmethod
+    def from_config_file(cls, config_file_name, verbose=False):
+        with open(config_file_name, "r") as f:
+            conf = yaml.safe_load(f)
+
+        all_event_types = conf["EVENT_TYPES"]
+        all_event_attributes = conf["EVENT_ATTRIBUTES"]
+
+        all_instructions = []
+        for file in conf["INSTRUCTIONS"]:
+            instr = parse_yaml_file(ENV_PATTERNS_FOLDER + file)
+            all_instructions.append(instr)
+
+        env = cls(instructions=all_instructions,
+                  all_event_types=all_event_types,
+                  all_event_attributes=all_event_attributes,
+                  verbose=verbose)
+
+        return env
 
     def step(self, action):
         obs, reward, done, info = self.env.step(action)

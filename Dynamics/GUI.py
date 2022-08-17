@@ -2,13 +2,10 @@ import math
 
 import PySimpleGUI as sg
 import pandas as pd
-from joblib.testing import timeout
-from plotly import figure_factory as ff
 import plotly.express as px
 
 
 # TODO (priority 2) rework whole class to be more logically organised and with less parameters
-from utils.utils import bug_print
 
 
 class BoxEventGUI:

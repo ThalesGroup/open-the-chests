@@ -1,14 +1,10 @@
 import math
 from typing import List
-
-import numpy as np
-
 from Dynamics.GUI import BoxEventGUI
 from Dynamics.Parser import Parser
-from Elements.Event import Event
 from Elements.InteractiveBox import InteractiveBox
 from Elements.Pattern import Pattern
-from utils.utils import process_obs, bug_print
+from utils.utils import process_obs
 
 
 class Environment:
@@ -149,8 +145,10 @@ class Environment:
             ending_box_id = min(self.timeline, key=self.timeline.get)
             self.context = self.timeline[ending_box_id]
             self.time = self.context.end
-            event = self.boxes[ending_box_id].pattern.get_next()
-            self.timeline[ending_box_id] = event
+            all_satisfied_boxes = [box_id for box_id in self.timeline if self.timeline[box_id] == self.context]
+            for satisfied_box_id in all_satisfied_boxes:
+                event = self.boxes[satisfied_box_id].pattern.get_next()
+                self.timeline[satisfied_box_id] = event
 
             if self.verbose:
                 print(f"Finding closes end value {self.time}")

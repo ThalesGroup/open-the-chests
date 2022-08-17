@@ -60,3 +60,6 @@ class Event:
 
     def __repr__(self):
         return str(self)
+
+    def __eq__(self, other):
+        return self.symbol == other.symbol and abs(self.duration - other.duration) <= min(self.duration, other.duration)

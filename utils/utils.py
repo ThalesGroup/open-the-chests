@@ -4,8 +4,6 @@ import random
 import numpy as np
 import yaml
 
-from Elements.Event import Event
-
 
 def bug_print(something="", msg=""):
     print("################################")
@@ -151,3 +149,4 @@ def parse_yaml_file(filename):
 def read_yaml(file_path):
     with open(file_path, "r") as f:
         return yaml.safe_load(f)
+
