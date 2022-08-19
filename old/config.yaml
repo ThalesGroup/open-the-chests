@@ -1,0 +1,18 @@
+EVENT_TYPES:
+  NORMAL:
+    - A
+    - B
+    - C
+EVENT_ATTRIBUTES:
+  NORMAL:
+    fg:
+      - red
+      - blue
+      - green
+    bg:
+      - red
+      - blue
+      - green
+INSTRUCTIONS:
+  - complex.yaml
+  - simple.yaml
