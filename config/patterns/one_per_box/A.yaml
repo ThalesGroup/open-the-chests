@@ -9,4 +9,4 @@ INSTANTIATE:
       fg: blue
     duration:
       mu: 5
-      sigma: 2
+      sigma: 1

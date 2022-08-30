@@ -8,5 +8,5 @@ INSTANTIATE:
       bg: red
       fg: green
     duration:
-      mu: 6
-      sigma: 2
+      mu: 7
+      sigma: 0

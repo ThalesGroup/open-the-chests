@@ -12,7 +12,8 @@ def after(second: Event, first: Event, gap_dist: (int, int)):
 
 
 def during(second: Event, first: Event):
-    assert (first.duration >= second.duration), "An event can be longer than the one containing it!"
+    assert (first.duration >= second.duration), \
+        f"An event can be longer than the one containing it! {first.duration} > {second.duration}"
     gap_size = random.uniform(0, first.duration - second.duration)
     second_start = first.start + gap_size
     new_event = second.shift(second_start)

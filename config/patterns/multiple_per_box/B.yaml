@@ -12,22 +12,22 @@ INSTANTIATE:
       sigma: 2
 
   - name: e1
-    type: E
+    type: B
     params:
-      bg: orange
+      bg: red
       fg: red
     duration:
-      mu: 7
-      sigma: 4
+      mu: 6
+      sigma: 2
 
   - name: d1
-    type: D
+    type: B
     params:
-      bg: blue
-      fg: green
+      bg: red
+      fg: red
     duration:
-      mu: 3
-      sigma: 0
+      mu: 6
+      sigma: 2
 
 RELATIONSHIP:
   - type: met_by

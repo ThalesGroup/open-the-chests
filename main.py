@@ -1,23 +1,16 @@
 import random
 
 import plotly.io as pio
-import yaml
+from sb3_contrib import TRPO
+from stable_baselines3 import A2C
+from stable_baselines3.common.env_util import make_vec_env
 
-# instr1 = [{"command": "delay", "parameters": 5},
-#           {"command": "instantiate", "parameters": ("A", {"bg": "blue"}, (4, 2)), "variable_name": "a1"},
-#           {"command": "instantiate", "parameters": ("C", {"fg": "red"}, (10, 1)), "variable_name": "c1"},
-#           {"command": "after", "parameters": ("c1", "a1"), "variable_name": "c1", "other": {"gap_dist": (2, 1)}},
-#           {"command": "instantiate", "parameters": ("C", {}, (4, 1)), "variable_name": "c2"},
-#           {"command": "during", "parameters": ("c2", "c1"), "variable_name": "c2"},
-#           {"command": "instantiate", "parameters": ("A", {}), "variable_name": "a2"},
-#           {"command": "met_by", "parameters": ("a2", "c1"), "variable_name": "a2"}]
-from stable_baselines3.common.evaluation import evaluate_policy
 from stable_baselines3.common.monitor import Monitor
-from torch import nn
 
-from globals import ENV_CONFIG_FOLDER
+from excog_experiments.Process import evaluate_multiple_times, param_prepare, load_env_monitor
+from globals import ENV_CONFIG_FOLDER, EXCOG_EXP_FOLDER
 from mygym.BoxEventEnv import BoxEventEnv
-from utils.utils import parse_file, parse_yaml_file, bug_print, my_evaluate
+from utils.utils import bug_print
 
 pio.renderers.default = "browser"
 
@@ -38,52 +31,54 @@ TODO after holidays
     - Change Event class structure to remove dictionaries and make easir to use
 """
 
+# TODO (priority 2) add seed to environment
+
 if __name__ == '__main__':
+    conf = "multiple_per_box.yaml"
+    # conf = "one_distinct_per_box.yaml"
+    # conf = "one_per_box.yaml"
+    env = BoxEventEnv.from_config_file(ENV_CONFIG_FOLDER + conf, False)
+    verbose_env = BoxEventEnv.from_config_file(ENV_CONFIG_FOLDER + conf, True)
 
-    env = BoxEventEnv.from_config_file(ENV_CONFIG_FOLDER + "config.yaml", False)
-    verbose_env = BoxEventEnv.from_config_file(ENV_CONFIG_FOLDER + "config.yaml", True)
+    env = Monitor(env, ".")
+    verbose_env = Monitor(verbose_env, ".")
 
-    from stable_baselines3 import A2C
-    from stable_baselines3.common.env_util import make_vec_env
-
-    # Instantiate the env
-    # wrap it
-    # env = Monitor(env, EXCOG_EXP_FOLDER)
-    env = make_vec_env(lambda: env, n_envs=1)
-    verbose_env = make_vec_env(lambda: verbose_env, n_envs=1)
+    env = load_env_monitor(["multiple_per_box.yaml"], "deletethis")
 
     # Train the agent
     print("Learning")
 
-    net_arch = "small"
-    net_arch = {
-        "small": [dict(pi=[64, 64], vf=[64, 64])],
-        "medium": [dict(pi=[256, 256], vf=[256, 256])],
-    }[net_arch]
-    activation_fn = "tanh"
-    activation_fn = {"tanh": nn.Tanh,
-                     "relu": nn.ReLU,
-                     "elu": nn.ELU,
-                     "leaky_relu": nn.LeakyReLU
-                     }[activation_fn]
+    params = {'batch_size': 64.0,
+              'n_critic_updates': 25.0,
+              'cg_max_steps': 25.0,
+              'target_kl': 0.005,
+              'gamma': 0.98,
+              'gae_lambda': 0.8,
+              'n_steps': 64,
+              'learning_rate': 0.5039112109375,
+              'net_arch': 'small',
+              'activation_fn': 'tanh',
+              'seed': 42}
 
-    model = A2C('MultiInputPolicy', env,
-                verbose=1,
-                gamma=0.9,
-                normalize_advantage=False,
-                max_grad_norm=0.3,
-                use_rms_prop=False,
-                gae_lambda=0.8,
-                n_steps=8,
-                learning_rate=1e-5,
-                ent_coef=0.00000000001,
-                vf_coef=0,
-                policy_kwargs=dict(ortho_init=False,
-                                   net_arch=net_arch,
-                                   activation_fn=activation_fn)
-                )
+    activation_fn, learning_rate, net_arch = param_prepare(params["activation_fn"], params["learning_rate"], params["net_arch"])
 
-    # model.learn(10000)
+    model = TRPO('MultiInputPolicy', env, verbose=1,
+                 batch_size=params["batch_size"],
+                 seed=params["seed"],
+                 n_steps=params["n_steps"],
+                 gamma=params["gamma"],
+                 learning_rate=learning_rate,
+                 n_critic_updates=params["n_critic_updates"],
+                 cg_max_steps=params["cg_max_steps"],
+                 target_kl=params["target_kl"],
+                 gae_lambda=params["gae_lambda"],
+                 policy_kwargs=dict(
+                     net_arch=net_arch,
+                     ortho_init=0.5,
+                     activation_fn=activation_fn)
+                 )
+
+    model.learn(10000)
 
     print("Evaluating")
     # TODO (priority 1) give timeout to avoid infinite run
@@ -93,23 +88,28 @@ if __name__ == '__main__':
     # model = A2C('MultiInputPolicy', env, verbose=1)
 
     # Test the trained agent
+
     n_steps = 100
     print("------------------------ START -------------------------")
-    # obs = verbose_env.reset()
-    # verbose_env.render()
-    # for step in range(n_steps):
-    #     action, _ = model.predict(obs, deterministic=True)
-    #     sure_action = [[1, 1]]
-    #     empty_action = [[0, 0]]
-    #     random_action = [[random.randint(0, 1) for i in range(2)]]
-    #     print("Step {}".format(step + 1))
-    #     print("Action: ", action)
-    #     obs, reward, done, info = verbose_env.step(action)
-    #     verbose_env.render()
-    #     print('obs =', obs, 'reward=', reward, 'done=', done)
-    #     if done:
-    #         # Note that the VecEnv resets automatically
-    #         # when a done signal is encountered
-    #         print("Goal reached!", "reward=", reward)
-    #         break
+    obs = verbose_env.reset()
+    verbose_env.render()
 
+    counter = 0
+    for step in range(n_steps):
+        counter += 1
+        action, _ = model.predict(obs, deterministic=True)
+        num_boxes = env.env.num_boxes
+        sure_action = [1] * num_boxes
+        empty_action = [0] * num_boxes
+        random_action = [[random.randint(0, 1) for i in range(num_boxes)]]
+        print("Step {}".format(step + 1))
+        print("Action: ", action)
+        obs, reward, done, info = verbose_env.step(random_action)
+        verbose_env.render()
+        print('obs =', obs, 'reward=', reward, 'done=', done)
+        if done:
+            # Note that the VecEnv resets automatically
+            # when a done signal is encountered
+            print("Goal reached!", "reward=", reward)
+            break
+    print(counter)

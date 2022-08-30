@@ -7,6 +7,7 @@ from Elements.Event import Event
 # TODO (priority 3) rethink class structure and use input all items to generate dictionaries
 # TODO (priority 3) rethink labelisation
 # TODO (priority 2) add more allen functions
+# TODO (priority 2) add check for noise events and noise generation
 from utils.utils import list_to_labels, my_normal, bug_print
 
 
@@ -29,8 +30,12 @@ class Parser:
         self.min_max_durations = {"min": 1, "max": 1}
 
         self.all_types = all_event_types + all_noise_types
-        self.all_attributes = {key: all_noise_attributes[key] + all_event_attributes[key]
-                               for key in all_event_attributes}
+        if all_noise_attributes:
+            self.all_attributes = {key: all_noise_attributes[key] + all_event_attributes[key]
+                                   for key in all_event_attributes}
+        else:
+            self.all_attributes = {key: all_event_attributes[key]
+                                   for key in all_event_attributes}
 
     def labelise(self, e_type: str, attributes: dict):
         """
@@ -124,4 +129,4 @@ class Parser:
             else:
                 # TODO (priority 3) add more errors and tests for correctly used values
                 raise ValueError("Unknown allen command: " + str(instr_line["command"]))
-        return sorted(event_list)
+        return sorted(variables.values())

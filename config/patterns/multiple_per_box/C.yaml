@@ -17,16 +17,16 @@ INSTANTIATE:
       bg: red
       fg: green
     duration:
-      mu: 5
-      sigma: 1
+      mu: 4
+      sigma: 2
 
   - name: d2
-    type: D
+    type: C
     params:
-      bg: blue
-      fg: orange
+      bg: pink
+      fg: pink
     duration:
-      mu: 10
+      mu: 7
       sigma: 1
 
 RELATIONSHIP:

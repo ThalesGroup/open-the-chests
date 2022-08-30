@@ -33,8 +33,6 @@ EVENT_ATTRIBUTES:
       - purple
       - black
 INSTRUCTIONS:
-  - one_per_box/A.yaml
-  - one_per_box/B.yaml
-  - one_per_box/C.yaml
-  - one_per_box/D.yaml
-  - one_per_box/E.yaml
+  - one_distinct_per_box/A.yaml
+  - one_distinct_per_box/B.yaml
+  - one_distinct_per_box/C.yaml

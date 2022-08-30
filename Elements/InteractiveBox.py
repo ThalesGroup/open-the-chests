@@ -38,6 +38,8 @@ class InteractiveBox:
         Check if box pattern has been fully displayed and change box state to ready if this is the case
         """
         if self.pattern.satisfied:
+            # TODO (priority 3) can this be moved to some more pattern related place?
+            self.pattern.satisfied = False
             self.ready()
 
     def reset(self, time):
@@ -49,8 +51,6 @@ class InteractiveBox:
         self.state = {"open": False, "ready": False, "active": False}
         self.activate()
         self.pattern.fill_event_stack(time)
-        # TODO (priority 3) can this be moved to some more pattern related place?
-        self.pattern.satisfied = False
 
     def open(self):
         """
@@ -86,7 +86,6 @@ class InteractiveBox:
         self.state["active"] = False
         self.state["ready"] = False
         self.state["open"] = False
-        self.pattern.satisfied = False
 
     def ready(self):
         """
@@ -119,10 +118,9 @@ class InteractiveBox:
                 # if the box has been ready it should be timed out
                 if self.state["ready"]:
                     self.deactivate()
-                # otherwise, check if pattern has been satisfied
-                else:
-                    self.check_pattern()
             if not self.state["active"]:
                 # TODO (priority 3) see if this can be moved somewhere else, not very clear maybe?
                 if t_current >= self.pattern.start_pattern_time:
                     self.activate()
+            # otherwise, check if pattern has been satisfied
+            self.check_pattern()

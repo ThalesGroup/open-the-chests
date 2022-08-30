@@ -21,10 +21,10 @@ INSTANTIATE:
       sigma: 2
 
   - name: e2
-    type: E
+    type: A
     params:
-      bg: red
-      fg: green
+      bg: blue
+      fg: blue
     duration:
       mu: 8
       sigma: 0

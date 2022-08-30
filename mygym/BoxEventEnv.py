@@ -5,7 +5,7 @@ from gym.spaces import Dict, MultiBinary, Discrete, Box
 
 from Dynamics.Environment import Environment
 from globals import ENV_PATTERNS_FOLDER
-from utils.utils import parse_yaml_file
+from utils.utils import parse_yaml_file, bug_print
 
 
 class BoxEventEnv(gym.Env):
@@ -54,12 +54,18 @@ class BoxEventEnv(gym.Env):
         all_event_types = conf["EVENT_TYPES"]["NORMAL"]
         all_event_attributes = conf["EVENT_ATTRIBUTES"]["NORMAL"]
 
-        all_noise_types = conf["EVENT_TYPES"]["NOISE"]
-        all_noise_attributes = conf["EVENT_ATTRIBUTES"]["NOISE"]
+        all_noise_types = []
+        if "NOISE" in conf["EVENT_TYPES"]:
+            all_noise_types = conf["EVENT_TYPES"]["NOISE"]
+        all_noise_attributes = []
+        if "NOISE" in conf["EVENT_ATTRIBUTES"]:
+            all_noise_attributes = conf["EVENT_ATTRIBUTES"]["NOISE"]
 
         all_instructions = []
         for file in conf["INSTRUCTIONS"]:
             instr = parse_yaml_file(ENV_PATTERNS_FOLDER + file)
+            # print(file)
+            # bug_print(instr)
             all_instructions.append(instr)
 
         env = cls(instructions=all_instructions,
