@@ -7,7 +7,7 @@ from stable_baselines3.common.env_util import make_vec_env
 
 from stable_baselines3.common.monitor import Monitor
 
-from excog_experiments.Process import evaluate_multiple_times, param_prepare, load_env_monitor
+from excog_experiments.Process import evaluate_multiple_times, param_prepare, load_env_monitor, TRPO_process
 from globals import ENV_CONFIG_FOLDER, EXCOG_EXP_FOLDER
 from mygym.BoxEventEnv import BoxEventEnv
 from utils.utils import bug_print
@@ -40,17 +40,15 @@ if __name__ == '__main__':
     env = BoxEventEnv.from_config_file(ENV_CONFIG_FOLDER + conf, False)
     verbose_env = BoxEventEnv.from_config_file(ENV_CONFIG_FOLDER + conf, True)
 
-    env = Monitor(env, ".")
-    verbose_env = Monitor(verbose_env, ".")
-
-    env = load_env_monitor(["multiple_per_box.yaml"], "deletethis")
+    env = Monitor(env, "deletethis")
+    verbose_env = Monitor(verbose_env, "deletethis")
 
     # Train the agent
     print("Learning")
 
-    params = {'batch_size': 64.0,
-              'n_critic_updates': 25.0,
-              'cg_max_steps': 25.0,
+    params = {'batch_size': 64,
+              'n_critic_updates': 25,
+              'cg_max_steps': 25,
               'target_kl': 0.005,
               'gamma': 0.98,
               'gae_lambda': 0.8,
@@ -80,6 +78,8 @@ if __name__ == '__main__':
 
     model.learn(10000)
 
+    bug_print(evaluate_multiple_times(env, model))
+
     print("Evaluating")
     # TODO (priority 1) give timeout to avoid infinite run
     # print(evaluate_policy(model, verbose_env, n_eval_episodes=2))
@@ -89,7 +89,8 @@ if __name__ == '__main__':
 
     # Test the trained agent
 
-    n_steps = 100
+    n_steps = 20
+    verbose_env = first_box_env
     print("------------------------ START -------------------------")
     obs = verbose_env.reset()
     verbose_env.render()
@@ -98,13 +99,13 @@ if __name__ == '__main__':
     for step in range(n_steps):
         counter += 1
         action, _ = model.predict(obs, deterministic=True)
-        num_boxes = env.env.num_boxes
+        num_boxes = verbose_env.env.env.num_boxes
         sure_action = [1] * num_boxes
         empty_action = [0] * num_boxes
         random_action = [[random.randint(0, 1) for i in range(num_boxes)]]
         print("Step {}".format(step + 1))
         print("Action: ", action)
-        obs, reward, done, info = verbose_env.step(random_action)
+        obs, reward, done, info = verbose_env.step(action)
         verbose_env.render()
         print('obs =', obs, 'reward=', reward, 'done=', done)
         if done:
