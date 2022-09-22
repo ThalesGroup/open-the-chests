@@ -56,7 +56,10 @@ class Event:
         return self.end >= other.end
 
     def __str__(self):
-        return str(self.symbol) + " : " + str(self.start) + " -> " + str(self.end)
+        return f"Event('e_type': {self.symbol['e_type']}, " \
+               f"'attr': {self.symbol['attr']}, " \
+               f"'start' : {self.start}, 'end': {self.end})"
+
 
     def __repr__(self):
         return str(self)

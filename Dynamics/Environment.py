@@ -4,7 +4,7 @@ from Dynamics.GUI import BoxEventGUI
 from Dynamics.Parser import Parser
 from Elements.InteractiveBox import InteractiveBox
 from Elements.Pattern import Pattern
-from utils.utils import process_obs
+from utils.utils import process_obs, bug_print
 
 
 class Environment:
@@ -18,6 +18,7 @@ class Environment:
                  stb3: bool = False):
         """
         Environment that allows to interact and open boxes after observing symbols.
+        Example of environment usage and initialisation in examples.create_env .
 
         :param instructions: Dictionary of commands allowing to define patterns for each box
         :param all_event_types: List of all possible event types that can take place
@@ -25,6 +26,7 @@ class Environment:
         :param verbose: Print details when executing for debugging
         :param stb3: Use environment with stable baselines 3
         """
+
         self.action = None
         self.context = None
         self.last_action = None
@@ -55,10 +57,10 @@ class Environment:
         Restart time, reset each box and its pattern and refill the timeline of events.
         Get one observation of the newly reset environment.
 
-        :return: The first observation of the newly reset environment
-        """
+        Note observation form may vary depending on the stb3 parameter.
 
-        print("HERE")
+        :return: The first observation of the newly reset environment.
+        """
 
         if self.verbose:
             print("Starting Reset")
@@ -79,6 +81,10 @@ class Environment:
     def step(self, action: List[int]):
         """
         Move forward the environment by one step using the selected action.
+        Forward move consists in three steps:
+         - Apply the action to the environment
+         - Advance environment's internal interactions
+         - Extract observation and return it to the user
 
         :param action: List of box ids to attempt to open
         :return: Reward obtained from acting and context at the end of the environment step
@@ -106,9 +112,23 @@ class Environment:
         """
         Return an observation of the elements visible to a player.
         Return contains:
-            - State information showing if @self.boxes are active or open
-            - Context information showing last observed event
-        :return: dictionary containing environment information
+            - State information  under the form of binary vectors showing if @self.boxes are active or open
+            - Context information giving the last observed event in its labeled form
+
+        Example:
+        {'state':
+            {'active': [True, True, True], 'open': [False, False, False]},
+        'context':
+            Event('e_type': 2, 'attr': {'bg': 6, 'fg': 3}, 'start' : 0, 'end': 4.582803102406337)
+        }
+
+        Note depending on the @stb3 parameter the returned dictionary can have different forms:
+            - @stb3 == True : one level dictionary with entries for each information
+            - otherwise : two level dictionary
+        This is because stable baselines does not accept multiple level dictionaries as input,
+        we thus transform our output into a one level dictionary with multiple values.
+
+        :return: Dictionary containing environment information
         """
         active = []
         open = []
@@ -122,16 +142,14 @@ class Environment:
 
         obs = {"state": box_states, "context": self.context}
 
-        # TODO (priority 4) explain and document the need for this step
-        # TODO (priority 2) move to more obvious place maybe right before returning observation to user
         if self.stb3:
             obs = process_obs(obs)
         return obs
 
     def internal_step(self):
         """
-        Execute one internal step to advance internal environment state
-        :return: context resulting from environment exogenous development
+        Execute one internal step to advance the environment timeline and update context.
+        Update box states to take into account new information.
         """
         if self.verbose:
             print("Making one internal step to get context and advance timeline")
@@ -142,7 +160,10 @@ class Environment:
     def advance_timeline(self):
         # TODO (priority 4) doc
         """
-        Advance internal environment event activity by one step in order to obtain new observations.
+        Advance internal environment evolution.
+        Start by getting the next event to be played by select from the timeline of next events the one with the smallest
+        ending time. Add this event as the current context and advance the current time to the end of the event.
+        Check if any other boxes are satisfied by this event.
         """
 
         if self.verbose:
@@ -169,7 +190,7 @@ class Environment:
     def update_boxes(self, t_current):
         # TODO (priority 4) doc and optimise
         """
-        Update all boxes states in coherence with system evolution.
+        Update all boxes states to be coherent with current environment time and evolution.
 
         :param t_current: the current system time used to re-activate boxes if needed.
         """
@@ -179,6 +200,10 @@ class Environment:
     def apply_action(self, action):
         """
         Apply given action to system and update environment according to action effects.
+        Attempt to open corresponding box if the action at index i is set to 1.
+        If the box is opened disable its timeline and give a positive reward.
+        Otherwise, if the button is wrongly pressed or the chest is ready to open yet ignored a reward of -1 is applied.
+        In all other cases reward is 0.
 
         :param action: The action to apply
         :return: Reward obtained for the selected action.
@@ -207,7 +232,7 @@ class Environment:
 
     def disable_timeline(self, box_id):
         """
-        Disable the timeline for a certain box id.
+        Remove the box_id from the timeline dictionary, disabling its evolution.
         :param box_id: The box id to remove from the game.
         """
         # TODO (priority 3) sent this to get_next possibly via box opening? remove event stack to prevent problems?
@@ -216,12 +241,15 @@ class Environment:
     def check_end(self):
         """
         Verify if all boxes have been opened and thus the end of the game has been reached.
+
         :return: Boolean indicating the end of the game
         """
-        # TODO (priority 4) doc
         return all([box.is_open() for box in self.boxes])
 
     def render(self):
+        """
+        Update GUI with all information needed to display environment and update display step.
+        """
         self.GUI.add_event_to_history(self.context)
         self.GUI.update_variable("context", self.context)
         self.GUI.update_variable("time", self.time)
