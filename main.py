@@ -34,9 +34,9 @@ TODO after holidays
 # TODO (priority 2) add seed to environment
 
 if __name__ == '__main__':
-    conf = "multiple_per_box.yaml"
+    # conf = "multiple_per_box.yaml"
     # conf = "one_distinct_per_box.yaml"
-    # conf = "one_per_box.yaml"
+    conf = "one_per_box.yaml"
     env = BoxEventEnv.from_config_file(ENV_CONFIG_FOLDER + conf, False)
     verbose_env = BoxEventEnv.from_config_file(ENV_CONFIG_FOLDER + conf, True)
 
@@ -46,51 +46,77 @@ if __name__ == '__main__':
     # Train the agent
     print("Learning")
 
-    params = {'batch_size': 64,
-              'n_critic_updates': 25,
-              'cg_max_steps': 25,
-              'target_kl': 0.005,
-              'gamma': 0.98,
-              'gae_lambda': 0.8,
-              'n_steps': 64,
-              'learning_rate': 0.5039112109375,
-              'net_arch': 'small',
-              'activation_fn': 'tanh',
-              'seed': 42}
+    # TRPO
+    # params = {'batch_size': 64,
+    #           'n_critic_updates': 25,
+    #           'cg_max_steps': 25,
+    #           'target_kl': 0.005,
+    #           'gamma': 0.98,
+    #           'gae_lambda': 0.8,
+    #           'n_steps': 64,
+    #           'learning_rate': 0.5039112109375,
+    #           'net_arch': 'small',
+    #           'activation_fn': 'tanh',
+    #           'seed': 42}
+
+
+
+    #A2C
+    params = {'ent_coef': 0.011035165146484,
+              "vf_coef" : 0.39404296875,
+              "gamma" : 0.95,
+              "gae_lambda" : 0.98,
+              "n_steps": 2048,
+              "learning_rate": 0.29883513671875,
+              "net_arch" : "small",
+              "activation_fn": "relu",
+              "seed": 666,
+              "normalize_advantage": True,
+              "max_grad_norm": 0.3,
+              "use_rms_prop": False
+              }
 
     activation_fn, learning_rate, net_arch = param_prepare(params["activation_fn"], params["learning_rate"], params["net_arch"])
+    for key in ["activation_fn", "learning_rate", "net_arch"]:
+        params.pop(key)
 
-    model = TRPO('MultiInputPolicy', env, verbose=1,
-                 batch_size=params["batch_size"],
-                 seed=params["seed"],
-                 n_steps=params["n_steps"],
-                 gamma=params["gamma"],
-                 learning_rate=learning_rate,
-                 n_critic_updates=params["n_critic_updates"],
-                 cg_max_steps=params["cg_max_steps"],
-                 target_kl=params["target_kl"],
-                 gae_lambda=params["gae_lambda"],
-                 policy_kwargs=dict(
-                     net_arch=net_arch,
-                     ortho_init=0.5,
-                     activation_fn=activation_fn)
-                 )
-
-    model.learn(10000)
-
-    bug_print(evaluate_multiple_times(env, model))
+    # model = TRPO('MultiInputPolicy', env, verbose=1,
+    #              batch_size=params["batch_size"],
+    #              seed=params["seed"],
+    #              n_steps=params["n_steps"],
+    #              gamma=params["gamma"],
+    #              learning_rate=learning_rate,
+    #              n_critic_updates=params["n_critic_updates"],
+    #              cg_max_steps=params["cg_max_steps"],
+    #              target_kl=params["target_kl"],
+    #              gae_lambda=params["gae_lambda"],
+    #              policy_kwargs=dict(
+    #                  net_arch=net_arch,
+    #                  ortho_init=0.5,
+    #                  activation_fn=activation_fn)
+    #              )
+    #
+    # model.learn(10000)
+    #
+    # bug_print(evaluate_multiple_times(env, model))
 
     print("Evaluating")
     # TODO (priority 1) give timeout to avoid infinite run
     # print(evaluate_policy(model, verbose_env, n_eval_episodes=2))
 
-    # model = A2C('MultiInputPolicy', env, verbose=1).learn(10000)
+    model = A2C('MultiInputPolicy', env, verbose=1,
+                policy_kwargs=dict(
+                    net_arch=net_arch,
+                    ortho_init=0.5,
+                    activation_fn=activation_fn),
+                **params
+    ).learn(10000)
     # model = A2C('MultiInputPolicy', env, verbose=1)
 
     # Test the trained agent
 
     n_steps = 20
-    verbose_env = first_box_env
+    # verbose_env = first_box_env
     print("------------------------ START -------------------------")
     obs = verbose_env.reset()
     verbose_env.render()

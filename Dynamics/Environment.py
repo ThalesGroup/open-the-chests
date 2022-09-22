@@ -57,6 +57,9 @@ class Environment:
 
         :return: The first observation of the newly reset environment
         """
+
+        print("HERE")
+
         if self.verbose:
             print("Starting Reset")
         self.time = 0
