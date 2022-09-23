@@ -254,4 +254,5 @@ class Environment:
         self.GUI.update_variable("context", self.context)
         self.GUI.update_variable("time", self.time)
         self.GUI.update_variable("last_action", self.action)
-        self.GUI.step(self.boxes)
+        self.GUI.update_variable("boxes", self.boxes)
+        self.GUI.step()
