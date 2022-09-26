@@ -186,7 +186,6 @@ class BoxEventGUI:
 
         if not patterns_range:
             patterns_range = [event_list[0].start, event_list[-1].end]
-
         color_map = dict((str(i), colors.cnames[col]) for i, col in enumerate(self.attr_to_color["bg"]))
         fig = px.timeline(df,
                           height=90 * len(line_end_times) + 100,

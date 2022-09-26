@@ -20,6 +20,7 @@ class InteractiveBox:
         # TODO (priority 3) rename this can cause confusion box.box?
         self.state = {"open": False, "ready": False, "active": False}
         self.pattern = pattern
+        self.num_deactivations = 0
 
     def get_state(self):
         return self.state
@@ -49,7 +50,9 @@ class InteractiveBox:
         :param time: The time to use as a start for the box pattern
         """
         self.state = {"open": False, "ready": False, "active": False}
+        self.num_deactivations = 0
         self.activate()
+        self.pattern.reset()
         self.pattern.fill_event_stack(time)
 
     def open(self):
@@ -83,6 +86,7 @@ class InteractiveBox:
         if self.verbose:
             print(f"Deactivating box {self.id}")
 
+        self.num_deactivations += 1
         self.state["active"] = False
         self.state["ready"] = False
         self.state["open"] = False

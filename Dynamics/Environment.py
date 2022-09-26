@@ -15,7 +15,9 @@ class Environment:
                  all_noise_types: list,
                  all_noise_attributes: dict,
                  verbose: bool,
-                 stb3: bool = False):
+                 timeout_threshold: int = 30,
+                 stb3: bool = False,
+                 discrete: bool = False):
         """
         Environment that allows to interact and open boxes after observing symbols.
         Example of environment usage and initialisation in examples.create_env .
@@ -25,8 +27,13 @@ class Environment:
         :param all_event_attributes: Dictionary of al event types with a corresponding list of possible values
         :param verbose: Print details when executing for debugging
         :param stb3: Use environment with stable baselines 3
+        :param discrete: Accept actions under integer format instead of binary vector
+
+        Note: When accepting integer actions, each value will be transformed into its corresponding binary number
         """
 
+        self.timeout_threshold = timeout_threshold
+        self.discrete = discrete
         self.action = None
         self.context = None
         self.last_action = None
@@ -93,6 +100,10 @@ class Environment:
         if self.verbose:
             print("\nStart Step")
 
+        # if action is discrete turn it into a vector
+        if self.discrete:
+            action = [int(x) for x in bin(action)[2:]]
+            action = (self.num_boxes - len(action)) * [0] + action
         # apply action and collect reward
         reward = self.apply_action(action)
 
@@ -244,7 +255,9 @@ class Environment:
 
         :return: Boolean indicating the end of the game
         """
-        return all([box.is_open() for box in self.boxes])
+        all_end = all([box.is_open() for box in self.boxes])
+        all_deactivations = sum([b.num_deactivations for b in self.boxes])
+        return all_end or (all_deactivations >= self.timeout_threshold)
 
     def render(self):
         """

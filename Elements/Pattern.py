@@ -36,11 +36,15 @@ class Pattern:
         noise_list = []
         while num_not_noise > 0:
             if random.random() <= self.noise:
-                noise_event = self.parser.noise(before=pattern_end)
+                noise_event = self.parser.make_noise(before=pattern_end)
                 noise_list.append(noise_event)
             else:
                 num_not_noise -= 1
         return noise_list
+
+    def reset(self):
+        self.last_generated_event = None
+        self.satisfied = False
 
     def fill_event_stack(self, t):
         """
