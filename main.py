@@ -2,7 +2,7 @@ import random
 
 import plotly.io as pio
 from sb3_contrib import TRPO
-from stable_baselines3 import A2C
+from stable_baselines3 import A2C, DQN
 from stable_baselines3.common.env_util import make_vec_env
 
 from stable_baselines3.common.monitor import Monitor
@@ -14,22 +14,6 @@ from utils.utils import bug_print
 
 pio.renderers.default = "browser"
 
-"""
-TODO after holidays
-- Report
-- Start tests with exCog
-- Write test modules for code and use as excuse to rework code and reformat
-    (do this in parallel with setup for excog and documentation)
-    - start from tests on simple classes such as box and event
-- Implement mini-features for environment
-    - Multiple Patterns satisfied by same observation
-    - Rethink noise generation and add event specific noise 
-    - Noise different from all next events? add different type for noise?
-- Cosmetic
-    - Rework GUI to separate functions and make more generic 
-    - Rework parser to reduce used dictionaries and make more clear
-    - Change Event class structure to remove dictionaries and make easir to use
-"""
 
 # TODO (priority 2) add seed to environment
 
@@ -38,10 +22,11 @@ if __name__ == '__main__':
     # conf = "one_distinct_per_box.yaml"
     conf = "one_per_box.yaml"
     env = BoxEventEnv.from_config_file(ENV_CONFIG_FOLDER + conf, False)
+    discrete_env = BoxEventEnv.from_config_file(ENV_CONFIG_FOLDER + conf, True, True)
     verbose_env = BoxEventEnv.from_config_file(ENV_CONFIG_FOLDER + conf, True)
 
-    env = Monitor(env, "deletethis")
-    verbose_env = Monitor(verbose_env, "deletethis")
+    # env = Monitor(env, "deletethis")
+    # verbose_env = Monitor(verbose_env, "deletethis")
 
     # Train the agent
     print("Learning")
@@ -104,39 +89,47 @@ if __name__ == '__main__':
     # TODO (priority 1) give timeout to avoid infinite run
     # print(evaluate_policy(model, verbose_env, n_eval_episodes=2))
 
-    model = A2C('MultiInputPolicy', env, verbose=1,
-                policy_kwargs=dict(
-                    net_arch=net_arch,
-                    ortho_init=0.5,
-                    activation_fn=activation_fn),
-                **params
-    ).learn(10000)
+    # model = A2C('MultiInputPolicy', env, verbose=1,
+    #             policy_kwargs=dict(
+    #                 net_arch=net_arch,
+    #                 ortho_init=0.5,
+    #                 activation_fn=activation_fn),
+    #             **params
+    # ).learn(10000)
+
+    print("here")
+    model = DQN('MultiInputPolicy', discrete_env, verbose=1)#.learn(10000)
+    print("here")
+
     # model = A2C('MultiInputPolicy', env, verbose=1)
 
     # Test the trained agent
 
-    n_steps = 20
+    n_steps = 200
     # verbose_env = first_box_env
     print("------------------------ START -------------------------")
-    obs = verbose_env.reset()
-    verbose_env.render()
+    obs = discrete_env.reset()
+    discrete_env.render()
 
     counter = 0
     for step in range(n_steps):
+        if counter == 5:
+            discrete_env.reset()
         counter += 1
         action, _ = model.predict(obs, deterministic=True)
-        num_boxes = verbose_env.env.env.num_boxes
+        num_boxes = verbose_env.env.num_boxes
         sure_action = [1] * num_boxes
         empty_action = [0] * num_boxes
         random_action = [[random.randint(0, 1) for i in range(num_boxes)]]
         print("Step {}".format(step + 1))
         print("Action: ", action)
-        obs, reward, done, info = verbose_env.step(action)
-        verbose_env.render()
+        obs, reward, done, info = discrete_env.step(0)
+        discrete_env.render()
         print('obs =', obs, 'reward=', reward, 'done=', done)
         if done:
             # Note that the VecEnv resets automatically
             # when a done signal is encountered
             print("Goal reached!", "reward=", reward)
             break
+    print("here")
     print(counter)

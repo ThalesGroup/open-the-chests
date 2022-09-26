@@ -16,13 +16,24 @@ class BoxEventEnv(gym.Env):
                  all_noise_types,
                  all_noise_attributes,
                  discrete=False,
-                 verbose=False):
-        super(BoxEventEnv, self).__init__()
-        self.verbose = verbose
-        self.all_event_attributes = all_event_attributes
-        self.all_event_types = all_event_types
-        self.instructions = instructions
+                 verbose=False,
+                 stb3=True):
+        """
+        Defines a gym compatible wrapper for the box event environment.
+        Allows defining observation and action spaces used for model setup.
 
+        :param instructions: List of commands allowing to define patterns for each box
+        :param all_event_types: List of all possible event types that can take place
+        :param all_event_attributes: Dictionary of al event types with a corresponding list of possible values
+        :param all_noise_types: List of all possible types to be used for noise generation only
+        :param all_noise_attributes: List of all possible types to be used for noise generation only
+        :param discrete: Accept actions under integer format instead of binary vector
+        :param verbose: Print details when executing for debugging
+        :param stb3: Use environment with stable baselines 3
+        """
+        super(BoxEventEnv, self).__init__()
+
+        # instantiate environment
         self.env = Environment(instructions=instructions,
                                all_event_types=all_event_types,
                                all_event_attributes=all_event_attributes,
@@ -30,21 +41,23 @@ class BoxEventEnv(gym.Env):
                                all_noise_attributes=all_noise_attributes,
                                verbose=verbose,
                                discrete=discrete,
-                               stb3=True)
+                               stb3=stb3)
 
+        # define action space depending on usage of discrete actions or not
         if discrete:
             self.action_space = Discrete(2**self.env.num_boxes - 1)
         else:
             self.action_space = MultiBinary(self.env.num_boxes)
 
-        num_types = len(self.env.parser.all_types)
+        # Define a space for observations using environment information
+        num_event_types = len(self.env.parser.all_types)
         attr_space = {attr_name: Discrete(len(attr_values)) for (attr_name, attr_values) in
                       self.env.parser.all_attributes.items()}
 
         self.observation_space = Dict({
             "active": MultiBinary(self.env.num_boxes),
             "open": MultiBinary(self.env.num_boxes),
-            "e_type": Discrete(num_types),
+            "e_type": Discrete(num_event_types),
             **attr_space,
             "start": Box(low=0, high=np.inf, shape=(1,)),
             "end": Box(low=0, high=np.inf, shape=(1,)),
@@ -53,6 +66,14 @@ class BoxEventEnv(gym.Env):
 
     @classmethod
     def from_config_file(cls, config_file_name, verbose=False, discrete=False):
+        """
+        Use a YAML configuration file to define an environment.
+
+        :param config_file_name: The configuration file.
+        :param verbose: Give information during environment execution.
+        :param discrete: Use discrete actions.
+        :return: The newly defined environment.
+        """
         with open(config_file_name, "r") as f:
             conf = yaml.safe_load(f)
 

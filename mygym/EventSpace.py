@@ -2,6 +2,12 @@ import numpy as np
 from gym.spaces import Dict, Discrete, Box
 
 
+"""
+OUTDATED (However keeping it for future needs.)
+Defines and allows to sample custom space type for events.
+Due to stable baselines accepting only dictionary formats, this is not currently used. 
+"""
+
 class EventSpace(Dict):
 
     def __init__(self, all_event_types, all_event_attributes):

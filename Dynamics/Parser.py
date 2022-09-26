@@ -8,7 +8,7 @@ from Elements.Event import Event
 # TODO (priority 3) rethink labelisation
 # TODO (priority 2) add more allen functions
 # TODO (priority 2) add check for noise events and noise generation
-from utils.utils import list_to_labels, my_normal, bug_print
+from utils.utils import my_normal
 
 
 class Parser:

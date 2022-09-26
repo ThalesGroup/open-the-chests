@@ -4,12 +4,12 @@ from Dynamics.GUI import BoxEventGUI
 from Dynamics.Parser import Parser
 from Elements.InteractiveBox import InteractiveBox
 from Elements.Pattern import Pattern
-from utils.utils import process_obs, bug_print
+from utils.utils import to_stb3_obs_format, bug_print
 
 
 class Environment:
     def __init__(self,
-                 instructions: dict,
+                 instructions: list,
                  all_event_types: list,
                  all_event_attributes: dict,
                  all_noise_types: list,
@@ -22,16 +22,15 @@ class Environment:
         Environment that allows to interact and open boxes after observing symbols.
         Example of environment usage and initialisation in examples.create_env .
 
-        :param all_noise_types: List of all possible types to be used for noise generation only
-        :param all_noise_attributes: List of all possible types to be used for noise generation only
-        :param timeout_threshold: After this many box deactivations of whichever box,
-                                        the environment times out and is concidered as done
-        :param instructions: Dictionary of commands allowing to define patterns for each box
+        :param instructions: List of commands allowing to define patterns for each box
         :param all_event_types: List of all possible event types that can take place
         :param all_event_attributes: Dictionary of al event types with a corresponding list of possible values
+        :param all_noise_types: List of all possible types to be used for noise generation only
+        :param all_noise_attributes: List of all possible types to be used for noise generation only
+        :param discrete: Accept actions under integer format instead of binary vector.
+                Discrete actions are converted to their corresponding binary value and used as vectors.
         :param verbose: Print details when executing for debugging
         :param stb3: Use environment with stable baselines 3
-        :param discrete: Accept actions under integer format instead of binary vector
 
         Note: When accepting integer actions, each value will be transformed into its corresponding binary number
         """
@@ -158,7 +157,7 @@ class Environment:
         obs = {"state": box_states, "context": self.context}
 
         if self.stb3:
-            obs = process_obs(obs)
+            obs = to_stb3_obs_format(obs)
         return obs
 
     def internal_step(self):

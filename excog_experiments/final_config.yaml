@@ -120,7 +120,7 @@ parameter_sampler:
 
 
 datasets:
-  data1: !raw_file data
+  data1: !raw_file excog_experiments/data
 
 
 

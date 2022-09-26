@@ -75,16 +75,18 @@ class Pattern:
         :param t: Date of start of the generated pattern
         """
 
-        # TODO (priority 1) this code can be prettier
         generated_events = self.parser.generate_pattern(self.instruction)
         num_not_noise = len(generated_events)
         pattern_end_time = generated_events[-1].end
+        shifted_generated_events = [event.shift(t) for event in generated_events]
+
         noise_events = self.generate_noise_events(pattern_end_time, num_not_noise)
+        shifted_noise_events = [event.shift(t) for event in noise_events]
 
         self.full_pattern = [self.last_generated_event] if self.last_generated_event else []
-        self.full_pattern += [event.shift(t) for event in generated_events]
+        self.full_pattern += shifted_generated_events
 
-        self.events_stack = [event.shift(t) for event in sorted(noise_events + generated_events)]
+        self.events_stack = sorted(shifted_noise_events + shifted_generated_events)
 
         if self.verbose:
             print(f"Sampling pattern {self.events_stack}")

@@ -1,4 +1,3 @@
-import re
 import random
 
 import numpy as np
@@ -14,6 +13,12 @@ def bug_print(something="", msg=""):
 
 
 def my_normal(mu, sigma):
+    """
+    Clipped normal distribution that makes sure no negative time durations are generated.
+    :param mu: Mean used for normal distribution.
+    :param sigma: Variance used for normal distribution.
+    :return: A sampled duration of minimal value (mu - sigma) and maximal value (mu + sigma.
+    """
     assert mu - sigma >= 0, "Allows negative time durations"
     res = random.normalvariate(mu, sigma)
     res = max((mu - sigma), res)
@@ -21,12 +26,16 @@ def my_normal(mu, sigma):
     return res
 
 
-def list_to_labels(l):
-    return [i for i in range(len(l))]
-
-
 # TODO (priority 3) can this be more general?
-def process_obs(obs: dict):
+def to_stb3_obs_format(obs: dict):
+    """
+    Stable Baselines 3 only accepts observation output formats under the form of one level dictionaries.
+    Since the standard environment output is under the form of a multi level dictionary containing object,
+    we use this function to transform it into an acceptable formatting.
+
+    :param obs: Observation to be transformed.
+    :return: One level dictionary representing the observation.
+    """
     final_dict = dict()
     for key, value in obs.items():
         if key == "state":
@@ -45,69 +54,13 @@ def process_obs(obs: dict):
     return final_dict
 
 
-def split_strip(s, c):
-    return list(map(str.strip, s.split(c)))
-
-
-def params_to_dict(s):
-    if s == "{}":
-        return dict()
-    s = s.strip("{").strip("}").strip(" ")
-    s = split_strip(s, ",")
-    d = {split_strip(t, ":")[0]: split_strip(t, ":")[1] for t in s}
-    return d
-
-
-def parse_tuple(s):
-    return tuple(map(int, re.findall(r'[0-9]+', s)))
-
-
-# TODO (priority 2) add safety for adding random white spaces
-def line_to_command_dict(line: str):
-    line = line.split(" ")
-    if "delay" in line:
-        delay_val_ind = line.index("delay") + 1
-        return {"command": "delay", "parameters": int(line[delay_val_ind])}
-
-    elif "noise" in line:
-        noise_val_ind = line.index("noise") + 1
-        return {"command": "noise", "parameters": float(line[noise_val_ind])}
-
-    elif "instantiate" in line:
-        instantiate_ind = line.index("instantiate")
-        var_name = line[instantiate_ind + 1]
-        event_info = line[instantiate_ind + 2]
-        event_type = event_info[0]
-        event_params = params_to_dict(event_info[1:])
-        if "duration" in line:
-            duration_ind = line.index("duration")
-            duration_params = parse_tuple(line[duration_ind + 1])
-            return {"command": "instantiate",
-                    "parameters": (event_type, event_params, duration_params),
-                    "variable_name": var_name}
-        return {"command": "instantiate", "parameters": (event_type, event_params), "variable_name": var_name}
-
-    elif "allen" in line:
-        allen_ind = line.index("allen")
-        allen_op = line[allen_ind + 1]
-        e1 = line[allen_ind - 1]
-        e2 = line[allen_ind + 2]
-        if len(line) > 4:
-            other_params = dict()
-            for i in range(4, len(line), 2):
-                other_params[line[i]] = parse_tuple(line[i + 1])
-            return {"command": allen_op, "parameters": (e1, e2), "variable_name": e1, "other": other_params}
-        # TODO (priority 2) is variable name necessary and what is its place
-        return {"command": allen_op, "parameters": (e1, e2), "variable_name": e1}
-
-
-def parse_file(filename):
-    with open(filename) as f:
-        lines = [line.rstrip() for line in f]
-    return list(map(line_to_command_dict, lines))
-
-
 def parse_yaml_file(filename):
+    """
+    Allows to parse a YAML file of instructions and transform it into a list of dictionaries that is accepted by the environment.
+
+    :param filename: The YAML file to parse.
+    :return: The produced instructions.
+    """
     instructions = []
     with open(filename, "r") as f:
         conf = yaml.safe_load(f)
@@ -132,11 +85,6 @@ def parse_yaml_file(filename):
     return instructions
 
 
-def read_yaml(file_path):
-    with open(file_path, "r") as f:
-        return yaml.safe_load(f)
-
-
 def my_evaluate(env, model, steps=100):
     rewards = []
     actions = []
@@ -144,8 +92,8 @@ def my_evaluate(env, model, steps=100):
     for i in range(steps):
         action, _ = model.predict(obs, deterministic=True)
         new_obs, reward, done, info = env.step(action)
-        obs=new_obs
-        if type(reward)!= int:
+        obs = new_obs
+        if type(reward) != int:
             print("BIGBIG PROBLEM STOPSTOP")
         rewards.append(reward)
         actions.append(action)
@@ -182,7 +130,8 @@ def evaluate_multiple_times_isolate(env, model, repeats=10):
     best_actions = None
     best_steps = None
     for i in range(repeats):
-        sum_reward, per_step_rewards, actions, actives, steps = my_evaluate_isolate(env, model, evaluated_box=0, steps=20)
+        sum_reward, per_step_rewards, actions, actives, steps = my_evaluate_isolate(env, model, evaluated_box=0,
+                                                                                    steps=20)
         rewards.append(sum_reward)
         if max(rewards) <= sum_reward:
             best_actions = actions
