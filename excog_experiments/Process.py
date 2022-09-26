@@ -7,7 +7,7 @@ from sb3_contrib import TRPO
 from stable_baselines3.common.monitor import Monitor
 from torch import nn
 
-from stable_baselines3 import A2C, PPO
+from stable_baselines3 import A2C, PPO, DQN
 from stable_baselines3.common.env_util import make_vec_env
 
 from globals import ENV_CONFIG_FOLDER, EXCOG_EXP_FOLDER
@@ -15,9 +15,10 @@ from mygym.BoxEventEnv import BoxEventEnv
 from utils.utils import bug_print, my_evaluate
 
 
-def load_env_monitor(data1, monitor_file):
+def load_env_monitor(data1, monitor_file, discrete=False):
     print(data1[0])
-    env = BoxEventEnv.from_config_file(ENV_CONFIG_FOLDER + data1[0], False)
+    print(monitor_file)
+    env = BoxEventEnv.from_config_file(ENV_CONFIG_FOLDER + data1[0], False, discrete=discrete)
     log_dir = EXCOG_EXP_FOLDER + monitor_file
     if os.path.exists(log_dir):
         shutil.rmtree(log_dir)
@@ -26,11 +27,14 @@ def load_env_monitor(data1, monitor_file):
     return env
 
 
-def param_prepare(activation_fn, learning_rate, net_arch):
-    net_arch = {
-        "small": [dict(pi=[64, 64], vf=[64, 64])],
-        "medium": [dict(pi=[256, 256], vf=[256, 256])],
-    }[net_arch]
+def param_prepare(activation_fn, learning_rate, net_arch, dqn=False):
+    if dqn:
+        net_arch = {"tiny": [64], "small": [64, 64], "medium": [256, 256]}[net_arch]
+    else:
+        net_arch = {
+            "small": [dict(pi=[64, 64], vf=[64, 64])],
+            "medium": [dict(pi=[256, 256], vf=[256, 256])],
+        }[net_arch]
     activation_fn = {"tanh": nn.Tanh, "relu": nn.ReLU, "elu": nn.ELU, "leaky_relu": nn.LeakyReLU}[activation_fn]
     learning_rate = np.exp(learning_rate)
     return activation_fn, learning_rate, net_arch
@@ -49,6 +53,58 @@ def evaluate_multiple_times(env, model, repeats=10):
             best_rewards = per_step_rewards
             best_steps = steps
     return mean(rewards), std(rewards), rewards, best_rewards, best_actions, best_steps
+
+
+def DQN_process(gamma,
+                seed,
+                learning_rate,
+                batch_size,
+                buffer_size,
+                exploration_final_eps,
+                exploration_fraction,
+                target_update_interval,
+                learning_starts,
+                train_freq,
+                subsample_steps,
+                net_arch,
+                gae_lambda,
+                n_steps,
+                ortho_init,
+                activation_fn,
+                data1,
+                monitor_file):
+    print("DQN")
+
+    env = load_env_monitor(data1, monitor_file, discrete=True)
+    activation_fn, learning_rate, net_arch = param_prepare("tanh", learning_rate, net_arch, dqn=True)
+
+    gradient_steps = max(train_freq//subsample_steps, 1)
+
+    model = DQN('MultiInputPolicy', env,
+                seed=seed,
+                gamma=gamma,
+                learning_rate=learning_rate,
+                batch_size=batch_size,
+                buffer_size=buffer_size,
+                train_freq=train_freq,
+                gradient_steps=gradient_steps,
+                exploration_fraction=exploration_fraction,
+                exploration_final_eps=exploration_final_eps,
+                target_update_interval=target_update_interval,
+                learning_starts=learning_starts,
+                policy_kwargs=dict(net_arch=net_arch))
+
+    model.learn(10000)
+
+    mean_rewards, std_rewards, rewards, best_rewards, best_actions, best_steps = evaluate_multiple_times(env, model)
+
+    return {"method": "DQN",
+            "mean_reward": mean_rewards,
+            "std_reward": std_rewards,
+            "all_trials_rewards": rewards,
+            "best_trial_per_step_rewards": best_rewards,
+            "best_trial_per_step_actions": best_actions,
+            "best_trial_per_step_steps": best_steps}
 
 
 def A2C_process(gamma,
@@ -95,9 +151,9 @@ def A2C_process(gamma,
             "mean_reward": mean_rewards,
             "std_reward": std_rewards,
             "all_trials_rewards": rewards,
-            "best_trial_par_step_rewards": best_rewards,
-            "best_trial_par_step_actions": best_actions,
-            "best_trial_par_step_steps": best_steps}
+            "best_trial_per_step_rewards": best_rewards,
+            "best_trial_per_step_actions": best_actions,
+            "best_trial_per_step_steps": best_steps}
 
 
 def PPO_process(batch_size,
@@ -151,9 +207,9 @@ def PPO_process(batch_size,
             "mean_reward": mean_rewards,
             "std_reward": std_rewards,
             "all_trials_rewards": rewards,
-            "best_trial_par_step_rewards": best_rewards,
-            "best_trial_par_step_actions": best_actions,
-            "best_trial_par_step_steps": best_steps}
+            "best_trial_per_step_rewards": best_rewards,
+            "best_trial_per_step_actions": best_actions,
+            "best_trial_per_step_steps": best_steps}
 
 
 def TRPO_process(batch_size,
@@ -202,9 +258,9 @@ def TRPO_process(batch_size,
                 "mean_reward": mean_rewards,
                 "std_reward": std_rewards,
                 "all_trials_rewards": rewards,
-                "best_trial_par_step_rewards": best_rewards,
-                "best_trial_par_step_actions": best_actions,
-                "best_trial_num_step_steps": best_steps}
+                "best_trial_per_step_rewards": best_rewards,
+                "best_trial_per_step_actions": best_actions,
+                "best_trial_per_step_steps": best_steps}
 
     except:
         return {"method": "TRPO",

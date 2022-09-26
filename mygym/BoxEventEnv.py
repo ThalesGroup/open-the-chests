@@ -15,7 +15,8 @@ class BoxEventEnv(gym.Env):
                  all_event_attributes,
                  all_noise_types,
                  all_noise_attributes,
-                 verbose):
+                 discrete=False,
+                 verbose=False):
         super(BoxEventEnv, self).__init__()
         self.verbose = verbose
         self.all_event_attributes = all_event_attributes
@@ -28,9 +29,13 @@ class BoxEventEnv(gym.Env):
                                all_noise_types=all_noise_types,
                                all_noise_attributes=all_noise_attributes,
                                verbose=verbose,
+                               discrete=discrete,
                                stb3=True)
 
-        self.action_space = MultiBinary(self.env.num_boxes)
+        if discrete:
+            self.action_space = Discrete(2**self.env.num_boxes - 1)
+        else:
+            self.action_space = MultiBinary(self.env.num_boxes)
 
         num_types = len(self.env.parser.all_types)
         attr_space = {attr_name: Discrete(len(attr_values)) for (attr_name, attr_values) in
@@ -47,7 +52,7 @@ class BoxEventEnv(gym.Env):
         })
 
     @classmethod
-    def from_config_file(cls, config_file_name, verbose=False):
+    def from_config_file(cls, config_file_name, verbose=False, discrete=False):
         with open(config_file_name, "r") as f:
             conf = yaml.safe_load(f)
 
@@ -73,7 +78,8 @@ class BoxEventEnv(gym.Env):
                   all_event_attributes=all_event_attributes,
                   all_noise_types=all_noise_types,
                   all_noise_attributes=all_noise_attributes,
-                  verbose=verbose)
+                  verbose=verbose,
+                  discrete=discrete)
 
         return env
 

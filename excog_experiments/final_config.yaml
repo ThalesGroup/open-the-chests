@@ -1,6 +1,19 @@
 processing_sequence:
   - concurrent_techniques:
       - module: Process
+        function: DQN_process
+        params:
+          batch_size: !explore batch_size
+          buffer_size: !explore buffer_size
+          exploration_final_eps: !explore exploration_final_eps
+          exploration_fraction: !explore exploration_fraction
+          target_update_interval: !explore target_update_interval
+          learning_starts: !explore learning_starts
+          train_freq: !explore train_freq
+          subsample_steps: !explore subsample_steps
+        global: monitor_file
+
+      - module: Process
         function: TRPO_process
         params:
           batch_size: !explore batch_size
@@ -30,6 +43,7 @@ processing_sequence:
           vf_coef: !explore vf_coef
         global: monitor_file
 
+
     shared_params:
       gamma: !explore gamma
       gae_lambda: !explore gae_lambda
@@ -44,6 +58,20 @@ processing_sequence:
       - data1
 
 parameter_space:
+  - ref: subsample_steps
+    values: [1, 2, 4, 8]
+  - ref: train_freq
+    values: [1, 2, 8, 16, 128, 256, 1000]
+  - ref: learning_starts
+    values: [1, 1000, 5000, 10000, 20000]
+  - ref: target_update_interval
+    values: [1, 1000, 5000, 10000, 15000, 20000]
+  - ref: exploration_fraction
+    values: !uniform 0, 0.5
+  - ref: exploration_final_eps
+    values: !uniform 0, 0.2
+  - ref: buffer_size
+    values: [10000, 50000, 100000, 1000000]
   - ref: gamma
     values: [0.9, 0.95, 0.98, 0.995, 0.9999]
   - ref: gae_lambda
@@ -92,7 +120,7 @@ parameter_sampler:
 
 
 datasets:
-  data1: !raw_file excog_experiments/data
+  data1: !raw_file data
 
 
 
