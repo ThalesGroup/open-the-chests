@@ -22,6 +22,10 @@ class Environment:
         Environment that allows to interact and open boxes after observing symbols.
         Example of environment usage and initialisation in examples.create_env .
 
+        :param all_noise_types: List of all possible types to be used for noise generation only
+        :param all_noise_attributes: List of all possible types to be used for noise generation only
+        :param timeout_threshold: After this many box deactivations of whichever box,
+                                        the environment times out and is concidered as done
         :param instructions: Dictionary of commands allowing to define patterns for each box
         :param all_event_types: List of all possible event types that can take place
         :param all_event_attributes: Dictionary of al event types with a corresponding list of possible values
@@ -64,7 +68,7 @@ class Environment:
         Restart time, reset each box and its pattern and refill the timeline of events.
         Get one observation of the newly reset environment.
 
-        Note observation form may vary depending on the stb3 parameter.
+        Note: observation form may vary depending on the stb3 parameter.
 
         :return: The first observation of the newly reset environment.
         """
@@ -203,7 +207,7 @@ class Environment:
         """
         Update all boxes states to be coherent with current environment time and evolution.
 
-        :param t_current: the current system time used to re-activate boxes if needed.
+        :param t_current: The current system time used to re-activate boxes if needed.
         """
         for box in self.boxes:
             box.update(t_current)
@@ -251,7 +255,10 @@ class Environment:
 
     def check_end(self):
         """
-        Verify if all boxes have been opened and thus the end of the game has been reached.
+        Verify if it's time to send a done signal indicating the end of the game.
+        A done signal can be sent in one of two case:
+            - All boxes have been opened giving the end of the game.
+            - All boxes have been collectively deactivated more than @self.timeout_threshold times.
 
         :return: Boolean indicating the end of the game
         """

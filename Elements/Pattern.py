@@ -8,11 +8,12 @@ class Pattern:
 
     def __init__(self, parser, instruction: list, verbose):
         """
-        Initialise pattern allowing to generate events
+        Pattern associated to a box that uses the defined parser to sample instructions and produce an event stack.
+        This structure allows to track the state and execution of situations associated to each box.
 
-        :param instruction: Instruction that generates lists of events
-        :param verbose: Print information as it happens
-        :param parser: parser to use for generating list of Events from instructions
+        :param instruction: Instruction used to generate the stack of events.
+        :param verbose: Print information as it happens.
+        :param parser: Parser structure used for sampling.
         """
         self.parser = parser
         # TODO (priority 3) move wait instruction time to parser?or not?
@@ -24,14 +25,27 @@ class Pattern:
                                                                                        "noise"]]  # list of instructions under the form of dictionaries
         self.verbose = verbose
 
-        self.events_stack = []  # stack of events to generate with instruction
+        # stack of events to generate with instruction
+        self.events_stack = []
+        # used for GUI only to print full patterns
         self.full_pattern = []
         self.last_generated_event = None
+        # show has pattern finished displaying
         self.satisfied = False
+        # re-activation time for pattern
         self.start_pattern_time = 0
         self.last_event_end = 0
 
     def generate_noise_events(self, pattern_end, pattern_len):
+        """
+        Generate a list of noise events proportional to the list of normal events for the pattern.
+        Use the @self.noise proportion to keep track of the ratio.
+        We make sure to generate the noise events before the pattern end time.
+
+        :param pattern_end: The end time of the pattern.
+        :param pattern_len: The length of the pattern used to track noise to event ratio.
+        :return: A list of noise events.
+        """
         num_not_noise = pattern_len
         noise_list = []
         while num_not_noise > 0:
@@ -43,12 +57,20 @@ class Pattern:
         return noise_list
 
     def reset(self):
+        """
+        Reset pattern and all related information.
+        """
+        self.events_stack = []  # stack of events to generate with instruction
+        self.full_pattern = []
         self.last_generated_event = None
         self.satisfied = False
+        self.start_pattern_time = 0
+        self.last_event_end = 0
 
     def fill_event_stack(self, t):
         """
         Fill pattern stack starting at time @t with events generated following @self.instruction.
+        Events are generated using the @self.parser.
 
         :param t: Date of start of the generated pattern
         """
@@ -56,8 +78,8 @@ class Pattern:
         # TODO (priority 1) this code can be prettier
         generated_events = self.parser.generate_pattern(self.instruction)
         num_not_noise = len(generated_events)
-        pattern_end = generated_events[-1].end
-        noise_events = self.generate_noise_events(pattern_end, num_not_noise)
+        pattern_end_time = generated_events[-1].end
+        noise_events = self.generate_noise_events(pattern_end_time, num_not_noise)
 
         self.full_pattern = [self.last_generated_event] if self.last_generated_event else []
         self.full_pattern += [event.shift(t) for event in generated_events]

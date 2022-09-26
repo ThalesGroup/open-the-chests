@@ -58,17 +58,37 @@ class BoxEventGUI:
         self.window = sg.Window("Symbolic Event Environment", self.layout)
 
     def add_event_to_history(self, event):
+        """
+        Add an event to the history variable that saves all past events.
+        They are all displayed under the form of a timeline history in the right "history" window of the GUI.
+
+        :param event: The event ot add to the history
+        """
         self.history.append(event)
 
     def update_variable(self, name, value):
+        """
+        Add a variable to the dictionary used for displaying information.
+        This is used to avoid passing multiple unclear parameters during step process.
+        If needed the variables can be updated and then the step process needs only the variable dictionary.
+
+        :param name: The name of the parameter to update
+        :param value: The value to update the parameter to
+        """
         self.variables[name] = value
 
     def get_variable(self, name):
+        """
+        Get the value of a saved parameter.
+
+        :param name: The name of the parameter to get.
+        :return: The value of the parameter
+        """
         return self.variables[name] if (name in self.variables) else None
 
     def step(self):
         """
-        Print new environment using updated variable values.
+        Visualise new environment using updated variable values.
         """
         # TODO (priority 4) fix this to add option with smooth transitions with no button
         event, values = self.window.read()
@@ -112,7 +132,7 @@ class BoxEventGUI:
 
     def update_window(self):
         """
-         Update window to get new values shown.
+         Update windows to get new values shown.
         """
 
         # refresh the update to take into account image changes
@@ -141,13 +161,17 @@ class BoxEventGUI:
                          bg_color=None):
         """
         Allows to print a list of events under the form of a timeline.
+        The list of events is transformed into a pandas dataframe which is then used to generate a barchart timeline.
+        The colors of the bar charts are synchronised with event backgrounds.
+        Annotations are added to indicate the type of each event, where there colors are also synchronised
+        with the foreground color attribute.
         Gives the possibility to add a line showing the current time.
 
-        :param event_list: the list of events to print
-        :param show: show timeline as a window or print it to an image
-        :param current_time: current time used to make a line on timeline
-        :param patterns_range: beginning and end of timeline range
-        :param bg_color: background color
+        :param event_list: The list of events to print.
+        :param show: Show timeline as a window or print it to an image.
+        :param current_time: Current time used to make a line on timeline.
+        :param patterns_range: Beginning and end of timeline range.
+        :param bg_color: Background color of the timeline.
         :return:
         """
         list_df = []

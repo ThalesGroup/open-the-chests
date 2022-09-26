@@ -19,14 +19,16 @@ class Parser:
                  all_event_attributes,
                  all_noise_attributes):
         """
-        Allows to process instructions and generate events and noise
-        on the base of a finite set of preexistent types and attributes.
+        This structure is used for event generation.
+        It is defined using the set of all preexistent types and attributes.
+        Is main goal is the sampling of events on the basis of instructions.
+        It also allows to labelise events, generate noise events when needed, keep statistics on events lengths.
 
-        :param all_event_types: list of all possible event types to be used for event generation
-        :param all_event_attributes: dictionary of all attributes and their associated possible values
+        :param all_event_types: List of all possible event types to be used for event generation
+        :param all_event_attributes: Dictionary of all attributes and their associated possible values
                                                                                 for event generation
-        :param all_noise_types: list of all possible event types to be used for noise generation
-        :param all_noise_attributes: dictionary of attributes used for noise generation
+        :param all_noise_types: List of all possible event types to be used for noise generation
+        :param all_noise_attributes: Dictionary of attributes used for noise generation
         """
         self.all_event_types = all_event_types
         self.all_noise_types = all_noise_types
@@ -60,8 +62,8 @@ class Parser:
         Generate a random noise event ending before a certain date.
         The types and attributes of this event are taken from the sets given at class initialisation
 
-        :param before: Time before which the noise should be generated
-        :return: the defined noise event
+        :param before: Time before which the noise should be generated.
+        :return: The defined noise event.
         """
         t1, t2 = random.uniform(0, before), random.uniform(0, before)
         start, end = min(t1, t2), max(t1, t2)

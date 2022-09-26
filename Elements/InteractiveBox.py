@@ -11,9 +11,9 @@ class InteractiveBox:
         It possesses three states indicators: open, ready and active.
         The box is initialised with a pattern which defines how the box changes states.
 
-        :param id:
-        :param pattern: pattern object linked to box
-        :param verbose:
+        :param id: The identifier of the box.
+        :param pattern: Pattern object linked to box handling event tracking and generation.
+        :param verbose: Give details.
         """
         self.id = id
         self.verbose = verbose
@@ -115,7 +115,32 @@ class InteractiveBox:
 
     def update(self, t_current):
         """
-        Verifies bos state and updates its status
+        Update box status using the current time information.
+        During each environment steps each box is updates according to internal environment evolution
+        and user interaction. The update is done at the end of the step right before returning observations.
+        To update the boxes we proceed in the following way:
+
+        1. Only unopened boxes are considered for updates.
+        2. If the box is considered as active, we verify whether it was considered as ready during its previous state.
+            If this is the case the box is deactivated.
+            Note: The box becomes ready at the end of the update. If between the previous update and the current one
+            it has not been opened, the button-press opportunity interval has passed, and it must be deactivated.
+
+        3. We immediately verify if the box is deactivated and check if the current time has passed the chest
+            re-activation time (re-activation-time = deactivation time + delay). If this is the case the chest is
+            reactivated. Note: Checks are made immediately (*if* instead *else if*) since a box can be deactivated and
+            reactivated during the same update. For example, if a box has been ready and is deactivated, however the next
+            observed event during the internal step either belongs to the same box or ends after the box re-activation
+            time, it will be immediately reactivated.
+
+        4. We immediately check if the pattern has been satisfied and if this is the case, mark the box as ready.
+            Note: Checks are made immediately (*if* instead *else if*) since a box can pass from deactivated,
+            to activated to ready in one step. An example of this is a one-event only box. Once the box has been ready,
+            it is marked as deactivated. However, the next observed event also belongs to the box, leading to
+            reactivation. Since the box has only one event, it also marked ready right away.
+
+        :param t_current: The current time during the update, given by the last observed event, used for reactivating
+                            the box.
         """
         if not self.state["open"]:
             if self.state["active"]:
