@@ -115,7 +115,7 @@ global:
 parameter_sampler:
   class: LowDiscrepancyRandomSampler
   params:
-    n_points: 500
+    n_points: 250
 
 
 
