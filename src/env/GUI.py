@@ -6,8 +6,6 @@ import plotly.express as px
 # TODO (priority 4) rework whole class to be more logically organised and with less parameters
 from matplotlib import colors
 
-from utils.utils import bug_print
-
 
 class BoxEventGUI:
 

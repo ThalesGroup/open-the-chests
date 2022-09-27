@@ -1,7 +1,4 @@
-import copy
 import random
-
-from utils.utils import bug_print
 
 
 class Pattern:

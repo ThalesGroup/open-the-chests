@@ -1,10 +1,9 @@
-import math
 from typing import List
-from Dynamics.GUI import BoxEventGUI
-from Dynamics.Parser import Parser
-from Elements.InteractiveBox import InteractiveBox
-from Elements.Pattern import Pattern
-from utils.utils import to_stb3_obs_format, bug_print
+from src.env.GUI import BoxEventGUI
+from src.env.Parser import Parser
+from src.env.elements.InteractiveBox import InteractiveBox
+from src.env.elements.Pattern import Pattern
+from src.utils.helper_functions import to_stb3_obs_format
 
 
 class Environment:

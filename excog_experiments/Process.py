@@ -8,11 +8,10 @@ from stable_baselines3.common.monitor import Monitor
 from torch import nn
 
 from stable_baselines3 import A2C, PPO, DQN
-from stable_baselines3.common.env_util import make_vec_env
 
 from globals import ENV_CONFIG_FOLDER, EXCOG_EXP_FOLDER
-from mygym.BoxEventEnv import BoxEventEnv
-from utils.utils import bug_print, my_evaluate
+from src.BoxEventEnv import BoxEventEnv
+from src.utils.helper_functions import my_evaluate
 
 
 def load_env_monitor(data1, monitor_file, discrete=False):

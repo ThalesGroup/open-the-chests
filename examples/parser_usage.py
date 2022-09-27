@@ -1,4 +1,4 @@
-from Dynamics.Parser import Parser
+from src.env.Parser import Parser
 from examples.create_env import all_event_attributes, all_noise_attributes, all_event_types, all_noise_types
 from examples.instructions import instructions
 

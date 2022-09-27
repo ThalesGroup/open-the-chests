@@ -1,7 +1,6 @@
-from Elements.Pattern import Pattern
+from src.env.elements.Pattern import Pattern
 
 # TODO (priority 4) doc
-from utils.utils import bug_print
 
 
 class InteractiveBox:

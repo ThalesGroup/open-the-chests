@@ -3,9 +3,9 @@ import gym
 import yaml
 from gym.spaces import Dict, MultiBinary, Discrete, Box
 
-from Dynamics.Environment import Environment
 from globals import ENV_PATTERNS_FOLDER
-from utils.utils import parse_yaml_file, bug_print
+from src.env.Environment import Environment
+from src.utils.helper_functions import parse_yaml_file
 
 
 class BoxEventEnv(gym.Env):

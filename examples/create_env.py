@@ -1,11 +1,11 @@
 import random
-from Dynamics.Environment import Environment
+from src.env.Environment import Environment
 from examples.instructions import instructions
 
 # Example : Create environment without gym wrapper
 
 # define a list of all possible event types to be used by the instructions
-from utils.utils import bug_print
+from env.utils.helper_functions import bug_print
 
 all_event_types = ['A', 'B', 'C', 'D', 'E']
 

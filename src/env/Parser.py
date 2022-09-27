@@ -1,14 +1,15 @@
 import random
 
-from utils.allen import allen_functions
-from Elements.Event import Event
+
+from src.env.elements.Event import Event
 
 # TODO (priority 4) doc
 # TODO (priority 3) rethink class structure and use input all items to generate dictionaries
 # TODO (priority 3) rethink labelisation
 # TODO (priority 2) add more allen functions
 # TODO (priority 2) add check for noise events and noise generation
-from utils.utils import my_normal
+from src.utils.allen import allen_functions
+from src.utils.helper_functions import my_normal
 
 
 class Parser:
@@ -158,7 +159,7 @@ class Parser:
                 events = (variables[var_name] for var_name in instr_line["parameters"])
                 allen_op = instr_line["command"]
                 bonus_params = instr_line["other"] if "other" in instr_line else dict()
-                event = allen_functions[allen_op](*events, **bonus_params)
+                event = [allen_op](*events, **bonus_params)
                 variables[instr_line["variable_name"]] = event
                 event_list.append(event)
             else:

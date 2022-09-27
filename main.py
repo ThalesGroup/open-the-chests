@@ -1,16 +1,13 @@
 import random
 
 import plotly.io as pio
-from sb3_contrib import TRPO
-from stable_baselines3 import A2C, DQN
-from stable_baselines3.common.env_util import make_vec_env
+from stable_baselines3 import DQN
 
 from stable_baselines3.common.monitor import Monitor
 
-from excog_experiments.Process import evaluate_multiple_times, param_prepare, load_env_monitor, TRPO_process
-from globals import ENV_CONFIG_FOLDER, EXCOG_EXP_FOLDER
-from mygym.BoxEventEnv import BoxEventEnv
-from utils.utils import bug_print
+from excog_experiments.Process import param_prepare
+from globals import ENV_CONFIG_FOLDER
+from src.BoxEventEnv import BoxEventEnv
 
 pio.renderers.default = "browser"
 
@@ -22,11 +19,11 @@ if __name__ == '__main__':
     # conf = "one_distinct_per_box.yaml"
     conf = "one_per_box.yaml"
     env = BoxEventEnv.from_config_file(ENV_CONFIG_FOLDER + conf, False)
-    discrete_env = BoxEventEnv.from_config_file(ENV_CONFIG_FOLDER + conf, True, True)
+    discrete_env = BoxEventEnv.from_config_file(ENV_CONFIG_FOLDER + conf, False, True)
     verbose_env = BoxEventEnv.from_config_file(ENV_CONFIG_FOLDER + conf, True)
 
     # env = Monitor(env, "deletethis")
-    # verbose_env = Monitor(verbose_env, "deletethis")
+    discrete_env = Monitor(discrete_env, "")
 
     # Train the agent
     print("Learning")
@@ -98,7 +95,7 @@ if __name__ == '__main__':
     # ).learn(10000)
 
     print("here")
-    model = DQN('MultiInputPolicy', discrete_env, verbose=1)#.learn(10000)
+    model = DQN('MultiInputPolicy', discrete_env, verbose=1).learn(100000)
     print("here")
 
     # model = A2C('MultiInputPolicy', env, verbose=1)
@@ -113,19 +110,17 @@ if __name__ == '__main__':
 
     counter = 0
     for step in range(n_steps):
-        if counter == 5:
-            discrete_env.reset()
         counter += 1
         action, _ = model.predict(obs, deterministic=True)
         num_boxes = verbose_env.env.num_boxes
         sure_action = [1] * num_boxes
         empty_action = [0] * num_boxes
         random_action = [[random.randint(0, 1) for i in range(num_boxes)]]
-        print("Step {}".format(step + 1))
-        print("Action: ", action)
-        obs, reward, done, info = discrete_env.step(0)
+        # print("Step {}".format(step + 1))
+        # print("Action: ", action)
+        obs, reward, done, info = discrete_env.step(action)
         discrete_env.render()
-        print('obs =', obs, 'reward=', reward, 'done=', done)
+        # print('obs =', obs, 'reward=', reward, 'done=', done)
         if done:
             # Note that the VecEnv resets automatically
             # when a done signal is encountered
