@@ -2,7 +2,6 @@ import os
 import shutil
 
 import numpy as np
-from numpy import mean, std
 from sb3_contrib import TRPO
 from stable_baselines3.common.monitor import Monitor
 from torch import nn
@@ -11,7 +10,7 @@ from stable_baselines3 import A2C, PPO, DQN
 
 from globals import ENV_CONFIG_FOLDER, EXCOG_EXP_FOLDER
 from src.BoxEventEnv import BoxEventEnv
-from src.utils.helper_functions import my_evaluate
+from src.utils.evaluators import evaluate_multiple_times
 
 
 def load_env_monitor(data1, monitor_file, discrete=False):
@@ -37,21 +36,6 @@ def param_prepare(activation_fn, learning_rate, net_arch, dqn=False):
     activation_fn = {"tanh": nn.Tanh, "relu": nn.ReLU, "elu": nn.ELU, "leaky_relu": nn.LeakyReLU}[activation_fn]
     learning_rate = np.exp(learning_rate)
     return activation_fn, learning_rate, net_arch
-
-
-def evaluate_multiple_times(env, model, repeats=10):
-    rewards = []
-    best_rewards = None
-    best_actions = None
-    best_steps = None
-    for i in range(repeats):
-        sum_reward, per_step_rewards, actions, steps = my_evaluate(env, model, 200)
-        rewards.append(sum_reward)
-        if max(rewards) <= sum_reward:
-            best_actions = actions
-            best_rewards = per_step_rewards
-            best_steps = steps
-    return mean(rewards), std(rewards), rewards, best_rewards, best_actions, best_steps
 
 
 def DQN_process(gamma,
