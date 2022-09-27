@@ -46,7 +46,7 @@ class Pattern:
         num_not_noise = pattern_len
         noise_list = []
         while num_not_noise > 0:
-            if random.random() <= self.noise:
+            if random.random() < self.noise:
                 noise_event = self.parser.make_noise(before=pattern_end)
                 noise_list.append(noise_event)
             else:

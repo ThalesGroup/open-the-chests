@@ -102,7 +102,7 @@ class Parser:
                 attributes[attr] = random.choice(attr_values)
 
         if duration_distribution:
-            self.record_duration(duration_distribution["mu"])
+            self._record_duration(duration_distribution["mu"])
         else:
             duration_distribution = self.get_random_duration_dist()
 
@@ -124,7 +124,7 @@ class Parser:
         noise = Event(e_type, attributes, start, end)
         return noise
 
-    def record_duration(self, duration):
+    def _record_duration(self, duration):
         """
         Update the records of smallest observed and largest observed durations.
         This is used for generating events that have no specified duration.

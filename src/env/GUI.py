@@ -150,7 +150,7 @@ class BoxEventGUI:
         self.window["-context-"].update(self.get_variable("context"))
         self.window["-action-"].update("action : " + str(self.get_variable("last_action")))
 
-    # TODO (priority 2) make this part of the code prettier
+    # TODO (priority 2) make into independent method
     def print_event_list(self,
                          event_list,
                          show=False,
