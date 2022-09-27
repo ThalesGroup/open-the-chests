@@ -1,0 +1,45 @@
+GENERAL:
+  delay: 15
+  noise: 0
+INSTANTIATE:
+  - name: distinct
+    type: C
+    params:
+      bg: pink
+      fg: pink
+    duration:
+      mu: 4
+      sigma: 2
+
+  - name: d1
+    type: D
+    params:
+      bg: red
+      fg: green
+    duration:
+      mu: 4
+      sigma: 2
+
+  - name: d2
+    type: C
+    params:
+      bg: pink
+      fg: pink
+    duration:
+      mu: 7
+      sigma: 1
+
+RELATIONSHIP:
+  - type: during
+    events:
+        - d1
+        - d2
+
+  - type: after
+    events:
+      - distinct
+      - d2
+    other:
+      gap_dist:
+        mu: 2
+        sigma: 1

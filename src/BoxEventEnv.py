@@ -3,8 +3,8 @@ import gym
 import yaml
 from gym.spaces import Dict, MultiBinary, Discrete, Box
 
-from globals import ENV_PATTERNS_FOLDER
 from src.env.Environment import Environment
+from globals import ENV_PATTERNS_FOLDER
 from src.utils.helper_functions import parse_yaml_file
 
 
@@ -33,6 +33,7 @@ class BoxEventEnv(gym.Env):
         """
         super(BoxEventEnv, self).__init__()
 
+        # TODO (priority 3) switch to inherit and initialise from both gym and base env
         # instantiate environment
         self.env = Environment(instructions=instructions,
                                all_event_types=all_event_types,
@@ -65,10 +66,11 @@ class BoxEventEnv(gym.Env):
         })
 
     @classmethod
-    def from_config_file(cls, config_file_name, verbose=False, discrete=False):
+    def from_config_file(cls, config_file_name, verbose=False, stb3=True, discrete=False):
         """
         Use a YAML configuration file to define an environment.
 
+        :param stb3: Output format observation adapted to stable baselines or not.
         :param config_file_name: The configuration file.
         :param verbose: Give information during environment execution.
         :param discrete: Use discrete actions.
@@ -88,8 +90,10 @@ class BoxEventEnv(gym.Env):
             all_noise_attributes = conf["EVENT_ATTRIBUTES"]["NOISE"]
 
         all_instructions = []
+        # TODO (priority 2) fix this to either take folder in param or something else
+        config_file_instr_path = "/".join(config_file_name.split("/")[:-1])
         for file in conf["INSTRUCTIONS"]:
-            instr = parse_yaml_file(ENV_PATTERNS_FOLDER + file)
+            instr = parse_yaml_file(config_file_instr_path + "/" + file)
             # print(file)
             # bug_print(instr)
             all_instructions.append(instr)
@@ -100,6 +104,7 @@ class BoxEventEnv(gym.Env):
                   all_noise_types=all_noise_types,
                   all_noise_attributes=all_noise_attributes,
                   verbose=verbose,
+                  stb3=stb3,
                   discrete=discrete)
 
         return env

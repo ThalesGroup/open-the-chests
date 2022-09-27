@@ -2,7 +2,6 @@
 Instructions are usually defined using a YAML file, however it is possible to define them via a dictionary of commands.
 """
 
-
 instructions = [
     [
         {'command': 'delay', 'parameters': 10},

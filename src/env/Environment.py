@@ -78,7 +78,7 @@ class Environment:
             box.reset(self.time)
             self.timeline[box.id] = box.pattern.get_next()
 
-        self.internal_step()
+        self._internal_step()
 
         obs = self.get_observations()
 
@@ -107,10 +107,10 @@ class Environment:
             action = [int(x) for x in bin(action)[2:]]
             action = (self.num_boxes - len(action)) * [0] + action
         # apply action and collect reward
-        reward = self.apply_action(action)
+        reward = self._apply_action(action)
 
         # advance environment and collect context
-        self.internal_step()
+        self._internal_step()
         obs = self.get_observations()
 
         self.done = self.check_end()
@@ -123,7 +123,7 @@ class Environment:
 
     def get_observations(self):
         """
-        Return an observation of the elements visible to a player.
+        Return the last observation of information visible to a player.
         Return contains:
             - State information  under the form of binary vectors showing if @self.boxes are active or open
             - Context information giving the last observed event in its labeled form
@@ -159,7 +159,7 @@ class Environment:
             obs = to_stb3_obs_format(obs)
         return obs
 
-    def internal_step(self):
+    def _internal_step(self):
         """
         Execute one internal step to advance the environment timeline and update context.
         Update box states to take into account new information.
@@ -167,10 +167,10 @@ class Environment:
         if self.verbose:
             print("Making one internal step to get context and advance timeline")
 
-        self.advance_timeline()
-        self.update_boxes(self.time)
+        self._advance_timeline()
+        self._update_boxes(self.time)
 
-    def advance_timeline(self):
+    def _advance_timeline(self):
         # TODO (priority 4) doc
         """
         Advance internal environment evolution.
@@ -200,7 +200,7 @@ class Environment:
             if self.verbose:
                 print("Timeline is empty as all boxes are opened")
 
-    def update_boxes(self, t_current):
+    def _update_boxes(self, t_current):
         # TODO (priority 4) doc and optimise
         """
         Update all boxes states to be coherent with current environment time and evolution.
@@ -210,7 +210,7 @@ class Environment:
         for box in self.boxes:
             box.update(t_current)
 
-    def apply_action(self, action):
+    def _apply_action(self, action):
         """
         Apply given action to system and update environment according to action effects.
         Attempt to open corresponding box if the action at index i is set to 1.
@@ -232,7 +232,7 @@ class Environment:
             if action[box_id] == 1:
                 opened = current_box.press_button()
                 if opened:
-                    self.disable_timeline(box_id)
+                    self._disable_timeline(box_id)
                     reward.append(1)
                 else:
                     reward.append(-1)
@@ -243,7 +243,7 @@ class Environment:
                     reward.append(0)
         return sum(reward)
 
-    def disable_timeline(self, box_id):
+    def _disable_timeline(self, box_id):
         """
         Remove the box_id from the timeline dictionary, disabling its evolution.
         :param box_id: The box id to remove from the game.

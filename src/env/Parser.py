@@ -1,6 +1,5 @@
 import random
 
-
 from src.env.elements.Event import Event
 
 # TODO (priority 4) doc
@@ -89,7 +88,14 @@ class Parser:
                             for the event using a truncated normal distribution.
         :return: An event with the selected type, attributes and duration.
         """
-        if e_type not in self.all_event_types:
+        assert (e_type is None) or e_type in self.all_event_types, \
+            f"Unknown event type {e_type}, please select type from all possible types : {self.all_event_types}"
+        assert all([attr in self.all_event_attributes.keys() for attr in attributes]), \
+            f"Unknown attribute key, please select attribute keys from {self.all_event_attributes.keys()}"
+        assert all([val in self.all_event_attributes[key] for key,val in attributes.items()]), \
+            f"Unknown attribute value, please select values according to keys from {self.all_event_attributes}"
+
+        if e_type is None:
             e_type = random.choice(self.all_event_types)
         for attr, attr_values in self.all_event_attributes.items():
             if attr not in attributes:
@@ -159,7 +165,7 @@ class Parser:
                 events = (variables[var_name] for var_name in instr_line["parameters"])
                 allen_op = instr_line["command"]
                 bonus_params = instr_line["other"] if "other" in instr_line else dict()
-                event = [allen_op](*events, **bonus_params)
+                event = allen_functions[allen_op](*events, **bonus_params)
                 variables[instr_line["variable_name"]] = event
                 event_list.append(event)
             else:

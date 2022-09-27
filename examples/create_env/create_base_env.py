@@ -1,11 +1,13 @@
 import random
 from src.env.Environment import Environment
-from examples.instructions import instructions
+from examples.create_env.instructions import instructions
 
-# Example : Create environment without gym wrapper
+"""
+Example : Create environment without gym wrapper
+"""
+
 
 # define a list of all possible event types to be used by the instructions
-from env.utils.helper_functions import bug_print
 
 all_event_types = ['A', 'B', 'C', 'D', 'E']
 
@@ -35,6 +37,10 @@ first_obs = env.reset()
 example_action = [[random.randint(0, 1) for i in range(env.num_boxes)]]
 
 # apply the action and evolve the environment to get the next observation
-next_obs = env.step(example_action)
+obs, reward, done, info = env.step(example_action)
 
-bug_print(next_obs)
+# it is possible to get the last observation when needed
+same_obs = env.get_observations()
+
+# it is also possible to check if the game has ended
+end = env.check_end()
