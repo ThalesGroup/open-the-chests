@@ -4,6 +4,7 @@ from stable_baselines3.common import results_plotter
 from stable_baselines3.common.monitor import Monitor
 from src.BoxEventEnv import BoxEventEnv
 from models import a2c_model, dqn_model, ppo_model, trpo_model
+from src.utils.evaluators import evaluate_multiple_times
 
 available_models = ["A2C", "DQN", "PPO", "TRPO"]
 
@@ -20,6 +21,8 @@ parser.add_argument("--train_steps", type=int, default=100000,
                     help="Number of steps to train model.")
 parser.add_argument("--plot_training", type=bool, default=True,
                     help="Plot reward per step after training.")
+parser.add_argument("--num_episodes_eval", type=int, default=10,
+                    help="Number of episodes over which to evaluate environment.")
 
 if __name__ == '__main__':
     args = parser.parse_args()
@@ -67,3 +70,15 @@ if __name__ == '__main__':
     if args.plot_training:
         results_plotter.plot_results(["./results/"], 1e5, results_plotter.X_TIMESTEPS,
                                      "Reward per time-step")
+
+    mean_cumulated_reward, std_cumulated_reward, sum_rewards, best_eval_rewards, best_eval_actions, best_eval_steps = \
+        evaluate_multiple_times(env=env, model=model, repeats=args.num_episodes_eval)
+
+    print(f"Over {args.num_episodes_eval} episode evaluations")
+    print("==================================================")
+    print(f"Mean cumulated reward: {mean_cumulated_reward}")
+    print(f"Standard deviation of the cumulated reward: {std_cumulated_reward}")
+    print(f"All obtained cumulated rewards: {sum_rewards}")
+    print(f"Best evaluation rewards per step: {best_eval_rewards}")
+    print(f"Best evaluation actions per step: {best_eval_actions}")
+    print(f"Best evaluation number of steps: {best_eval_steps}")
