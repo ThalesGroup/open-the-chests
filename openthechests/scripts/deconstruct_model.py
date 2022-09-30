@@ -2,10 +2,11 @@ import plotly.io as pio
 from sb3_contrib import TRPO
 from stable_baselines3.common.monitor import Monitor
 from excog_experiments.Process import param_prepare
-from openthechests.src.utils import evaluate_multiple_times
-from globals import ENV_CONFIG_FOLDER
-from env.BoxEventEnv import BoxEventEnv
-from env.utils.helper_functions import bug_print, evaluate_multiple_times_isolate, my_evaluate_isolate
+from openthechests.globals import ENV_CONFIG_FOLDER
+from openthechests.src.BoxEventEnv import BoxEventEnv
+from openthechests.src.utils.evaluators import evaluate_multiple_times, evaluate_multiple_times_isolate, \
+    my_evaluate_isolate
+from openthechests.src.utils.helper_functions import bug_print
 
 pio.renderers.default = "browser"
 

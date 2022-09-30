@@ -7,8 +7,8 @@ from openthechests.src.env.elements.Event import Event
 # TODO (priority 3) rethink labelisation
 # TODO (priority 2) add more allen functions
 # TODO (priority 2) add check for noise events and noise generation
-from openthechests.src.utils import allen_functions
-from openthechests.src.utils import my_normal
+from openthechests.src.utils.allen import allen_functions
+from openthechests.src.utils.helper_functions import my_normal
 
 
 class Parser:

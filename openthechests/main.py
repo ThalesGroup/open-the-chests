@@ -1,11 +1,13 @@
 import argparse
 import os
+import pickle
 
 from stable_baselines3.common import results_plotter
 from stable_baselines3.common.monitor import Monitor
+
+from openthechests.src.utils.evaluators import evaluate_multiple_times
 from src.BoxEventEnv import BoxEventEnv
 from models import a2c_model, dqn_model, ppo_model, trpo_model
-from openthechests.src.utils import evaluate_multiple_times
 
 available_models = ["A2C", "DQN", "PPO", "TRPO"]
 
@@ -35,7 +37,7 @@ parser.add_argument("--num_episodes_eval", type=int, default=100,
 parser.add_argument("--show_one_episode", type=bool, default=False,
                     help="Render one episode play trough using the trained model.")
 
-parser.add_argument("--results_file", type=str, default="results",
+parser.add_argument("--results_file", type=str, default="test_results",
                     help="Render one episode play trough using the trained model.")
 
 
@@ -91,16 +93,15 @@ if __name__ == '__main__':
     mean_cumulated_reward, std_cumulated_reward, sum_rewards, best_eval_rewards, best_eval_actions, best_eval_steps = \
         evaluate_multiple_times(env=env, model=model, repeats=args.num_episodes_eval)
 
-    print(f"Over {args.num_episodes_eval} episode evaluations")
-    print("==================================================")
-    print(f"Mean cumulated reward: {mean_cumulated_reward}")
-    print(f"Standard deviation of the cumulated reward: {std_cumulated_reward}")
-    print(f"All obtained cumulated rewards: {sum_rewards}")
-    print(f"Best evaluation rewards per step: {best_eval_rewards}")
-    print(f"Best evaluation actions per step: {best_eval_actions}")
-    print(f"Best evaluation number of steps: {best_eval_steps}")
-
-    import pickle
+    if args.verbose_train:
+        print(f"Over {args.num_episodes_eval} episode evaluations")
+        print("==================================================")
+        print(f"Mean cumulated reward: {mean_cumulated_reward}")
+        print(f"Standard deviation of the cumulated reward: {std_cumulated_reward}")
+        print(f"All obtained cumulated rewards: {sum_rewards}")
+        print(f"Best evaluation rewards per step: {best_eval_rewards}")
+        print(f"Best evaluation actions per step: {best_eval_actions}")
+        print(f"Best evaluation number of steps: {best_eval_steps}")
 
     with open(f"./{args.results_file}/{model_name}/{conf.split('.')[0]}/outfile", 'wb') as fp:
         pickle.dump(mean_cumulated_reward, fp)

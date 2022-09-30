@@ -1,13 +1,14 @@
+from openthechests.examples.create_env.env_info import all_event_types, all_event_attributes, all_noise_types, \
+    all_noise_attributes
+from openthechests.examples.create_env.instructions import instructions
+from openthechests.src.BoxEventEnv import BoxEventEnv
 """
 Example : Create environment with gym wrapper
 """
 
 # define a list of all possible event types to be used by the instructions
-from examples.create_env.env_info import all_event_types, all_event_attributes, all_noise_types, all_noise_attributes
-from examples.create_env.instructions import instructions
-from src.BoxEventEnv import BoxEventEnv
-
 # initialise environment using class and instructions list
+
 env = BoxEventEnv(instructions=instructions,
                   all_event_types=all_event_types,
                   all_event_attributes=all_event_attributes,

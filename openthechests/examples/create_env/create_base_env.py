@@ -1,8 +1,8 @@
 import random
-
-from examples.create_env.env_info import all_event_types, all_event_attributes, all_noise_types, all_noise_attributes
-from src.env.Environment import Environment
-from examples.create_env.instructions import instructions
+from openthechests.examples.create_env.env_info import all_event_types, all_event_attributes, all_noise_types, \
+    all_noise_attributes
+from openthechests.examples.create_env.instructions import instructions
+from openthechests.src.env.Environment import Environment
 
 """
 Example : Create environment without gym wrapper
