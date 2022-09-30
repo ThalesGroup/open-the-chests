@@ -10,16 +10,21 @@ results = pd.read_csv("/home/S3G-LABS/u1226/data/excog_results/0/results.csv")
 full_results = pd.concat([results, new_results], ignore_index=True, sort=False)
 new_results.loc[new_results["method"] != "TRPO", "best_trial_num_step_steps"] = \
     new_results[new_results["method"] != "TRPO"]["best_trial_par_step_steps"]
+
 new_results["mean_reward"] = new_results["mean_reward"].replace(["cant converge"], [None])
 new_results["mean_reward"] = pd.to_numeric(new_results["mean_reward"], errors='coerce')
+
 new_results["mean_reward"] = new_results["mean_reward"].replace(["cant converge"], [None])
 new_results["mean_reward"] = pd.to_numeric(new_results["mean_reward"], errors='coerce')
+
 new_agg = new_results.groupby(["method", "data1"]).agg(
     {"mean_reward": ["max", "mean", "std"], "best_trial_num_step_steps": ["min", "mean", "std"]})
+
 full_results.loc[full_results["method"] != "TRPO", "best_trial_num_step_steps"] = \
     full_results[full_results["method"] != "TRPO"]["best_trial_par_step_steps"]
 full_results["mean_reward"] = full_results["mean_reward"].replace(["cant converge"], [None])
 full_results["mean_reward"] = pd.to_numeric(full_results["mean_reward"], errors='coerce')
+
 new_agg = full_results.groupby(["method", "data1"]).agg(
     {"mean_reward": ["max", "mean", "std"], "best_trial_num_step_steps": ["min", "mean", "std"]})
 
