@@ -1,9 +1,9 @@
 from examples.create_env.env_info import all_event_types, all_event_attributes, all_noise_attributes, all_noise_types
 from examples.create_env.instructions import instructions
-from src.env.Parser import Parser
-from src.env.elements.Event import Event
+from openthechests.src.env.Parser import Parser
+from openthechests.src.env.elements.Event import Event
 from src.env.elements.InteractiveBox import InteractiveBox
-from src.env.elements.Pattern import Pattern
+from openthechests.src.env.elements.Pattern import Pattern
 
 # create an event with the given attributes and start end time
 e = Event("A", {"attr1": "blue", "attr2": "green"}, 5, 10)

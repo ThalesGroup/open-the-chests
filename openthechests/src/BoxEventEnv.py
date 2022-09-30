@@ -4,8 +4,7 @@ import yaml
 from gym.spaces import Dict, MultiBinary, Discrete, Box
 
 from src.env.Environment import Environment
-from globals import ENV_PATTERNS_FOLDER
-from src.utils.helper_functions import parse_yaml_file
+from openthechests.src.utils import parse_yaml_file
 
 
 class BoxEventEnv(gym.Env):

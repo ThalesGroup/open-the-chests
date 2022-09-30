@@ -1,7 +1,7 @@
 import random
 
-from src.env.elements.Event import Event
-from src.utils.helper_functions import my_normal
+from openthechests.src.env.elements.Event import Event
+from openthechests.src.utils import my_normal
 
 
 def after(second: Event, first: Event, gap_dist: (int, int)):

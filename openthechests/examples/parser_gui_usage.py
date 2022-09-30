@@ -1,6 +1,6 @@
 from examples.create_env.env_info import all_event_types, all_event_attributes, all_noise_types, all_noise_attributes
-from src.env.GUI import BoxEventGUI
-from src.env.Parser import Parser
+from openthechests.src.env.GUI import BoxEventGUI
+from openthechests.src.env.Parser import Parser
 from examples.create_env.instructions import instructions
 
 # instantiate a parser using all event information

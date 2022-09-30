@@ -1,4 +1,4 @@
-from src.env.elements.Pattern import Pattern
+from openthechests.src.env.elements.Pattern import Pattern
 
 # TODO (priority 4) doc
 

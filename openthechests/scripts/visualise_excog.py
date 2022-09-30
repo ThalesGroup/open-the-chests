@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 
-results = pd.read_csv("/home/S3G-LABS/u1226/dev/openchests/excog_results/0/results.csv")
+results = pd.read_csv("/excog_results/0/results.csv")
 
 results["mean_reward"] = results["mean_reward"].replace(["cant converge"], [None])
 results["mean_reward"] = pd.to_numeric(results["mean_reward"], errors='coerce')

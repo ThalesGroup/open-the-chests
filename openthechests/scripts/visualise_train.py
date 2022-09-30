@@ -3,8 +3,6 @@ import pickle
 import numpy as np
 from matplotlib import pyplot as plt
 
-from src.utils.stolen_plotting import plot_results, X_TIMESTEPS
-
 models = ["A2C", "DQN", "PPO", "TRPO"]
 confs = ["one_per_box", "one_distinct_per_box", "multiple_per_box", "noise_two_per_box"]
 ncols = len(models)

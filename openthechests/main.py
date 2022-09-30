@@ -5,7 +5,7 @@ from stable_baselines3.common import results_plotter
 from stable_baselines3.common.monitor import Monitor
 from src.BoxEventEnv import BoxEventEnv
 from models import a2c_model, dqn_model, ppo_model, trpo_model
-from src.utils.evaluators import evaluate_multiple_times
+from openthechests.src.utils import evaluate_multiple_times
 
 available_models = ["A2C", "DQN", "PPO", "TRPO"]
 

@@ -1,14 +1,14 @@
 import random
 
-from src.env.elements.Event import Event
+from openthechests.src.env.elements.Event import Event
 
 # TODO (priority 4) doc
 # TODO (priority 3) rethink class structure and use input all items to generate dictionaries
 # TODO (priority 3) rethink labelisation
 # TODO (priority 2) add more allen functions
 # TODO (priority 2) add check for noise events and noise generation
-from src.utils.allen import allen_functions
-from src.utils.helper_functions import my_normal
+from openthechests.src.utils import allen_functions
+from openthechests.src.utils import my_normal
 
 
 class Parser:

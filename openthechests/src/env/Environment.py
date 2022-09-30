@@ -1,9 +1,9 @@
 from typing import List
-from src.env.GUI import BoxEventGUI
-from src.env.Parser import Parser
+from openthechests.src.env.GUI import BoxEventGUI
+from openthechests.src.env.Parser import Parser
 from src.env.elements.InteractiveBox import InteractiveBox
-from src.env.elements.Pattern import Pattern
-from src.utils.helper_functions import to_stb3_obs_format
+from openthechests.src.env.elements.Pattern import Pattern
+from openthechests.src.utils import to_stb3_obs_format
 
 
 class Environment:
