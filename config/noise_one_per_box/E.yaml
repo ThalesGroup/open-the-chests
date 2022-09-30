@@ -1,5 +1,5 @@
 GENERAL:
-  delay: 5
+  delay: 25
   noise: 0.2
 INSTANTIATE:
   - name: e1
