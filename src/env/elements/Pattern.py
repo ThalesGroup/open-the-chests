@@ -63,6 +63,7 @@ class Pattern:
         self.satisfied = False
         self.start_pattern_time = 0
         self.last_event_end = 0
+        self.fill_event_stack(random.uniform(0, self.timeout))
 
     def fill_event_stack(self, t):
         """
@@ -101,7 +102,7 @@ class Pattern:
             if self.verbose:
                 print("Pattern finished generating new one")
             self.satisfied = True
-            self.start_pattern_time = self.last_event_end + self.timeout
+            self.start_pattern_time = self.last_event_end + random.uniform(0, self.timeout)
             self.fill_event_stack(self.start_pattern_time)
 
         next_event = self.events_stack.pop(0)

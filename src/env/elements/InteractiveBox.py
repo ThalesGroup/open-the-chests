@@ -52,7 +52,6 @@ class InteractiveBox:
         self.num_deactivations = 0
         self.activate()
         self.pattern.reset()
-        self.pattern.fill_event_stack(time)
 
     def open(self):
         """

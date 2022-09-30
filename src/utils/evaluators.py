@@ -53,7 +53,7 @@ def evaluate_one_episode(env, model):
     obs = env.reset()
     while not done:
         action, _ = model.predict(obs, deterministic=True)
-        new_obs, reward, done, info = env.step(action)
+        obs, reward, done, info = env.step(action)
         rewards.append(reward)
         actions.append(action)
         steps += 1
