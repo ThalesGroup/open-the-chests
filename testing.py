@@ -83,7 +83,6 @@ if __name__ == '__main__':
     # bug_print(evaluate_multiple_times(env, model))
 
     print("Evaluating")
-    # TODO (priority 1) give timeout to avoid infinite run
     # print(evaluate_policy(model, verbose_env, n_eval_episodes=2))
 
     # model = A2C('MultiInputPolicy', env, verbose=1,
