@@ -1,6 +1,6 @@
 import random
 
-from src.openthechests.env.elements.Event import Event
+from src.openthechests.env.base.elements.Event import Event
 from src.openthechests.src import my_normal
 
 

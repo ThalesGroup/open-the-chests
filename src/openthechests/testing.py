@@ -7,7 +7,7 @@ from stable_baselines3.common.monitor import Monitor
 
 from excog_experiments.Process import param_prepare
 from src.openthechests.globals import ENV_CONFIG_FOLDER
-from src.openthechests.env.BoxEventEnv import BoxEventEnv
+from src.openthechests.env.OpenTheChestsGym import BoxEventEnv
 
 pio.renderers.default = "browser"
 

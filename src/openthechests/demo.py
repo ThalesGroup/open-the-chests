@@ -4,7 +4,7 @@ import plotly.io as pio
 from stable_baselines3 import DQN
 
 from src.openthechests.globals import ENV_CONFIG_FOLDER
-from src.openthechests.env.BoxEventEnv import BoxEventEnv
+from src.openthechests.env.OpenTheChestsGym import BoxEventEnv
 
 pio.renderers.default = "browser"
 

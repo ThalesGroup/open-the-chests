@@ -6,7 +6,7 @@ from stable_baselines3.common import results_plotter
 from stable_baselines3.common.monitor import Monitor
 
 from src.openthechests.src import evaluate_multiple_times
-from src.openthechests.env.BoxEventEnv import BoxEventEnv
+from src.openthechests.env.OpenTheChestsGym import BoxEventEnv
 from models import a2c_model, dqn_model, ppo_model, trpo_model
 
 available_models = ["A2C", "DQN", "PPO", "TRPO"]
