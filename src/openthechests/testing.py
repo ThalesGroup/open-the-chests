@@ -6,8 +6,8 @@ from stable_baselines3 import DQN
 from stable_baselines3.common.monitor import Monitor
 
 from excog_experiments.Process import param_prepare
-from openthechests.globals import ENV_CONFIG_FOLDER
-from src.BoxEventEnv import BoxEventEnv
+from src.openthechests.globals import ENV_CONFIG_FOLDER
+from src.openthechests.env.BoxEventEnv import BoxEventEnv
 
 pio.renderers.default = "browser"
 

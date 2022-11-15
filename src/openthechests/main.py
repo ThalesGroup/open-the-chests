@@ -5,8 +5,8 @@ import pickle
 from stable_baselines3.common import results_plotter
 from stable_baselines3.common.monitor import Monitor
 
-from openthechests.src.utils.evaluators import evaluate_multiple_times
-from src.BoxEventEnv import BoxEventEnv
+from src.openthechests.src import evaluate_multiple_times
+from src.openthechests.env.BoxEventEnv import BoxEventEnv
 from models import a2c_model, dqn_model, ppo_model, trpo_model
 
 available_models = ["A2C", "DQN", "PPO", "TRPO"]
@@ -22,10 +22,10 @@ parser.add_argument("--discrete", type=bool, default=False,
 parser.add_argument("--model", type=str, default="PPO",
                     help=f'Model used to train on the environment. Current options : {available_models}')
 
-parser.add_argument("--verbose_train", type=bool, default=False,
+parser.add_argument("--verbose_train", type=bool, default=True,
                     help='Use verbose mode when training model to get feedback.')
 
-parser.add_argument("--train_steps", type=int, default=100000,
+parser.add_argument("--train_steps", type=int, default=100,
                     help="Number of steps to train model.")
 
 parser.add_argument("--plot_training", type=bool, default=True,
@@ -34,7 +34,7 @@ parser.add_argument("--plot_training", type=bool, default=True,
 parser.add_argument("--num_episodes_eval", type=int, default=100,
                     help="Number of episodes over which to evaluate environment.")
 
-parser.add_argument("--show_one_episode", type=bool, default=False,
+parser.add_argument("--show_one_episode", type=bool, default=True,
                     help="Render one episode play trough using the trained model.")
 
 parser.add_argument("--results_file", type=str, default="test_results",

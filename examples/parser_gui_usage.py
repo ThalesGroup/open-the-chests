@@ -1,11 +1,11 @@
 
 
 # instantiate a parser using all event information
-from openthechests.examples.create_env.env_info import all_event_types, all_noise_types, all_event_attributes, \
+from examples.create_env.env_info import all_event_types, all_noise_types, all_event_attributes, \
     all_noise_attributes
-from openthechests.examples.create_env.instructions import instructions
-from openthechests.src.env.GUI import BoxEventGUI
-from openthechests.src.env.Parser import Parser
+from examples.create_env.instructions import instructions
+from src.openthechests.env.GUI import BoxEventGUI
+from src.openthechests.env.Parser import Parser
 
 p = Parser(all_event_types, all_noise_types, all_event_attributes, all_noise_attributes)
 

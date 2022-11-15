@@ -11,6 +11,19 @@ def bug_print(something="", msg=""):
     print("################################")
 
 
+def boxes_to_discrete(num_boxes):
+    """
+    Produce a discrete number that represents all possible box states, where each box state is represented by a binary
+    number of size equal to the number of boxes.
+    Example:  Two boxes can be represented as a binary vector of size two.
+    All possible states include 00, 01, 10, 11 represented by 2**2 = 4 possible combinations.
+
+    :param num_boxes:
+    :return:
+    """
+    return 2 ** num_boxes
+
+
 def my_normal(mu, sigma):
     """
     Clipped normal distribution that makes sure no negative time durations are generated.
@@ -82,5 +95,3 @@ def parse_yaml_file(filename):
                      "other": other_params}
             instructions.append(instr)
     return instructions
-
-

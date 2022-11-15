@@ -1,0 +1,1 @@
+- Move scripts inside package

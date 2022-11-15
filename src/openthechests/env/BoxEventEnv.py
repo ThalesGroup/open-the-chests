@@ -3,8 +3,8 @@ import gym
 import yaml
 from gym.spaces import Dict, MultiBinary, Discrete, Box
 
-from openthechests.src.env.Environment import Environment
-from openthechests.src.utils.helper_functions import parse_yaml_file
+from src.openthechests.env.Environment import Environment
+from src.openthechests.src import parse_yaml_file, boxes_to_discrete
 
 
 class BoxEventEnv(gym.Env):
@@ -45,7 +45,7 @@ class BoxEventEnv(gym.Env):
 
         # define action space depending on usage of discrete actions or not
         if discrete:
-            self.action_space = Discrete(2**self.env.num_boxes - 1)
+            self.action_space = Discrete(boxes_to_discrete(self.env.num_boxes))
         else:
             self.action_space = MultiBinary(self.env.num_boxes)
 
@@ -93,8 +93,6 @@ class BoxEventEnv(gym.Env):
         config_file_instr_path = "/".join(config_file_name.split("/")[:-1])
         for file in conf["INSTRUCTIONS"]:
             instr = parse_yaml_file(config_file_instr_path + "/" + file)
-            # print(file)
-            # bug_print(instr)
             all_instructions.append(instr)
 
         env = cls(instructions=all_instructions,

@@ -1,10 +1,10 @@
 from re import Pattern
-from openthechests.examples.create_env.instructions import instructions
-from openthechests.examples.create_env.env_info import all_event_types, all_noise_types, all_event_attributes, \
+from examples.create_env.instructions import instructions
+from examples.create_env.env_info import all_event_types, all_noise_types, all_event_attributes, \
     all_noise_attributes
-from openthechests.src.env.Parser import Parser
-from openthechests.src.env.elements.Event import Event
-from openthechests.src.env.elements.InteractiveBox import InteractiveBox
+from src.openthechests.env.Parser import Parser
+from src.openthechests.env.elements.Event import Event
+from src.openthechests.env.elements.InteractiveBox import InteractiveBox
 
 
 # create an event with the given attributes and start end time
