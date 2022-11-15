@@ -76,10 +76,10 @@ class Pattern:
         generated_events = self.parser.generate_pattern(self.instruction)
         num_not_noise = len(generated_events)
         pattern_end_time = generated_events[-1].end
-        shifted_generated_events = [event.shift(t) for event in generated_events]
+        shifted_generated_events = [event.shifted(t) for event in generated_events]
 
         noise_events = self.generate_noise_events(pattern_end_time, num_not_noise)
-        shifted_noise_events = [event.shift(t) for event in noise_events]
+        shifted_noise_events = [event.shifted(t) for event in noise_events]
 
         self.full_pattern = [self.last_generated_event] if self.last_generated_event else []
         self.full_pattern += shifted_generated_events

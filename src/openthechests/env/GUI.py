@@ -178,6 +178,7 @@ class BoxEventGUI:
         for event in event_list:
             line_index = self.first_free_line_index(event, line_end_times)
 
+            # TODO priority 1: adapt event calls these wont work
             list_df.append(dict(BG=str(event.symbol["attr"]["bg"]),
                                 Start=event.start,
                                 Finish=event.end,

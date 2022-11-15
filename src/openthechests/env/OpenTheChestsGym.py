@@ -3,7 +3,7 @@ import gym
 import yaml
 from gym.spaces import Dict, MultiBinary, Discrete, Box
 
-from src.openthechests.env.base.OpenTheChests import Environment
+from src.openthechests.env.OpenTheChests import Environment
 from src.openthechests.src import parse_yaml_file, boxes_to_discrete
 
 

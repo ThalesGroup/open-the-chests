@@ -1,1 +1,2 @@
 - Move scripts inside package
+- Make event wrapper classes : Labeled event, Random Event

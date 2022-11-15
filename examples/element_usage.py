@@ -2,15 +2,15 @@ from re import Pattern
 from examples.create_env.instructions import instructions
 from examples.create_env.env_info import all_event_types, all_noise_types, all_event_attributes, \
     all_noise_attributes
-from src.openthechests.env.base.Parser import Parser
-from src.openthechests.env.base.elements.Event import Event
-from src.openthechests.env.base.elements.InteractiveBox import InteractiveBox
+from src.openthechests.env.elements.Parser import Parser
+from src.openthechests.env.elements.Event import Event
+from src.openthechests.env.elements.InteractiveBox import InteractiveBox
 
 
 # create an event with the given attributes and start end time
 e = Event("A", {"attr1": "blue", "attr2": "green"}, 5, 10)
-shifted_forward = e.shift(10)
-shifted_backward = e.shift(-5)
+shifted_forward = e.shifted(10)
+shifted_backward = e.shifted(-5)
 
 
 # instantiate a parser using all event information

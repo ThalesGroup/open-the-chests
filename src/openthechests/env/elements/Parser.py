@@ -1,6 +1,6 @@
 import random
 
-from src.openthechests.env.base.elements.Event import Event
+from src.openthechests.env.elements.Event import Event
 
 # TODO (priority 4) doc
 # TODO (priority 3) rethink class structure and use input all items to generate dictionaries
