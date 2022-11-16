@@ -13,13 +13,16 @@ class Pattern:
         :param parser: Parser structure used for sampling.
         """
         self.parser = parser
-        # TODO (priority 3) move wait instruction time to parser?or not?
-        self.timeout = next(filter(lambda instr: instr['command'] == 'delay', instruction))["parameters"]
-        # TODO (priority 3) allow not adding noise and it replaced by 0
-        self.noise = next(filter(lambda instr: instr['command'] == 'noise', instruction))["parameters"]
+        self.timeout = ([command["parameters"]
+                         for command in instruction
+                         if command["command"] == "delay"] or [0]).pop()
+
+        self.noise = ([command["parameters"]
+                       for command in instruction
+                       if command["command"] == "noise"] or [0]).pop()
 
         self.instruction = [instr for instr in instruction if instr["command"] not in ["delay",
-                                                                                       "noise"]]  # list of instructions under the form of dictionaries
+                                                                                       "noise"]]
         self.verbose = verbose
 
         # stack of events to generate with instruction

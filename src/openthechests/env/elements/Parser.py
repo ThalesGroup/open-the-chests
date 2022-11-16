@@ -8,7 +8,7 @@ from src.openthechests.env.elements.Event import Event
 # TODO (priority 2) add more allen functions
 # TODO (priority 2) add check for noise events and noise generation
 from src.openthechests.env.utils.allen import allen_functions
-from src.openthechests.src import my_normal
+from src.openthechests.env.utils.helper_functions import my_normal
 
 
 class Parser:

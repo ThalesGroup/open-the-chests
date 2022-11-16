@@ -3,7 +3,7 @@ from src.openthechests.env.GUI import BoxEventGUI
 from src.openthechests.env.elements.Parser import Parser
 from src.openthechests.env.elements.InteractiveBox import InteractiveBox
 from src.openthechests.env.elements.Pattern import Pattern
-from src.openthechests.src import to_stb3_obs_format
+from src.openthechests.env.utils.helper_functions import to_stb3_obs_format
 
 
 class Environment:

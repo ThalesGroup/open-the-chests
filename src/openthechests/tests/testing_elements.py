@@ -17,6 +17,9 @@ class TestElements(unittest.TestCase):
                           "end": 5,
                           "duration": 5})
 
+    def testPattern(self):
+        pass
+
 
 if __name__ == '__main__':
     unittest.main()
