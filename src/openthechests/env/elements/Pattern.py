@@ -42,4 +42,3 @@ class Pattern:
         self.satisfied = False
         self.start_pattern_time = 0
         self.last_event_end = 0
-        self.fill_event_stack(random.uniform(0, self.timeout))

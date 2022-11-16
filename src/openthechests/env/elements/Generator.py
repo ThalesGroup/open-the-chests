@@ -78,9 +78,14 @@ class Generator:
                 print("Pattern finished generating new one")
             pattern.satisfied = True
             pattern.start_pattern_time = pattern.last_event_end + random.uniform(0, pattern.timeout)
-            pattern.fill_event_stack(pattern.start_pattern_time)
+            self.fill_event_stack(pattern.start_pattern_time, pattern)
 
         next_event = pattern.events_stack.pop(0)
         pattern.last_generated_event = next_event
         pattern.last_event_end = next_event.end
         return next_event
+
+    def reset(self):
+        for pattern in self.patterns:
+            pattern.reset()
+            self.fill_event_stack(random.uniform(0, pattern.timeout), pattern)

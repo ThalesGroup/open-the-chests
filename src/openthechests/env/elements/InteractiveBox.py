@@ -51,7 +51,6 @@ class InteractiveBox:
         self.state = {"open": False, "ready": False, "active": False}
         self.num_deactivations = 0
         self.activate()
-        self.pattern.reset()
 
     def open(self):
         """

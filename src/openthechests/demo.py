@@ -16,18 +16,18 @@ if __name__ == '__main__':
     # conf = "one_distinct_per_box.yaml"
     # conf = "noise_one_per_box.yaml"
     conf = "one_per_box.yaml"
-    env = BoxEventEnv.from_config_file(ENV_CONFIG_FOLDER + conf, False)
-    discrete_env = BoxEventEnv.from_config_file(ENV_CONFIG_FOLDER + conf, False, discrete=True)
-    verbose_env = BoxEventEnv.from_config_file(ENV_CONFIG_FOLDER + conf, True)
+    env = BoxEventEnv.from_config_file("../../configs/" + conf, False)
+    discrete_env = BoxEventEnv.from_config_file("../../configs/" + conf, False, discrete=True)
+    verbose_env = BoxEventEnv.from_config_file("../../configs/" + conf, True)
 
     print("Learning")
-    model = DQN('MultiInputPolicy', discrete_env, verbose=1).learn(100000)
+    model = DQN('MultiInputPolicy', discrete_env, verbose=1).learn(10)
 
     n_steps = 200
 
     print("------------------------ START -------------------------")
-    obs = discrete_env.reset()
-    discrete_env.render()
+    obs = env.reset()
+    env.render()
 
     counter = 0
     for step in range(n_steps):
@@ -39,8 +39,8 @@ if __name__ == '__main__':
         random_action = [[random.randint(0, 1) for i in range(num_boxes)]]
         # print("Step {}".format(step + 1))
         # print("Action: ", action)
-        obs, reward, done, info = discrete_env.step(action)
-        discrete_env.render()
+        obs, reward, done, info = env.step(random_action)
+        env.render()
         # print('obs =', obs, 'reward=', reward, 'done=', done)
         if done:
             # Note that the VecEnv resets automatically

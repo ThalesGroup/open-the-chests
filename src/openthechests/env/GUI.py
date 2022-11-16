@@ -178,19 +178,18 @@ class BoxEventGUI:
         for event in event_list:
             line_index = self.first_free_line_index(event, line_end_times)
 
-            # TODO priority 1: adapt event calls these wont work
-            list_df.append(dict(BG=str(event.symbol["attr"]["bg"]),
+            list_df.append(dict(BG=str(event.get_attribute_val("bg")),
                                 Start=event.start,
                                 Finish=event.end,
                                 Task=str(line_index),
-                                Label="Event type " + str(event.symbol["e_type"])
+                                Label="Event type " + str(event.get_type())
                                 ))
 
             fg_color = self.attr_to_color["fg"][event.get_attribute_val("fg")]
             annots.append(dict(
                 x=event.start + (event.end - event.start) / 2,
                 y=line_index,
-                text=str(event.symbol["e_type"]),
+                text=str(event.get_type()),
                 showarrow=False,
                 bordercolor="#c7c7c7",
                 borderwidth=2,

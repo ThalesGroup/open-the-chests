@@ -76,6 +76,9 @@ class Environment:
         if self.verbose:
             print("Starting Reset")
         self.time = 0
+
+        self.generator.reset()
+
         for box in self.boxes:
             box.reset(self.time)
             self.timeline[box.id] = self.generator.get_next(box.id)  # box.pattern.get_next()

@@ -29,7 +29,7 @@ class Event:
         return self.type
 
     def get_attribute_val(self, attr):
-        return self.attributes
+        return self.attributes[attr]
 
     def set_time(self, t_start, t_end):
         assert t_start <= t_end, "Event beginning must be inferior to event end."
