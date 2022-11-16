@@ -1,5 +1,6 @@
 from typing import List
 from src.openthechests.env.GUI import BoxEventGUI
+from src.openthechests.env.elements.Generator import Generator
 from src.openthechests.env.elements.Parser import Parser
 from src.openthechests.env.elements.InteractiveBox import InteractiveBox
 from src.openthechests.env.elements.Pattern import Pattern
@@ -45,10 +46,11 @@ class Environment:
         self.done = False
         self.num_boxes = len(instructions)
 
-        self.parser = Parser(all_event_types, all_noise_types, all_event_attributes, all_noise_attributes)
-        self.GUI = BoxEventGUI(self.num_boxes, self.parser.all_attributes)
+        self.patterns = [Pattern(instr, self.verbose) for instr in instructions]
 
-        self.patterns = [Pattern(self.parser, instr, self.verbose) for instr in instructions]
+        self.parser = Parser(all_event_types, all_noise_types, all_event_attributes, all_noise_attributes)
+        self.generator = Generator(self.verbose, self.parser, self.patterns)
+        self.GUI = BoxEventGUI(self.num_boxes, self.parser.all_attributes)
         self.timeline = {}
 
         self.boxes = [InteractiveBox(idx, pattern, self.verbose) for idx, pattern in enumerate(self.patterns)]
@@ -76,7 +78,7 @@ class Environment:
         self.time = 0
         for box in self.boxes:
             box.reset(self.time)
-            self.timeline[box.id] = box.pattern.get_next()
+            self.timeline[box.id] = self.generator.get_next(box.id)  # box.pattern.get_next()
 
         self._internal_step()
 
@@ -174,8 +176,9 @@ class Environment:
         # TODO (priority 4) doc
         """
         Advance internal environment evolution.
-        Start by getting the next event to be played by select from the timeline of next events the one with the smallest
-        ending time. Add this event as the current context and advance the current time to the end of the event.
+        Start by getting the next event to be played by select from the timeline of next events the one with the
+        smallest ending time.
+        Add this event as the current context and advance the current time to the end of the event.
         Check if any other boxes are satisfied by this event.
         """
 
@@ -188,7 +191,7 @@ class Environment:
             self.time = self.context.end
             all_satisfied_boxes = [box_id for box_id in self.timeline if self.timeline[box_id] == self.context]
             for satisfied_box_id in all_satisfied_boxes:
-                event = self.boxes[satisfied_box_id].pattern.get_next()
+                event = self.generator.get_next(satisfied_box_id)  # self.boxes[satisfied_box_id].pattern.get_next()
                 self.timeline[satisfied_box_id] = event
 
             if self.verbose:
