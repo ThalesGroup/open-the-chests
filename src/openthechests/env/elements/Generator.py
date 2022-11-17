@@ -1,5 +1,7 @@
 import random
 
+from src.openthechests.env.elements.Event import Event
+
 
 class Generator:
     def __init__(self,
@@ -15,6 +17,21 @@ class Generator:
         self.parser = parser
         self.patterns = patterns
         self.verbose = verbose
+
+        self.timeline = {}
+        self.event_stacks = []
+
+    def reset(self):
+        self.timeline = {}
+        self.event_stacks = []
+        for pattern in self.patterns:
+            pattern.reset()
+            # TODO priority 1: fix later to remove event stack reference from pattern and remove assignments and usages
+            self.fill_event_stack(random.uniform(0, pattern.timeout), pattern)
+            generated_stack = pattern.events_stack
+            self.event_stacks.append(generated_stack)
+            next_event = self.get_next_from_stack(pattern.id)
+            self.timeline[pattern.id] = next_event
 
     def generate_noise_events(self, pattern_noise, pattern_end, pattern_len):
         """
@@ -63,7 +80,7 @@ class Generator:
         if self.verbose:
             print(f"Sampling pattern {pattern.events_stack}")
 
-    def get_next(self, pattern_id):
+    def get_next_from_stack(self, pattern_id):
         """
         Get the next event on the stack.
         If @self.event_stack has finished refill it,
@@ -83,9 +100,33 @@ class Generator:
         next_event = pattern.events_stack.pop(0)
         pattern.last_generated_event = next_event
         pattern.last_event_end = next_event.end
+
         return next_event
 
-    def reset(self):
-        for pattern in self.patterns:
-            pattern.reset()
-            self.fill_event_stack(random.uniform(0, pattern.timeout), pattern)
+    def next_event(self):
+        res = Event("Empty", {}, 0, 0)
+        if self.timeline:
+            ending_box_id = min(self.timeline, key=self.timeline.get)
+            res = self.timeline[ending_box_id]
+            all_satisfied_boxes = [box_id for box_id in self.timeline if self.timeline[box_id] == res]
+            for satisfied_box_id in all_satisfied_boxes:
+                event = self.get_next_from_stack(satisfied_box_id)  # self.boxes[satisfied_box_id].pattern.get_next()
+                self.timeline[satisfied_box_id] = event
+            if self.verbose:
+                print(f"Sampling from boxes {ending_box_id}")
+        else:
+            if self.verbose:
+                print("Timeline is empty as all boxes are opened")
+        return res
+
+    def disable_timeline(self, box_id):
+        """
+        Remove the box_id from the timeline dictionary, disabling its evolution.
+        :param box_id: The box id to remove from the game.
+        """
+        # TODO (priority 3) sent this to get_next possibly via box opening? remove event stack to prevent problems?
+        self.timeline.pop(box_id, None)
+
+    def get_timeline(self):
+        return self.timeline
+

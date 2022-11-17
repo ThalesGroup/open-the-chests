@@ -46,14 +46,13 @@ class Environment:
         self.done = False
         self.num_boxes = len(instructions)
 
-        self.patterns = [Pattern(instr, self.verbose) for instr in instructions]
+        # TODO Priority 2: optimise this to use the same for loop
+        self.patterns = [Pattern(instr, idx, self.verbose) for idx, instr in enumerate(instructions)]
+        self.boxes = [InteractiveBox(idx, pattern, self.verbose) for idx, pattern in enumerate(self.patterns)]
 
         self.parser = Parser(all_event_types, all_noise_types, all_event_attributes, all_noise_attributes)
         self.generator = Generator(self.verbose, self.parser, self.patterns)
         self.GUI = BoxEventGUI(self.num_boxes, self.parser.all_attributes)
-        self.timeline = {}
-
-        self.boxes = [InteractiveBox(idx, pattern, self.verbose) for idx, pattern in enumerate(self.patterns)]
 
         if self.verbose:
             print(f"All event types : {all_event_types}")
@@ -81,7 +80,6 @@ class Environment:
 
         for box in self.boxes:
             box.reset(self.time)
-            self.timeline[box.id] = self.generator.get_next(box.id)  # box.pattern.get_next()
 
         self._internal_step()
 
@@ -186,25 +184,17 @@ class Environment:
         """
 
         if self.verbose:
-            print(f"Active timeline {self.timeline}")
+            print(f"Active timeline {self.generator.get_timeline()}")
 
-        if self.timeline:
-            ending_box_id = min(self.timeline, key=self.timeline.get)
-            self.context = self.timeline[ending_box_id]
+        next_event = self.generator.next_event()
+        if next_event.type!="Empty":
+            self.context = next_event
             self.time = self.context.end
-            all_satisfied_boxes = [box_id for box_id in self.timeline if self.timeline[box_id] == self.context]
-            for satisfied_box_id in all_satisfied_boxes:
-                event = self.generator.get_next(satisfied_box_id)  # self.boxes[satisfied_box_id].pattern.get_next()
-                self.timeline[satisfied_box_id] = event
 
-            if self.verbose:
-                print(f"Finding closes end value {self.time}")
-                print(f"Advancing time to {self.time}")
-                print(f"Sampling from boxes {ending_box_id}")
-                print(f"Observing context {self.context}")
-        else:
-            if self.verbose:
-                print("Timeline is empty as all boxes are opened")
+        if self.verbose:
+            print(f"Finding closes end value {self.time}")
+            print(f"Advancing time to {self.time}")
+            print(f"Observing context {self.context}")
 
     def _update_boxes(self, t_current):
         # TODO (priority 4) doc and optimise
@@ -238,7 +228,7 @@ class Environment:
             if action[box_id] == 1:
                 opened = current_box.press_button()
                 if opened:
-                    self._disable_timeline(box_id)
+                    self.generator.disable_timeline(box_id)
                     reward.append(1)
                 else:
                     reward.append(-1)
@@ -248,14 +238,6 @@ class Environment:
                 else:
                     reward.append(0)
         return sum(reward)
-
-    def _disable_timeline(self, box_id):
-        """
-        Remove the box_id from the timeline dictionary, disabling its evolution.
-        :param box_id: The box id to remove from the game.
-        """
-        # TODO (priority 3) sent this to get_next possibly via box opening? remove event stack to prevent problems?
-        self.timeline.pop(box_id, None)
 
     def check_end(self):
         """

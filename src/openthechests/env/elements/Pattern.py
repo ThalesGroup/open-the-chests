@@ -3,7 +3,7 @@ import random
 
 class Pattern:
 
-    def __init__(self, instruction: list, verbose):
+    def __init__(self, instruction: list, id, verbose):
         """
         Pattern associated to a box that uses the defined parser to sample instructions and produce an event stack.
         This structure allows to track the state and execution of situations associated to each box.
@@ -11,6 +11,8 @@ class Pattern:
         :param instruction: Instruction used to generate the stack of events.
         :param verbose: Print information as it happens.
         """
+        self.id = id
+
         self.timeout = ([command["parameters"]
                          for command in instruction
                          if command["command"] == "delay"] or [0]).pop()

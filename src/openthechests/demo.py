@@ -21,9 +21,11 @@ if __name__ == '__main__':
     verbose_env = BoxEventEnv.from_config_file("../../configs/" + conf, True)
 
     print("Learning")
-    model = DQN('MultiInputPolicy', discrete_env, verbose=1).learn(10)
+    model = DQN('MultiInputPolicy', discrete_env, verbose=1)
 
     n_steps = 200
+
+    env = verbose_env
 
     print("------------------------ START -------------------------")
     obs = env.reset()
