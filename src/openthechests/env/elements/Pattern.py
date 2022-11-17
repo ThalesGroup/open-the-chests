@@ -1,5 +1,3 @@
-import random
-
 
 class Pattern:
 
@@ -27,7 +25,6 @@ class Pattern:
         self.satisfied = False
         self.active = False
 
-        self.events_stack = []
         # used for GUI only to print full patterns
         self.full_pattern = []
         self.last_generated_event = None
@@ -38,7 +35,6 @@ class Pattern:
         """
         Reset pattern and all related information.
         """
-        self.events_stack = []  # stack of events to generate with instruction
         self.full_pattern = []
         self.last_generated_event = None
         self.satisfied = False

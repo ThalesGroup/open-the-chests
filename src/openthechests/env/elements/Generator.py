@@ -7,7 +7,7 @@ class Generator:
     def __init__(self,
                  verbose,
                  parser,
-                 patterns):
+                 patterns: list):
         """
 
         :param verbose:
@@ -26,9 +26,7 @@ class Generator:
         self.event_stacks = []
         for pattern in self.patterns:
             pattern.reset()
-            # TODO priority 1: fix later to remove event stack reference from pattern and remove assignments and usages
-            self.fill_event_stack(random.uniform(0, pattern.timeout), pattern)
-            generated_stack = pattern.events_stack
+            generated_stack = self.fill_event_stack(random.uniform(0, pattern.timeout), pattern)
             self.event_stacks.append(generated_stack)
             next_event = self.get_next_from_stack(pattern.id)
             self.timeline[pattern.id] = next_event
@@ -75,10 +73,11 @@ class Generator:
         pattern.full_pattern = [pattern.last_generated_event] if pattern.last_generated_event else []
         pattern.full_pattern += shifted_generated_events
 
-        pattern.events_stack = sorted(shifted_noise_events + shifted_generated_events)
-
+        events_stack = sorted(shifted_noise_events + shifted_generated_events)
         if self.verbose:
-            print(f"Sampling pattern {pattern.events_stack}")
+            print(f"Sampling pattern {events_stack}")
+
+        return events_stack
 
     def get_next_from_stack(self, pattern_id):
         """
@@ -90,14 +89,14 @@ class Generator:
         :return: The next event on the stack
         """
         pattern = self.patterns[pattern_id]
-        if not pattern.events_stack:
+        if not self.event_stacks[pattern_id]:
             if self.verbose:
                 print("Pattern finished generating new one")
             pattern.satisfied = True
             pattern.start_pattern_time = pattern.last_event_end + random.uniform(0, pattern.timeout)
-            self.fill_event_stack(pattern.start_pattern_time, pattern)
+            self.event_stacks[pattern_id] = self.fill_event_stack(pattern.start_pattern_time, pattern)
 
-        next_event = pattern.events_stack.pop(0)
+        next_event = self.event_stacks[pattern_id].pop(0)
         pattern.last_generated_event = next_event
         pattern.last_event_end = next_event.end
 
@@ -110,7 +109,7 @@ class Generator:
             res = self.timeline[ending_box_id]
             all_satisfied_boxes = [box_id for box_id in self.timeline if self.timeline[box_id] == res]
             for satisfied_box_id in all_satisfied_boxes:
-                event = self.get_next_from_stack(satisfied_box_id)  # self.boxes[satisfied_box_id].pattern.get_next()
+                event = self.get_next_from_stack(satisfied_box_id)
                 self.timeline[satisfied_box_id] = event
             if self.verbose:
                 print(f"Sampling from boxes {ending_box_id}")
