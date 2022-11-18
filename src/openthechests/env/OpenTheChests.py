@@ -170,8 +170,8 @@ class Environment:
         if self.verbose:
             print("Making one internal step to get context and advance timeline")
 
-        self._advance_timeline()
-        self._update_boxes(self.time)
+        signal = self._advance_timeline()
+        self._update_boxes(self.time, signal)
 
     def _advance_timeline(self):
         # TODO (priority 4) doc
@@ -186,8 +186,8 @@ class Environment:
         if self.verbose:
             print(f"Active timeline {self.generator.get_timeline()}")
 
-        next_event = self.generator.next_event()
-        if next_event.type!="Empty":
+        next_event, signal = self.generator.next_event()
+        if next_event.type != "Empty":
             self.context = next_event
             self.time = self.context.end
 
@@ -196,7 +196,9 @@ class Environment:
             print(f"Advancing time to {self.time}")
             print(f"Observing context {self.context}")
 
-    def _update_boxes(self, t_current):
+        return signal
+
+    def _update_boxes(self, t_current, signal=None):
         # TODO (priority 4) doc and optimise
         """
         Update all boxes states to be coherent with current environment time and evolution.
@@ -204,7 +206,8 @@ class Environment:
         :param t_current: The current system time used to re-activate boxes if needed.
         """
         for box in self.boxes:
-            box.update(t_current)
+            box.update(t_current,
+                       None if box.id not in signal else signal[box.id])
 
     def _apply_action(self, action):
         """

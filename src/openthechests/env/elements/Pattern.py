@@ -1,3 +1,5 @@
+import random
+
 
 class Pattern:
 
@@ -22,21 +24,16 @@ class Pattern:
         self.instruction = [instr for instr in instruction if instr["command"] not in ["delay",
                                                                                        "noise"]]
         self.verbose = verbose
-        self.satisfied = False
-        self.active = False
-
         # used for GUI only to print full patterns
         self.full_pattern = []
-        self.last_generated_event = None
         self.start_pattern_time = 0
-        self.last_event_end = 0
+
+    def generate_timeout(self):
+        return random.uniform(0, self.timeout)
 
     def reset(self):
         """
         Reset pattern and all related information.
         """
         self.full_pattern = []
-        self.last_generated_event = None
-        self.satisfied = False
         self.start_pattern_time = 0
-        self.last_event_end = 0

@@ -1,6 +1,8 @@
 from src.openthechests.env.elements.Pattern import Pattern
 
+
 # TODO (priority 4) doc
+from src.openthechests.env.utils.helper_functions import bug_print
 
 
 class InteractiveBox:
@@ -32,15 +34,6 @@ class InteractiveBox:
 
     def is_active(self):
         return self.state["active"]
-
-    def check_pattern(self):
-        """
-        Check if box pattern has been fully displayed and change box state to ready if this is the case
-        """
-        if self.pattern.satisfied:
-            # TODO (priority 3) can this be moved to some more pattern related place?
-            self.pattern.satisfied = False
-            self.ready()
 
     def reset(self, time):
         """
@@ -110,7 +103,7 @@ class InteractiveBox:
                 return True
         return False  # in all other cases return false
 
-    def update(self, t_current):
+    def update(self, t_current, signal=None):
         """
         Update box status using the current time information.
         During each environment steps each box is updates according to internal environment evolution
@@ -136,6 +129,7 @@ class InteractiveBox:
             it is marked as deactivated. However, the next observed event also belongs to the box, leading to
             reactivation. Since the box has only one event, it also marked ready right away.
 
+        :param signal:
         :param t_current: The current time during the update, given by the last observed event, used for reactivating
                             the box.
         """
@@ -149,4 +143,5 @@ class InteractiveBox:
                 if t_current >= self.pattern.start_pattern_time:
                     self.activate()
             # otherwise, check if pattern has been satisfied
-            self.check_pattern()
+            if signal == "satisfied":
+                self.ready()

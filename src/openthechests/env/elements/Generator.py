@@ -1,6 +1,7 @@
 import random
 
 from src.openthechests.env.elements.Event import Event
+from src.openthechests.env.utils.helper_functions import bug_print
 
 
 class Generator:
@@ -18,18 +19,15 @@ class Generator:
         self.patterns = patterns
         self.verbose = verbose
 
-        self.timeline = {}
-        self.event_stacks = []
+        self.event_stacks = dict()
 
     def reset(self):
-        self.timeline = {}
-        self.event_stacks = []
+        self.event_stacks = dict()
         for pattern in self.patterns:
             pattern.reset()
             generated_stack = self.fill_event_stack(random.uniform(0, pattern.timeout), pattern)
-            self.event_stacks.append(generated_stack)
-            next_event = self.get_next_from_stack(pattern.id)
-            self.timeline[pattern.id] = next_event
+            print(pattern.id)
+            self.event_stacks[pattern.id] = generated_stack
 
     def generate_noise_events(self, pattern_noise, pattern_end, pattern_len):
         """
@@ -53,11 +51,12 @@ class Generator:
                 num_not_noise -= 1
         return noise_list
 
-    def fill_event_stack(self, t, pattern):
+    def fill_event_stack(self, t, pattern, last_generated_event=None):
         """
         Fill pattern stack starting at time @t with events generated following @self.instruction.
         Events are generated using the @self.parser.
 
+        :param last_generated_event:
         :param pattern:
         :param t: Date of start of the generated pattern
         """
@@ -70,7 +69,7 @@ class Generator:
         noise_events = self.generate_noise_events(pattern.noise, pattern_end_time, num_not_noise)
         shifted_noise_events = [event.shifted(t) for event in noise_events]
 
-        pattern.full_pattern = [pattern.last_generated_event] if pattern.last_generated_event else []
+        pattern.full_pattern = [last_generated_event] if last_generated_event else []
         pattern.full_pattern += shifted_generated_events
 
         events_stack = sorted(shifted_noise_events + shifted_generated_events)
@@ -79,44 +78,22 @@ class Generator:
 
         return events_stack
 
-    def get_next_from_stack(self, pattern_id):
-        """
-        Get the next event on the stack.
-        If @self.event_stack has finished refill it,
-        starting at the end of the last observed event from the pattern
-        plus the specified timeout.
-
-        :return: The next event on the stack
-        """
-        pattern = self.patterns[pattern_id]
-        if not self.event_stacks[pattern_id]:
-            if self.verbose:
-                print("Pattern finished generating new one")
-            pattern.satisfied = True
-            pattern.start_pattern_time = pattern.last_event_end + random.uniform(0, pattern.timeout)
-            self.event_stacks[pattern_id] = self.fill_event_stack(pattern.start_pattern_time, pattern)
-
-        next_event = self.event_stacks[pattern_id].pop(0)
-        pattern.last_generated_event = next_event
-        pattern.last_event_end = next_event.end
-
-        return next_event
-
+    # TODO priority 3: figure out to do with generating an event present as next in multiple patterns
     def next_event(self):
-        res = Event("Empty", {}, 0, 0)
-        if self.timeline:
-            ending_box_id = min(self.timeline, key=self.timeline.get)
-            res = self.timeline[ending_box_id]
-            all_satisfied_boxes = [box_id for box_id in self.timeline if self.timeline[box_id] == res]
-            for satisfied_box_id in all_satisfied_boxes:
-                event = self.get_next_from_stack(satisfied_box_id)
-                self.timeline[satisfied_box_id] = event
-            if self.verbose:
-                print(f"Sampling from boxes {ending_box_id}")
-        else:
-            if self.verbose:
-                print("Timeline is empty as all boxes are opened")
-        return res
+        next_event = Event("Empty", {}, 0, 0)
+        signal = None
+        if self.event_stacks:
+            pattern_to_sample_id = min(self.event_stacks, key=lambda pattern_id: self.event_stacks[pattern_id][0])
+            pattern_to_sample = self.patterns[pattern_to_sample_id]
+            next_event = self.event_stacks[pattern_to_sample_id].pop(0)
+            if not self.event_stacks[pattern_to_sample_id]:
+                signal = {pattern_to_sample_id: "satisfied"}
+                new_pattern_start = next_event.end + pattern_to_sample.generate_timeout()
+                pattern_to_sample.start_pattern_time = new_pattern_start
+                self.event_stacks[pattern_to_sample_id] = self.fill_event_stack(new_pattern_start,
+                                                                                pattern_to_sample,
+                                                                                next_event)
+        return next_event, signal
 
     def disable_timeline(self, box_id):
         """
@@ -124,8 +101,7 @@ class Generator:
         :param box_id: The box id to remove from the game.
         """
         # TODO (priority 3) sent this to get_next possibly via box opening? remove event stack to prevent problems?
-        self.timeline.pop(box_id, None)
+        self.event_stacks.pop(box_id, None)
 
     def get_timeline(self):
-        return self.timeline
-
+        return [event_stack[0] for event_stack in self.event_stacks.values()]
