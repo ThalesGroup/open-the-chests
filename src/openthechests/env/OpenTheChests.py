@@ -48,7 +48,7 @@ class Environment:
 
         # TODO Priority 2: optimise this to use the same for loop
         self.patterns = [Pattern(instr, idx, self.verbose) for idx, instr in enumerate(instructions)]
-        self.boxes = [InteractiveBox(idx, pattern, self.verbose) for idx, pattern in enumerate(self.patterns)]
+        self.boxes = [InteractiveBox(idx, self.verbose) for idx, pattern in enumerate(self.patterns)]
 
         self.parser = Parser(all_event_types, all_noise_types, all_event_attributes, all_noise_attributes)
         self.generator = Generator(self.verbose, self.parser, self.patterns)
@@ -198,7 +198,7 @@ class Environment:
 
         return signal
 
-    def _update_boxes(self, t_current, signal=None):
+    def _update_boxes(self, t_current, signal=[]):
         # TODO (priority 4) doc and optimise
         """
         Update all boxes states to be coherent with current environment time and evolution.
@@ -207,7 +207,7 @@ class Environment:
         """
         for box in self.boxes:
             box.update(t_current,
-                       None if box.id not in signal else signal[box.id])
+                       [] if box.id not in signal else signal[box.id])
 
     def _apply_action(self, action):
         """
@@ -264,4 +264,5 @@ class Environment:
         self.GUI.update_variable("time", self.time)
         self.GUI.update_variable("last_action", self.action)
         self.GUI.update_variable("boxes", self.boxes)
+        self.GUI.update_variable("patterns", self.patterns)
         self.GUI.step()

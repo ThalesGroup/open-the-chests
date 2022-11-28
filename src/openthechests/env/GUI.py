@@ -94,13 +94,15 @@ class BoxEventGUI:
         self.print_history_to_window()
 
         boxes = self.get_variable("boxes")
-        patterns = []
+        patterns = self.get_variable("patterns")
+        printed_patterns = []
         patterns_closed = []
         box_states = []
-        for box in boxes:
-            patterns.append(box.pattern.full_pattern)
+        for box_id, box in enumerate(boxes):
+            pattern = patterns[box_id]
+            printed_patterns.append(pattern.full_pattern)
             if not box.is_open():
-                patterns_closed.append(box.pattern.full_pattern)
+                patterns_closed.append(pattern.full_pattern)
             box_states.append(box.get_state())
 
         # get min max ranges of all patterns so that all windows are the same
@@ -111,7 +113,7 @@ class BoxEventGUI:
         ]
 
         # print each pattern in a window and update its state
-        for i in range(len(patterns)):
+        for i in range(len(printed_patterns)):
             if boxes[i].is_open():
                 bg_color = "green"
             elif not boxes[i].is_active():
@@ -119,7 +121,7 @@ class BoxEventGUI:
             else:
                 bg_color = "white"
 
-            pattern_img = self.print_event_list(patterns[i],
+            pattern_img = self.print_event_list(printed_patterns[i],
                                                 current_time=self.get_variable("time"),
                                                 patterns_range=patterns_range,
                                                 bg_color=bg_color)

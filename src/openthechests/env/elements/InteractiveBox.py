@@ -6,7 +6,7 @@ from src.openthechests.env.utils.helper_functions import bug_print
 
 
 class InteractiveBox:
-    def __init__(self, id, pattern: Pattern = None, verbose=True):
+    def __init__(self, id, verbose=True):
         """
         An openable box that allows interaction.
         It possesses three states indicators: open, ready and active.
@@ -20,7 +20,6 @@ class InteractiveBox:
         self.verbose = verbose
         # TODO (priority 3) rename this can cause confusion box.box?
         self.state = {"open": False, "ready": False, "active": False}
-        self.pattern = pattern
         self.num_deactivations = 0
 
     def get_state(self):
@@ -103,7 +102,7 @@ class InteractiveBox:
                 return True
         return False  # in all other cases return false
 
-    def update(self, t_current, signal=None):
+    def update(self, t_current, signal=[]):
         """
         Update box status using the current time information.
         During each environment steps each box is updates according to internal environment evolution
@@ -140,8 +139,8 @@ class InteractiveBox:
                     self.deactivate()
             if not self.state["active"]:
                 # TODO (priority 3) see if this can be moved somewhere else, not very clear maybe?
-                if t_current >= self.pattern.start_pattern_time:
+                if "active" in signal:
                     self.activate()
             # otherwise, check if pattern has been satisfied
-            if signal == "satisfied":
+            if "satisfied" in signal:
                 self.ready()

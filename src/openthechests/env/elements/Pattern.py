@@ -26,7 +26,6 @@ class Pattern:
         self.verbose = verbose
         # used for GUI only to print full patterns
         self.full_pattern = []
-        self.start_pattern_time = 0
 
     def generate_timeout(self):
         return random.uniform(0, self.timeout)
@@ -36,4 +35,3 @@ class Pattern:
         Reset pattern and all related information.
         """
         self.full_pattern = []
-        self.start_pattern_time = 0
