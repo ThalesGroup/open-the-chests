@@ -1,24 +1,27 @@
 import random
+from typing import List
+
 import numpy as np
 
 from src.openthechests.env.elements.Event import Event
-from src.openthechests.env.utils.helper_functions import bug_print
+from src.openthechests.env.elements.Parser import Parser
+from src.openthechests.env.elements.Pattern import Pattern
 
 
 class Generator:
     def __init__(self,
-                 verbose,
-                 parser,
-                 patterns: list):
+                 verbose: bool,
+                 parser: Parser,
+                 patterns: List[Pattern]):
         """
 
         :param verbose:
         :param parser: Parser structure used for sampling.
         :param patterns:
         """
-        self.parser = parser
-        self.patterns = patterns
-        self.verbose = verbose
+        self.parser: Parser = parser
+        self.patterns: List[Pattern] = patterns
+        self.verbose: bool = verbose
 
         self.event_stacks = dict()
 

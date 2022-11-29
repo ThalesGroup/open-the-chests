@@ -47,7 +47,7 @@ class Environment:
         self.num_boxes = len(instructions)
 
         # TODO Priority 2: optimise this to use the same for loop
-        self.patterns = [Pattern(instr, idx, self.verbose) for idx, instr in enumerate(instructions)]
+        self.patterns = [Pattern(instr, idx) for idx, instr in enumerate(instructions)]
         self.boxes = [InteractiveBox(idx, self.verbose) for idx, pattern in enumerate(self.patterns)]
 
         self.parser = Parser(all_event_types, all_noise_types, all_event_attributes, all_noise_attributes)

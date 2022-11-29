@@ -6,7 +6,9 @@ from src.openthechests.env.utils.helper_functions import bug_print
 
 
 class InteractiveBox:
-    def __init__(self, id, verbose=True):
+    def __init__(self,
+                 id: int,
+                 verbose: bool=True):
         """
         An openable box that allows interaction.
         It possesses three states indicators: open, ready and active.

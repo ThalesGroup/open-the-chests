@@ -1,9 +1,11 @@
 import random
+from typing import List, Dict
 
 
 class Pattern:
 
-    def __init__(self, instruction: list, id, verbose):
+    def __init__(self, instruction: List[Dict],
+                 id: int):
         """
         Pattern associated to a box that uses the defined parser to sample instructions and produce an event stack.
         This structure allows to track the state and execution of situations associated to each box.
@@ -23,7 +25,6 @@ class Pattern:
 
         self.instruction = [instr for instr in instruction if instr["command"] not in ["delay",
                                                                                        "noise"]]
-        self.verbose = verbose
         # used for GUI only to print full patterns
         self.full_pattern = []
 
@@ -35,3 +36,9 @@ class Pattern:
         Reset pattern and all related information.
         """
         self.full_pattern = []
+
+    def get_timeout(self):
+        return self.timeout
+
+    def get_noise(self):
+        return self.noise
