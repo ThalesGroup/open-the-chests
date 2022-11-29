@@ -9,22 +9,22 @@ from src.openthechests.env.elements.Parser import Parser
 
 p = Parser(all_event_types, all_noise_types, all_event_attributes, all_noise_attributes)
 
-# labelise event information
-example_labelised = p.labelise("A", {"fg": "blue"})
-example_labelised = p.labelise("A", {"fg": "blue", "bg": "red"})
+# _labelise event information
+example_labelised = p._labelise("A", {"fg": "blue"})
+example_labelised = p._labelise("A", {"fg": "blue", "bg": "red"})
 
 # ignore delay and noise commands (1st and 2nd in instructions list)
 # generate an event list from the instructions
-event_list = p.generate_pattern(instructions[0][2:])
+event_list = p.instantiate_pattern(instructions[0][2:])
 
 # make a noise event that ends before the time t
 noise_event = p.make_noise(before=10)
 
 # make an event
-completely_random_event = p.make_event()
-only_typed_event = p.make_event(e_type="A")
-event = p.make_event(e_type="A", attributes={"fg": "blue", "bg": "red"},
-                     duration_distribution=dict(mu=20, sigma=10))
+completely_random_event = p._make_event()
+only_typed_event = p._make_event(e_type="A")
+event = p._make_event(e_type="A", attributes={"fg": "blue", "bg": "red"},
+                      duration_distribution=dict(mu=20, sigma=10))
 
 # here we give an example of how to print an event list using the GUI
 # show image in browser

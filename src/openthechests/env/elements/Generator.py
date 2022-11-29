@@ -61,7 +61,7 @@ class Generator:
 
         t = t + pattern.generate_timeout()
 
-        generated_events = self.parser.generate_pattern(pattern.instruction)
+        generated_events = self.parser.instantiate_pattern(pattern.instruction)
         num_not_noise = len(generated_events)
         pattern_end_time = generated_events[-1].end
         shifted_generated_events = [event.shifted(t) for event in generated_events]

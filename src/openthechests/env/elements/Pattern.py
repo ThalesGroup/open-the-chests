@@ -4,7 +4,8 @@ from typing import List, Dict
 
 class Pattern:
 
-    def __init__(self, instruction: List[Dict],
+    def __init__(self,
+                 instruction: List[Dict],
                  id: int):
         """
         Pattern associated to a box that uses the defined parser to sample instructions and produce an event stack.

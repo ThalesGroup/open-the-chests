@@ -156,7 +156,8 @@ class Environment:
 
         box_states = {"active": active, "open": open}
 
-        obs = {"state": box_states, "context": self.context}
+        obs = {"state": box_states, "context": self.parser.event_to_labelled(self.context
+                                                                             )}
 
         if self.stb3:
             obs = to_stb3_obs_format(obs)

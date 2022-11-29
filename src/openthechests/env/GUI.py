@@ -187,7 +187,7 @@ class BoxEventGUI:
                                 Label="Event type " + str(event.get_type())
                                 ))
 
-            fg_color = self.attr_to_color["fg"][event.get_attribute_val("fg")]
+            fg_color = event.get_attribute_val("fg")
             annots.append(dict(
                 x=event.start + (event.end - event.start) / 2,
                 y=line_index,
