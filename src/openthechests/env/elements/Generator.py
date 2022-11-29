@@ -29,10 +29,10 @@ class Generator:
         self.event_stacks = dict()
         for pattern in self.patterns:
             pattern.reset()
-            generated_stack = self.fill_event_stack(random.uniform(0, pattern.timeout), pattern)
+            generated_stack = self._fill_event_stack(random.uniform(0, pattern.timeout), pattern)
             self.event_stacks[pattern.id] = generated_stack
 
-    def generate_noise_events(self, pattern_noise, pattern_end, pattern_len):
+    def _generate_noise_events(self, pattern_noise, pattern_end, pattern_len):
         """
         Generate a list of noise events proportional to the list of normal events for the pattern.
         Use the @self.noise proportion to keep track of the ratio.
@@ -49,7 +49,7 @@ class Generator:
                       for _ in range(np.random.binomial(pattern_len, pattern_noise))]
         return noise_list
 
-    def fill_event_stack(self, t, pattern, last_generated_event=None):
+    def _fill_event_stack(self, t, pattern, last_generated_event=None):
         """
         Fill pattern stack starting at time @t with events generated following @self.instruction.
         Events are generated using the @self.parser.
@@ -66,7 +66,7 @@ class Generator:
         pattern_end_time = generated_events[-1].end
         shifted_generated_events = [event.shifted(t) for event in generated_events]
 
-        noise_events = self.generate_noise_events(pattern.noise, pattern_end_time, len(generated_events))
+        noise_events = self._generate_noise_events(pattern.noise, pattern_end_time, len(generated_events))
         shifted_noise_events = [event.shifted(t) for event in noise_events]
 
         pattern.full_pattern = [last_generated_event] if last_generated_event else []
@@ -88,9 +88,9 @@ class Generator:
             next_event = self.event_stacks[pattern_to_sample_id].pop(0)
             if not self.event_stacks[pattern_to_sample_id]:
                 signal = {pattern_to_sample_id: ["satisfied"]}
-                self.event_stacks[pattern_to_sample_id] = self.fill_event_stack(next_event.end,
-                                                                                pattern_to_sample,
-                                                                                next_event)
+                self.event_stacks[pattern_to_sample_id] = self._fill_event_stack(next_event.end,
+                                                                                 pattern_to_sample,
+                                                                                 next_event)
         for pattern_id, stack in self.event_stacks.items():
             if next_event.end >= stack[0].start:
                 signal[pattern_id] = signal.get(pattern_id, []) + ["active"]

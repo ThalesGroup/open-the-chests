@@ -4,6 +4,7 @@ import numpy as np
 
 from src.openthechests.env.elements.Event import Event
 from src.openthechests.env.elements.Generator import Generator
+from src.openthechests.env.elements.InteractiveBox import InteractiveBox
 from src.openthechests.env.elements.Parser import Parser
 from src.openthechests.env.elements.Pattern import Pattern
 
@@ -58,7 +59,8 @@ class TestElements(unittest.TestCase):
         ))
 
     def testBox(self):
-        pass
+        box = InteractiveBox(id=0, verbose=False)
+        self.assertEqual(box.get_state(), {"open": False, "ready": False, "active": False})
 
     def testParser(self):
         parser = Parser(all_event_types=all_event_types,

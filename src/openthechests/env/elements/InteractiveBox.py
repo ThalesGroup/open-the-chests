@@ -15,7 +15,6 @@ class InteractiveBox:
         The box is initialised with a pattern which defines how the box changes states.
 
         :param id: The identifier of the box.
-        :param pattern: Pattern object linked to box handling event tracking and generation.
         :param verbose: Give details.
         """
         self.id = id
