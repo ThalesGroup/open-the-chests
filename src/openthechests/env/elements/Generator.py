@@ -1,5 +1,5 @@
 import random
-from typing import List
+from typing import List, Dict
 
 import numpy as np
 
@@ -20,14 +20,14 @@ class Generator:
         :param patterns:
         """
         self.parser: Parser = parser
-        self.patterns: List[Pattern] = patterns
+        self.patterns: Dict[(int, Pattern)] = {pattern.id: pattern for pattern in patterns}
         self.verbose: bool = verbose
 
         self.event_stacks = dict()
 
     def reset(self):
         self.event_stacks = dict()
-        for pattern in self.patterns:
+        for pattern in self.patterns.values():
             pattern.reset()
             generated_stack = self._fill_event_stack(random.uniform(0, pattern.timeout), pattern)
             self.event_stacks[pattern.id] = generated_stack

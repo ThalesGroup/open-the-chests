@@ -68,9 +68,9 @@ def my_evaluate_isolate(env, model, evaluated_box=0, steps=100):
     for i in range(steps):
         action, _ = model.predict(obs, deterministic=True)
         new_obs, reward, done, info = env.step(action)
-        done = new_obs["open"][evaluated_box]
+        done = new_obs["_open"][evaluated_box]
         reward = 0 if obs["active"][evaluated_box] else -1
-        reward += -1 if action[evaluated_box] and not new_obs["open"][evaluated_box] else 0
+        reward += -1 if action[evaluated_box] and not new_obs["_open"][evaluated_box] else 0
         active.append(obs["active"][evaluated_box])
         obs = new_obs
         if type(reward) != int:

@@ -19,7 +19,7 @@ class Environment:
                  stb3: bool = False,
                  discrete: bool = False):
         """
-        Environment that allows to interact and open boxes after observing symbols.
+        Environment that allows to interact and _open boxes after observing symbols.
         Example of environment usage and initialisation in examples.create_env .
 
         :param instructions: List of commands allowing to define patterns for each box
@@ -79,7 +79,9 @@ class Environment:
         self.generator.reset()
 
         for box in self.boxes:
-            box.reset(self.time)
+            box.reset()
+            # TODO priority 2: should boxes be active from the beginning?
+            box._activate()
 
         self._internal_step()
 
@@ -98,7 +100,7 @@ class Environment:
          - Advance environment's internal interactions
          - Extract observation and return it to the user
 
-        :param action: List of box ids to attempt to open
+        :param action: List of box ids to attempt to _open
         :return: Reward obtained from acting and context at the end of the environment step
         """
 
@@ -128,12 +130,12 @@ class Environment:
         """
         Return the last observation of information visible to a player.
         Return contains:
-            - State information  under the form of binary vectors showing if @self.boxes are active or open
+            - State information  under the form of binary vectors showing if @self.boxes are active or _open
             - Context information giving the last observed event in its labeled form
 
         Example:
         {'state':
-            {'active': [True, True, True], 'open': [False, False, False]},
+            {'active': [True, True, True], '_open': [False, False, False]},
         'context':
             Event('e_type': 2, 'attr': {'bg': 6, 'fg': 3}, 'start' : 0, 'end': 4.582803102406337)
         }
@@ -154,7 +156,7 @@ class Environment:
             active.append(self.boxes[box_id].is_active())
             open.append(self.boxes[box_id].is_open())
 
-        box_states = {"active": active, "open": open}
+        box_states = {"active": active, "_open": open}
 
         obs = {"state": box_states, "context": self.parser.event_to_labelled(self.context
                                                                              )}
@@ -172,7 +174,7 @@ class Environment:
             print("Making one internal step to get context and advance timeline")
 
         signal = self._advance_timeline()
-        self._update_boxes(self.time, signal)
+        self._update_boxes(signal)
 
     def _advance_timeline(self):
         # TODO (priority 4) doc
@@ -199,23 +201,21 @@ class Environment:
 
         return signal
 
-    def _update_boxes(self, t_current, signal=[]):
+    def _update_boxes(self, signal=[]):
         # TODO (priority 4) doc and optimise
         """
         Update all boxes states to be coherent with current environment time and evolution.
 
-        :param t_current: The current system time used to re-activate boxes if needed.
         """
         for box in self.boxes:
-            box.update(t_current,
-                       [] if box.id not in signal else signal[box.id])
+            box.update([] if box.id not in signal else signal[box.id])
 
     def _apply_action(self, action):
         """
         Apply given action to system and update environment according to action effects.
-        Attempt to open corresponding box if the action at index i is set to 1.
+        Attempt to _open corresponding box if the action at index i is set to 1.
         If the box is opened disable its timeline and give a positive reward.
-        Otherwise, if the button is wrongly pressed or the chest is ready to open yet ignored a reward of -1 is applied.
+        Otherwise, if the button is wrongly pressed or the chest is _ready to _open yet ignored a reward of -1 is applied.
         In all other cases reward is 0.
 
         :param action: The action to apply

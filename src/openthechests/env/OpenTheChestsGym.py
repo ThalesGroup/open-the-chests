@@ -56,7 +56,7 @@ class BoxEventEnv(gym.Env):
 
         self.observation_space = Dict({
             "active": MultiBinary(self.env.num_boxes),
-            "open": MultiBinary(self.env.num_boxes),
+            "_open": MultiBinary(self.env.num_boxes),
             "e_type": Discrete(num_event_types),
             **attr_space,
             "start": Box(low=0, high=np.inf, shape=(1,)),

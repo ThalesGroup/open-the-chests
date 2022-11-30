@@ -72,21 +72,17 @@ class Parser:
         :param instructions: The dictionary of commands.
         :return: A list of events that follows the selected instructions.
         """
-        event_list = []
         variables = dict()
         for instr_line in instructions:
             if instr_line["command"] == "instantiate":
                 event = self._make_event(*instr_line["parameters"])
                 variables[instr_line["variable_name"]] = event
-                if not event_list:
-                    event_list.append(event)
             elif instr_line["command"] in allen_functions.keys():
                 events = (variables[var_name] for var_name in instr_line["parameters"])
                 allen_op = instr_line["command"]
                 bonus_params = instr_line["other"] if "other" in instr_line else dict()
                 event = allen_functions[allen_op](*events, **bonus_params)
                 variables[instr_line["variable_name"]] = event
-                event_list.append(event)
             else:
                 raise ValueError("Unknown allen command: " + str(instr_line["command"]))
         return sorted(variables.values())
