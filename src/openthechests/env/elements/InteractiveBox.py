@@ -37,7 +37,7 @@ class InteractiveBox:
     def reset(self):
         """
         Reset a box to initial conditions, not opened, not _ready and active and regenerate its event stack starting
-        at a selected time.
+        at a selected _time.
         """
         self.state = {"_open": False, "_ready": False, "active": False}
         self.num_deactivations = 0
@@ -112,7 +112,7 @@ class InteractiveBox:
 
     def update(self, signal=None):
         """
-        Update box status using the current time information.
+        Update box status using the current _time information.
         During each environment steps each box is updates according to internal environment evolution
         and user interaction. The update is done at the end of the step right before returning observations.
         To update the boxes we proceed in the following way:
@@ -123,12 +123,12 @@ class InteractiveBox:
             Note: The box becomes _ready at the end of the update. If between the previous update and the current one
             it has not been opened, the button-press opportunity interval has passed, and it must be deactivated.
 
-        3. We immediately verify if the box is deactivated and check if the current time has passed the chest
-            re-activation time (re-activation-time = deactivation time + delay). If this is the case the chest is
+        3. We immediately verify if the box is deactivated and check if the current _time has passed the chest
+            re-activation _time (re-activation-_time = deactivation _time + delay). If this is the case the chest is
             reactivated. Note: Checks are made immediately (*if* instead *else if*) since a box can be deactivated and
             reactivated during the same update. For example, if a box has been _ready and is deactivated, however the next
             observed event during the internal step either belongs to the same box or ends after the box re-activation
-            time, it will be immediately reactivated.
+            _time, it will be immediately reactivated.
 
         4. We immediately check if the pattern has been satisfied and if this is the case, mark the box as _ready.
             Note: Checks are made immediately (*if* instead *else if*) since a box can pass from deactivated,

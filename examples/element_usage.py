@@ -7,7 +7,7 @@ from src.openthechests.env.elements.Event import Event
 from src.openthechests.env.elements.InteractiveBox import InteractiveBox
 
 
-# create an event with the given attributes and start end time
+# create an event with the given attributes and start end _time
 e = Event("A", {"attr1": "blue", "attr2": "green"}, 5, 10)
 shifted_forward = e.shifted(10)
 shifted_backward = e.shifted(-5)
@@ -30,7 +30,7 @@ pattern = Pattern(parser=parser,
 noise_list = pattern.generate_noise_events(pattern_end=20, pattern_len=10)
 
 # generate events following the instructions, generate noise and fill the pattern stack with events
-# starting at time t
+# starting at _time t
 pattern.fill_event_stack(t=15)
 
 # get the next event on the stack

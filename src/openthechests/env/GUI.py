@@ -122,7 +122,7 @@ class BoxEventGUI:
                 bg_color = "white"
 
             pattern_img = self.print_event_list(printed_patterns[i],
-                                                current_time=self.get_variable("time"),
+                                                current_time=self.get_variable("_time"),
                                                 patterns_range=patterns_range,
                                                 bg_color=bg_color)
             self.window["-pattern-" + str(i)].update(data=pattern_img)
@@ -165,11 +165,11 @@ class BoxEventGUI:
         The colors of the bar charts are synchronised with event backgrounds.
         Annotations are added to indicate the type of each event, where there colors are also synchronised
         with the foreground color attribute.
-        Gives the possibility to add a line showing the current time.
+        Gives the possibility to add a line showing the current _time.
 
         :param event_list: The list of events to print.
         :param show: Show timeline as a window or print it to an image.
-        :param current_time: Current time used to make a line on timeline.
+        :param current_time: Current _time used to make a line on timeline.
         :param patterns_range: Beginning and end of timeline range.
         :param bg_color: Background color of the timeline.
         :return:
@@ -238,7 +238,7 @@ class BoxEventGUI:
                 "paper_bgcolor": bg_color,
             })
 
-        # add line showing current time in environment
+        # add line showing current _time in environment
         if current_time:
             line = dict(
                 type='line',

@@ -7,7 +7,7 @@ from src.openthechests.env.elements.Pattern import Pattern
 from src.openthechests.env.utils.helper_functions import to_stb3_obs_format
 
 
-class Environment:
+class OpenTheChests:
     def __init__(self,
                  instructions: list,
                  all_event_types: list,
@@ -35,46 +35,50 @@ class Environment:
         Note: When accepting integer actions, each value will be transformed into its corresponding binary number
         """
 
-        self.timeout_threshold = timeout_threshold
+        self._timeout_threshold = timeout_threshold
         self.discrete = discrete
-        self.action = None
-        self.context = None
-        self.last_action = None
-        self.stb3 = stb3
-        self.time = 0
+        self._action = None
+        self._context = None
+        self._stb3 = stb3
+        self._time = 0
         self.verbose = verbose
         self.done = False
-        self.num_boxes = len(instructions)
+        self._num_boxes = len(instructions)
 
-        # TODO Priority 2: optimise this to use the same for loop
-        self.patterns = [Pattern(instr, idx) for idx, instr in enumerate(instructions)]
-        self.boxes = [InteractiveBox(idx, self.verbose) for idx, pattern in enumerate(self.patterns)]
+        self.patterns = [Pattern(id=idx, instruction=instr) for idx, instr in enumerate(instructions)]
+        self.boxes = [InteractiveBox(id=pattern.id, verbose=self.verbose) for pattern in self.patterns]
 
-        self.parser = Parser(all_event_types, all_noise_types, all_event_attributes, all_noise_attributes)
-        self.generator = Generator(self.verbose, self.parser, self.patterns)
-        self.GUI = BoxEventGUI(self.num_boxes, self.parser.all_attributes)
+        self.parser = Parser(all_event_types=all_event_types,
+                             all_noise_types=all_noise_types,
+                             all_event_attributes=all_event_attributes,
+                             all_noise_attributes=all_noise_attributes)
+        self.generator = Generator(parser=self.parser,
+                                   patterns=self.patterns,
+                                   verbose=self.verbose)
+        self.GUI = BoxEventGUI(num_patterns=self._num_boxes,
+                               attr_to_color=self.parser.all_attributes)
 
         if self.verbose:
             print(f"All event types : {all_event_types}")
             print(f"All noise types : {all_noise_types}")
             print(f"All event attributes : {all_event_attributes}")
             print(f"All noise attributes : {all_noise_attributes}")
-            print(f"Initialising {self.num_boxes} boxes with patterns")
+            print(f"Initialising {self._num_boxes} boxes with patterns")
 
     def reset(self):
         """
         Reset the environment.
-        Restart time, reset each box and its pattern and refill the timeline of events.
+        Restart _time, reset each box and its pattern and refill the timeline of events.
         Get one observation of the newly reset environment.
 
-        Note: observation form may vary depending on the stb3 parameter.
+        Note: observation form may vary depending on the _stb3 parameter.
 
         :return: The first observation of the newly reset environment.
         """
 
         if self.verbose:
             print("Starting Reset")
-        self.time = 0
+        self._time = 0
 
         self.generator.reset()
 
@@ -92,7 +96,7 @@ class Environment:
 
         return obs
 
-    def step(self, action: List[int]):
+    def step(self, action):
         """
         Move forward the environment by one step using the selected action.
         Forward move consists in three steps:
@@ -110,7 +114,7 @@ class Environment:
         # if action is discrete turn it into a vector
         if self.discrete:
             action = [int(x) for x in bin(action)[2:]]
-            action = (self.num_boxes - len(action)) * [0] + action
+            action = (self._num_boxes - len(action)) * [0] + action
         # apply action and collect reward
         reward = self._apply_action(action)
 
@@ -140,8 +144,8 @@ class Environment:
             Event('e_type': 2, 'attr': {'bg': 6, 'fg': 3}, 'start' : 0, 'end': 4.582803102406337)
         }
 
-        Note depending on the @stb3 parameter the returned dictionary can have different forms:
-            - @stb3 == True : one level dictionary with entries for each information
+        Note depending on the @_stb3 parameter the returned dictionary can have different forms:
+            - @_stb3 == True : one level dictionary with entries for each information
             - otherwise : two level dictionary
         This is because stable baselines does not accept multiple level dictionaries as input,
         we thus transform our output into a one level dictionary with multiple values.
@@ -152,16 +156,16 @@ class Environment:
         open = []
 
         # TODO (priority 3) this can be optimised
-        for box_id in range(self.num_boxes):
+        for box_id in range(self._num_boxes):
             active.append(self.boxes[box_id].is_active())
             open.append(self.boxes[box_id].is_open())
 
         box_states = {"active": active, "_open": open}
 
-        obs = {"state": box_states, "context": self.parser.event_to_labelled(self.context
+        obs = {"state": box_states, "context": self.parser.event_to_labelled(self._context
                                                                              )}
 
-        if self.stb3:
+        if self._stb3:
             obs = to_stb3_obs_format(obs)
         return obs
 
@@ -181,8 +185,8 @@ class Environment:
         """
         Advance internal environment evolution.
         Start by getting the next event to be played by select from the timeline of next events the one with the
-        smallest ending time.
-        Add this event as the current context and advance the current time to the end of the event.
+        smallest ending _time.
+        Add this event as the current context and advance the current _time to the end of the event.
         Check if any other boxes are satisfied by this event.
         """
 
@@ -191,20 +195,20 @@ class Environment:
 
         next_event, signal = self.generator.next_event()
         if next_event.type != "Empty":
-            self.context = next_event
-            self.time = self.context.end
+            self._context = next_event
+            self._time = self._context.end
 
         if self.verbose:
-            print(f"Finding closes end value {self.time}")
-            print(f"Advancing time to {self.time}")
-            print(f"Observing context {self.context}")
+            print(f"Finding closes end value {self._time}")
+            print(f"Advancing _time to {self._time}")
+            print(f"Observing context {self._context}")
 
         return signal
 
     def _update_boxes(self, signal=[]):
         # TODO (priority 4) doc and optimise
         """
-        Update all boxes states to be coherent with current environment time and evolution.
+        Update all boxes states to be coherent with current environment _time and evolution.
 
         """
         for box in self.boxes:
@@ -223,7 +227,7 @@ class Environment:
         """
         # TODO (priority 4) doc
         # TODO (priority 2) make code prettier reduce all ifs and separate press and reward if possible
-        self.action = action
+        self._action = action
         if self.verbose:
             print(f"Applying action {action}")
         reward = []
@@ -245,25 +249,25 @@ class Environment:
 
     def check_end(self):
         """
-        Verify if it's time to send a done signal indicating the end of the game.
+        Verify if it's _time to send a done signal indicating the end of the game.
         A done signal can be sent in one of two case:
             - All boxes have been opened giving the end of the game.
-            - All boxes have been collectively deactivated more than @self.timeout_threshold times.
+            - All boxes have been collectively deactivated more than @self._timeout_threshold times.
 
         :return: Boolean indicating the end of the game
         """
         all_end = all([box.is_open() for box in self.boxes])
         all_deactivations = sum([b.num_deactivations for b in self.boxes])
-        return all_end or (all_deactivations >= self.timeout_threshold)
+        return all_end or (all_deactivations >= self._timeout_threshold)
 
     def render(self):
         """
         Update GUI with all information needed to display environment and update display step.
         """
-        self.GUI.add_event_to_history(self.context)
-        self.GUI.update_variable("context", self.context)
-        self.GUI.update_variable("time", self.time)
-        self.GUI.update_variable("last_action", self.action)
+        self.GUI.add_event_to_history(self._context)
+        self.GUI.update_variable("context", self._context)
+        self.GUI.update_variable("_time", self._time)
+        self.GUI.update_variable("last_action", self._action)
         self.GUI.update_variable("boxes", self.boxes)
         self.GUI.update_variable("patterns", self.patterns)
         self.GUI.step()

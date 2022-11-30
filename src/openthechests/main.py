@@ -5,7 +5,7 @@ import pickle
 from stable_baselines3.common import results_plotter
 from stable_baselines3.common.monitor import Monitor
 
-from src.openthechests.env.OpenTheChestsGym import BoxEventEnv
+from src.openthechests.env.OpenTheChestsGym import OpenTheChestsGym
 from models import a2c_model, dqn_model, ppo_model, trpo_model
 from src.openthechests.env.utils.evaluators import evaluate_multiple_times
 
@@ -55,9 +55,9 @@ if __name__ == '__main__':
     The instructions must be in a folder with the same name.
     """
     discrete = args.discrete
-    env = BoxEventEnv.from_config_file("../../configs/" + conf,
-                                       verbose=False,
-                                       discrete=discrete)
+    env = OpenTheChestsGym.from_config_file("../../configs/" + conf,
+                                            verbose=False,
+                                            discrete=discrete)
 
     # get model to use for training
     verbose_train = args.verbose_train
@@ -89,7 +89,7 @@ if __name__ == '__main__':
         results_plotter.plot_results([f"./{args.results_file}/{model_name}/{conf.split('.')[0]}/"],
                                      1e5,
                                      results_plotter.X_TIMESTEPS,
-                                     "Reward per time-step")
+                                     "Reward per _time-step")
 
     env.reset()
     mean_cumulated_reward, std_cumulated_reward, sum_rewards, best_eval_rewards, best_eval_actions, best_eval_steps = \

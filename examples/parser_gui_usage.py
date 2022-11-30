@@ -17,7 +17,7 @@ example_labelised = p._labelise("A", {"fg": "blue", "bg": "red"})
 # generate an event list from the instructions
 event_list = p.instantiate_pattern(instructions[0][2:])
 
-# make a noise event that ends before the time t
+# make a noise event that ends before the _time t
 noise_event = p.make_noise(before=10)
 
 # make an event

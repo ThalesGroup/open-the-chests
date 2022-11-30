@@ -3,11 +3,11 @@ import gym
 import yaml
 from gym.spaces import Dict, MultiBinary, Discrete, Box
 
-from src.openthechests.env.OpenTheChests import Environment
+from src.openthechests.env.OpenTheChests import OpenTheChests
 from src.openthechests.env.utils.helper_functions import boxes_to_discrete, parse_yaml_file
 
 
-class BoxEventEnv(gym.Env):
+class OpenTheChestsGym(gym.Env):
 
     def __init__(self, instructions: list,
                  all_event_types,
@@ -30,24 +30,24 @@ class BoxEventEnv(gym.Env):
         :param verbose: Print details when executing for debugging
         :param stb3: Use environment with stable baselines 3
         """
-        super(BoxEventEnv, self).__init__()
+        super(OpenTheChestsGym, self).__init__()
 
         # TODO (priority 3) switch to inherit and initialise from both gym and base env
         # instantiate environment
-        self.env = Environment(instructions=instructions,
-                               all_event_types=all_event_types,
-                               all_event_attributes=all_event_attributes,
-                               all_noise_types=all_noise_types,
-                               all_noise_attributes=all_noise_attributes,
-                               verbose=verbose,
-                               discrete=discrete,
-                               stb3=stb3)
+        self.env = OpenTheChests(instructions=instructions,
+                                 all_event_types=all_event_types,
+                                 all_event_attributes=all_event_attributes,
+                                 all_noise_types=all_noise_types,
+                                 all_noise_attributes=all_noise_attributes,
+                                 verbose=verbose,
+                                 discrete=discrete,
+                                 stb3=stb3)
 
         # define action space depending on usage of discrete actions or not
         if discrete:
-            self.action_space = Discrete(boxes_to_discrete(self.env.num_boxes))
+            self.action_space = Discrete(boxes_to_discrete(self.env._num_boxes))
         else:
-            self.action_space = MultiBinary(self.env.num_boxes)
+            self.action_space = MultiBinary(self.env._num_boxes)
 
         # Define a space for observations using environment information
         num_event_types = len(self.env.parser.all_types)
@@ -55,8 +55,8 @@ class BoxEventEnv(gym.Env):
                       self.env.parser.all_attributes.items()}
 
         self.observation_space = Dict({
-            "active": MultiBinary(self.env.num_boxes),
-            "_open": MultiBinary(self.env.num_boxes),
+            "active": MultiBinary(self.env._num_boxes),
+            "_open": MultiBinary(self.env._num_boxes),
             "e_type": Discrete(num_event_types),
             **attr_space,
             "start": Box(low=0, high=np.inf, shape=(1,)),

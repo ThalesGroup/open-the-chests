@@ -29,7 +29,7 @@ class Pattern:
         # used for GUI only to print full patterns
         self.full_pattern = []
 
-    def generate_timeout(self):
+    def sample_timeout(self):
         return random.uniform(0, self.timeout)
 
     def reset(self):

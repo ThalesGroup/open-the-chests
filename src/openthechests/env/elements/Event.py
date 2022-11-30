@@ -13,10 +13,10 @@ class Event:
 
         :param e_type: type describing event using string, usually just one character suffices for simpler environments
         :param e_attributes: dictionary of attributes following the form {'attribute_name': 'attribute value'}
-        :param t_start: time of start of event
-        :param t_end: time of end of event
+        :param t_start: _time of start of event
+        :param t_end: _time of end of event
 
-        Note: Event end time should be superior to event beginning : t_end >= t_start
+        Note: Event end _time should be superior to event beginning : t_end >= t_start
         """
         self.duration = None
         self.end = None

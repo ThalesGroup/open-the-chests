@@ -7,7 +7,7 @@ from stable_baselines3.common.monitor import Monitor
 
 from excog_experiments.Process import param_prepare
 from src.openthechests.globals import ENV_CONFIG_FOLDER
-from src.openthechests.env.OpenTheChestsGym import BoxEventEnv
+from src.openthechests.env.OpenTheChestsGym import OpenTheChestsGym
 
 pio.renderers.default = "browser"
 
@@ -18,9 +18,9 @@ if __name__ == '__main__':
     # conf = "multiple_per_box.yaml"
     # conf = "one_distinct_per_box.yaml"
     conf = "one_per_box.yaml"
-    env = BoxEventEnv.from_config_file(ENV_CONFIG_FOLDER + conf, False)
-    discrete_env = BoxEventEnv.from_config_file(ENV_CONFIG_FOLDER + conf, False, discrete=True)
-    verbose_env = BoxEventEnv.from_config_file(ENV_CONFIG_FOLDER + conf, True)
+    env = OpenTheChestsGym.from_config_file(ENV_CONFIG_FOLDER + conf, False)
+    discrete_env = OpenTheChestsGym.from_config_file(ENV_CONFIG_FOLDER + conf, False, discrete=True)
+    verbose_env = OpenTheChestsGym.from_config_file(ENV_CONFIG_FOLDER + conf, True)
 
     # env = Monitor(env, "deletethis")
     discrete_env = Monitor(discrete_env, "")
@@ -111,7 +111,7 @@ if __name__ == '__main__':
     for step in range(n_steps):
         counter += 1
         action, _ = model.predict(obs, deterministic=True)
-        num_boxes = verbose_env.env.num_boxes
+        num_boxes = verbose_env.env._num_boxes
         sure_action = [1] * num_boxes
         empty_action = [0] * num_boxes
         random_action = [[random.randint(0, 1) for i in range(num_boxes)]]

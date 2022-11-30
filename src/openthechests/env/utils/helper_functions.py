@@ -26,12 +26,12 @@ def boxes_to_discrete(num_boxes):
 
 def my_normal(mu, sigma):
     """
-    Clipped normal distribution that makes sure no negative time durations are generated.
+    Clipped normal distribution that makes sure no negative _time durations are generated.
     :param mu: Mean used for normal distribution.
     :param sigma: Variance used for normal distribution.
     :return: A sampled duration of minimal value (mu - sigma) and maximal value (mu + sigma.
     """
-    assert mu - sigma >= 0, "Allows negative time durations"
+    assert mu - sigma >= 0, "Allows negative _time durations"
     res = random.normalvariate(mu, sigma)
     res = max((mu - sigma), res)
     res = min((mu + sigma), res)

@@ -64,7 +64,7 @@ class TestElements(unittest.TestCase):
         self.assertEqual(pattern.get_timeout(), 10)
         self.assertEqual(pattern.get_noise(), 0)
         self.assertTrue(all(
-            np.array([pattern.generate_timeout() for _ in range(1000)]) <= pattern.get_timeout()
+            np.array([pattern.sample_timeout() for _ in range(1000)]) <= pattern.get_timeout()
         ))
 
     def testBox(self):

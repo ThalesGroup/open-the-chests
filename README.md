@@ -11,7 +11,7 @@ at which moment the chests can be opened.
 To install all libraries needed to execute the environment simply run:
 `pip install -r requirements.txt`
 
-The environment is then ready to execute by simply running the `main.py` file.
+The environment is then _ready to execute by simply running the `main.py` file.
 The execution of the main file generates an environment using a `YAML` configuration 
 file and then trains one of four algorithms: A2C, DQN, PPO, TRPO.
 The output of the main file can be configured by a set of parameters.

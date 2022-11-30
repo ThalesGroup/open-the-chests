@@ -4,7 +4,7 @@ import plotly.io as pio
 from stable_baselines3 import DQN
 
 from src.openthechests.globals import ENV_CONFIG_FOLDER
-from src.openthechests.env.OpenTheChestsGym import BoxEventEnv
+from src.openthechests.env.OpenTheChestsGym import OpenTheChestsGym
 
 pio.renderers.default = "browser"
 
@@ -16,9 +16,9 @@ if __name__ == '__main__':
     # conf = "one_distinct_per_box.yaml"
     # conf = "noise_one_per_box.yaml"
     conf = "one_per_box.yaml"
-    env = BoxEventEnv.from_config_file("../../configs/" + conf, False)
-    discrete_env = BoxEventEnv.from_config_file("../../configs/" + conf, False, discrete=True)
-    verbose_env = BoxEventEnv.from_config_file("../../configs/" + conf, True)
+    env = OpenTheChestsGym.from_config_file("../../configs/" + conf, False)
+    discrete_env = OpenTheChestsGym.from_config_file("../../configs/" + conf, False, discrete=True)
+    verbose_env = OpenTheChestsGym.from_config_file("../../configs/" + conf, True)
 
     print("Learning")
     model = DQN('MultiInputPolicy', discrete_env, verbose=1)
@@ -35,7 +35,7 @@ if __name__ == '__main__':
     for step in range(n_steps):
         counter += 1
         action, _ = model.predict(obs, deterministic=True)
-        num_boxes = verbose_env.env.num_boxes
+        num_boxes = verbose_env.env._num_boxes
         sure_action = [1] * num_boxes
         empty_action = [0] * num_boxes
         random_action = [[random.randint(0, 1) for i in range(num_boxes)]]

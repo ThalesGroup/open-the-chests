@@ -36,11 +36,11 @@ class Generator:
         """
         Generate a list of noise events proportional to the list of normal events for the pattern.
         Use the @self.noise proportion to keep track of the ratio.
-        We make sure to generate the noise events before the pattern end time.
+        We make sure to generate the noise events before the pattern end _time.
 
 
         :param pattern_noise:
-        :param pattern_end: The end time of the pattern.
+        :param pattern_end: The end _time of the pattern.
         :param pattern_len: The length of the pattern used to track noise to event ratio.
         :return: A list of noise events.
         """
@@ -51,7 +51,7 @@ class Generator:
 
     def _fill_event_stack(self, t, pattern, last_generated_event=None):
         """
-        Fill pattern stack starting at time @t with events generated following @self.instruction.
+        Fill pattern stack starting at _time @t with events generated following @self.instruction.
         Events are generated using the @self.parser.
 
         :param last_generated_event:
@@ -59,7 +59,7 @@ class Generator:
         :param t: Date of start of the generated pattern
         """
 
-        t = t + pattern.generate_timeout()
+        t = t + pattern.sample_timeout()
 
         generated_events = self.parser.instantiate_pattern(pattern.instruction)
         num_not_noise = len(generated_events)
