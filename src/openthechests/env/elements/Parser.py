@@ -47,6 +47,11 @@ class Parser:
         label_attributes = {key: self.all_attributes[key].index(value) for key, value in event.attributes.items()}
         return Event(label_e_type, label_attributes, event.start, event.end)
 
+    def labelled_to_event(self, event: Event) -> Event:
+        e_type = self.all_types[event.type]
+        attributes = {key: self.all_attributes[key][value] for key, value in event.attributes.items()}
+        return Event(e_type, attributes, event.start, event.end)
+
     def make_noise(self, before: float) -> Event:
         """
         Generate a random noise event ending before a certain date.

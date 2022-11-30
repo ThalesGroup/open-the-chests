@@ -39,30 +39,30 @@ def my_normal(mu, sigma):
 
 
 # TODO (priority 3) can this be more general?
-def to_stb3_obs_format(obs: dict):
+def to_stb3_obs_format(observation: dict):
     """
     Stable Baselines 3 only accepts observation output formats under the form of one level dictionaries.
     Since the standard environment output is under the form of a multi level dictionary containing object,
     we use this function to transform it into an acceptable formatting.
 
-    :param obs: Observation to be transformed.
+    :param observation: Observation to be transformed.
     :return: One level dictionary representing the observation.
     """
     final_dict = dict()
-    for key, value in obs.items():
+    for key, value in observation.items():
         if key == "state":
-            for state_key, state_value in obs[key].items():
-                obs[key][state_key] = np.array([int(xi) for xi in obs[key][state_key]])
+            for state_key, state_value in observation[key].items():
+                observation[key][state_key] = np.array([int(xi) for xi in observation[key][state_key]])
         elif key == "context":
-            event_dict = obs[key].to_dict()
+            event_dict = observation[key].to_dict()
             for event_time_key in ["start", "end", "duration"]:
                 event_dict[event_time_key] = np.array(event_dict[event_time_key]).reshape(-1)
-            obs[key] = event_dict
+            observation[key] = event_dict
 
-        if type(obs[key]) == dict:
-            final_dict = final_dict | obs[key]
+        if type(observation[key]) == dict:
+            final_dict = final_dict | observation[key]
         else:
-            final_dict[key] = obs[key]
+            final_dict[key] = observation[key]
     return final_dict
 
 

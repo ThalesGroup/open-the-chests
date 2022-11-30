@@ -7,6 +7,8 @@ from src.openthechests.env.elements.Pattern import Pattern
 from src.openthechests.env.utils.helper_functions import to_stb3_obs_format
 
 
+# TODO Priority 1: add seed option
+
 class OpenTheChests:
     def __init__(self,
                  instructions: list,
@@ -116,7 +118,7 @@ class OpenTheChests:
             action = [int(x) for x in bin(action)[2:]]
             action = (self._num_boxes - len(action)) * [0] + action
         # apply action and collect reward
-        reward = self._apply_action(action)
+        reward = self._apply_action(action=action)
 
         # advance environment and collect context
         self._internal_step()
@@ -160,13 +162,14 @@ class OpenTheChests:
             active.append(self.boxes[box_id].is_active())
             open.append(self.boxes[box_id].is_open())
 
-        box_states = {"active": active, "_open": open}
+        box_states = {"active": active, "open": open}
 
+        # TODO priority 3: rethink labeling
         obs = {"state": box_states, "context": self.parser.event_to_labelled(self._context
                                                                              )}
 
         if self._stb3:
-            obs = to_stb3_obs_format(obs)
+            obs = to_stb3_obs_format(observation=obs)
         return obs
 
     def _internal_step(self):
@@ -178,7 +181,7 @@ class OpenTheChests:
             print("Making one internal step to get context and advance timeline")
 
         signal = self._advance_timeline()
-        self._update_boxes(signal)
+        self._update_boxes(signal=signal)
 
     def _advance_timeline(self):
         # TODO (priority 4) doc
@@ -212,7 +215,7 @@ class OpenTheChests:
 
         """
         for box in self.boxes:
-            box.update([] if box.id not in signal else signal[box.id])
+            box.update(signal=[] if box.id not in signal else signal[box.id])
 
     def _apply_action(self, action):
         """
@@ -225,6 +228,8 @@ class OpenTheChests:
         :param action: The action to apply
         :return: Reward obtained for the selected action.
         """
+        assert len(action) == self._num_boxes, f"Got action of size {len(action)} while boxes are only {self._num_boxes}."
+
         # TODO (priority 4) doc
         # TODO (priority 2) make code prettier reduce all ifs and separate press and reward if possible
         self._action = action
@@ -236,7 +241,7 @@ class OpenTheChests:
             if action[box_id] == 1:
                 opened = current_box.press_button()
                 if opened:
-                    self.generator.disable_timeline(box_id)
+                    self.generator.disable_timeline(pattern_id=box_id)
                     reward.append(1)
                 else:
                     reward.append(-1)

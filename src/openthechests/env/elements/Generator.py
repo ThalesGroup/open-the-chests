@@ -97,12 +97,12 @@ class Generator:
 
         return next_event, signal
 
-    def disable_timeline(self, box_id):
+    def disable_timeline(self, pattern_id: int):
         """
         Remove the box_id from the timeline dictionary, disabling its evolution.
-        :param box_id: The box id to remove from the game.
+        :param pattern_id: The box id to remove from the game.
         """
-        self.event_stacks.pop(box_id, None)
+        self.event_stacks.pop(pattern_id, None)
 
     def get_timeline(self):
         return [event_stack[0] for event_stack in self.event_stacks.values()]
