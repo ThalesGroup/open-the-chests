@@ -21,6 +21,7 @@ all_noise_attributes = {'fg': ['yellow'], 'bg': ['yellow']}
 
 # TODO: priority 3 make a list of risky scenarios and test
 
+
 class TestElements(unittest.TestCase):
 
     def setUp(self):
