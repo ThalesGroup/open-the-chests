@@ -2,11 +2,11 @@ import plotly.io as pio
 from sb3_contrib import TRPO
 from stable_baselines3.common.monitor import Monitor
 from excog_experiments.Process import param_prepare
-from src.openthechests.globals import ENV_CONFIG_FOLDER
-from src.openthechests.src import BoxEventEnv
-from src.openthechests.src import evaluate_multiple_times, evaluate_multiple_times_isolate, \
+from src.openthechests.env.OpenTheChestsGym import OpenTheChestsGym
+from src.openthechests.env.utils.evaluators import evaluate_multiple_times, evaluate_multiple_times_isolate, \
     my_evaluate_isolate
-from src.openthechests.src import bug_print
+from src.openthechests.env.utils.helper_functions import bug_print
+from src.openthechests.globals import ENV_CONFIG_FOLDER
 
 pio.renderers.default = "browser"
 
@@ -16,8 +16,8 @@ pio.renderers.default = "browser"
 conf = "multiple_per_box.yaml"
 # conf = "one_distinct_per_box.yaml"
 # conf = "one_per_box.yaml"
-env = BoxEventEnv.from_config_file(ENV_CONFIG_FOLDER + conf, False)
-verbose_env = BoxEventEnv.from_config_file(ENV_CONFIG_FOLDER + conf, True)
+env = OpenTheChestsGym.from_config_file(ENV_CONFIG_FOLDER + conf, False)
+verbose_env = OpenTheChestsGym.from_config_file(ENV_CONFIG_FOLDER + conf, True)
 
 env = Monitor(env, "deletethis")
 verbose_env = Monitor(verbose_env, "deletethis")
@@ -60,7 +60,7 @@ model.learn(10000)
 bug_print(evaluate_multiple_times(env, model))
 
 conf = "multiple_per_box_isolate.yaml"
-first_env = BoxEventEnv.from_config_file(ENV_CONFIG_FOLDER + conf, False)
+first_env = OpenTheChestsGym.from_config_file(env_config_file=ENV_CONFIG_FOLDER + conf, verbose=False)
 
 bug_print(evaluate_multiple_times_isolate(env, model))
 

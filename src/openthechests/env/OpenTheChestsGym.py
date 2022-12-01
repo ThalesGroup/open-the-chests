@@ -45,9 +45,9 @@ class OpenTheChestsGym(gym.Env):
 
         # define action space depending on usage of discrete actions or not
         if discrete:
-            self.action_space = Discrete(boxes_to_discrete(self.env._num_boxes))
+            self.action_space = Discrete(boxes_to_discrete(self.env.get_num_boxes()))
         else:
-            self.action_space = MultiBinary(self.env._num_boxes)
+            self.action_space = MultiBinary(self.env.get_num_boxes())
 
         # Define a space for observations using environment information
         num_event_types = len(self.env.parser.all_types)
@@ -55,8 +55,8 @@ class OpenTheChestsGym(gym.Env):
                       self.env.parser.all_attributes.items()}
 
         self.observation_space = Dict({
-            "active": MultiBinary(self.env._num_boxes),
-            "_open": MultiBinary(self.env._num_boxes),
+            "active": MultiBinary(self.env.get_num_boxes()),
+            "open": MultiBinary(self.env.get_num_boxes()),
             "e_type": Discrete(num_event_types),
             **attr_space,
             "start": Box(low=0, high=np.inf, shape=(1,)),
@@ -65,17 +65,23 @@ class OpenTheChestsGym(gym.Env):
         })
 
     @classmethod
-    def from_config_file(cls, config_file_name, verbose=False, stb3=True, discrete=False):
+    def from_config_file(cls,
+                         env_config_file: str,
+                         pattern_configs_folder: str = None,
+                         verbose=False,
+                         stb3=True,
+                         discrete=False):
         """
         Use a YAML configuration file to define an environment.
 
+        :param pattern_configs_folder:
         :param stb3: Output format observation adapted to stable baselines or not.
-        :param config_file_name: The configuration file.
+        :param env_config_file: The configuration file.
         :param verbose: Give information during environment execution.
         :param discrete: Use discrete actions.
         :return: The newly defined environment.
         """
-        with open(config_file_name, "r") as f:
+        with open(env_config_file, "r") as f:
             conf = yaml.safe_load(f)
 
         all_event_types = conf["EVENT_TYPES"]["NORMAL"]
@@ -89,10 +95,10 @@ class OpenTheChestsGym(gym.Env):
             all_noise_attributes = conf["EVENT_ATTRIBUTES"]["NOISE"]
 
         all_instructions = []
-        # TODO (priority 2) fix this to either take folder in param or something else
-        config_file_instr_path = "/".join(config_file_name.split("/")[:-1])
-        for file in conf["INSTRUCTIONS"]:
-            instr = parse_yaml_file(config_file_instr_path + "/" + file)
+        if pattern_configs_folder is None:
+            pattern_configs_folder = "/".join(env_config_file.split("/")[:-1])
+        for pattern_conf_file in conf["INSTRUCTIONS"]:
+            instr = parse_yaml_file(pattern_configs_folder + "/" + pattern_conf_file)
             all_instructions.append(instr)
 
         env = cls(instructions=all_instructions,

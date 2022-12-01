@@ -83,17 +83,19 @@ class Generator:
         next_event = Event("Empty", {}, 0, 0)
         signal = dict()
         if self.event_stacks:
-            pattern_to_sample_id = min(self.event_stacks, key=lambda pattern_id: self.event_stacks[pattern_id][0])
+            pattern_to_sample_id = min(self.event_stacks,
+                                       key=lambda pattern_id: self.event_stacks[pattern_id][0])
             pattern_to_sample = self.patterns[pattern_to_sample_id]
             next_event = self.event_stacks[pattern_to_sample_id].pop(0)
             if not self.event_stacks[pattern_to_sample_id]:
-                signal = {pattern_to_sample_id: ["satisfied"]}
+                signal = {pattern_to_sample_id: ["satisfied", "active"]}
                 self.event_stacks[pattern_to_sample_id] = self._fill_event_stack(next_event.end,
                                                                                  pattern_to_sample,
                                                                                  next_event)
         for pattern_id, stack in self.event_stacks.items():
-            if next_event.end >= stack[0].start:
-                signal[pattern_id] = signal.get(pattern_id, []) + ["active"]
+            if pattern_id != pattern_to_sample:
+                if next_event.end >= stack[0].start:
+                    signal[pattern_id] = signal.get(pattern_id, []) + ["active"]
 
         return next_event, signal
 

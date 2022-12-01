@@ -4,7 +4,7 @@ from src.openthechests.env.elements.Generator import Generator
 from src.openthechests.env.elements.Parser import Parser
 from src.openthechests.env.elements.InteractiveBox import InteractiveBox
 from src.openthechests.env.elements.Pattern import Pattern
-from src.openthechests.env.utils.helper_functions import to_stb3_obs_format
+from src.openthechests.env.utils.helper_functions import to_stb3_obs_format, bug_print
 
 
 # TODO Priority 1: add seed option
@@ -66,6 +66,9 @@ class OpenTheChests:
             print(f"All event attributes : {all_event_attributes}")
             print(f"All noise attributes : {all_noise_attributes}")
             print(f"Initialising {self._num_boxes} boxes with patterns")
+
+    def get_num_boxes(self):
+        return self._num_boxes
 
     def reset(self):
         """
@@ -197,6 +200,7 @@ class OpenTheChests:
             print(f"Active timeline {self.generator.get_timeline()}")
 
         next_event, signal = self.generator.next_event()
+        bug_print(signal)
         if next_event.type != "Empty":
             self._context = next_event
             self._time = self._context.end
@@ -228,10 +232,9 @@ class OpenTheChests:
         :param action: The action to apply
         :return: Reward obtained for the selected action.
         """
-        assert len(action) == self._num_boxes, f"Got action of size {len(action)} while boxes are only {self._num_boxes}."
+        assert len(action) == self._num_boxes, f"Got action of size {len(action)} while boxes are {self._num_boxes}."
 
-        # TODO (priority 4) doc
-        # TODO (priority 2) make code prettier reduce all ifs and separate press and reward if possible
+        # TODO (priority 3) make code prettier reduce all ifs and separate press and reward if possible
         self._action = action
         if self.verbose:
             print(f"Applying action {action}")

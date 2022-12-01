@@ -1,6 +1,8 @@
+# TODO Priority 1: fix examples and move them somewhere where they make more sense
+
 from re import Pattern
-from examples.create_env.instructions import instructions
-from examples.create_env.env_info import all_event_types, all_noise_types, all_event_attributes, \
+from docs.examples.create_env.instructions import instructions
+from docs.examples.create_env.env_info import all_event_types, all_noise_types, all_event_attributes, \
     all_noise_attributes
 from src.openthechests.env.elements.Parser import Parser
 from src.openthechests.env.elements.Event import Event

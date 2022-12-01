@@ -146,7 +146,9 @@ class TestElements(unittest.TestCase):
                         all_noise_types=all_noise_types,
                         all_event_attributes=all_event_attributes,
                         all_noise_attributes=all_noise_attributes)
-        patterns = [Pattern(instruction=simple_instruction, id=0)]
+        pattern = Pattern(instruction=simple_instruction, id=0)
+        pattern.timeout = 1000
+        patterns = [pattern]
         generator = Generator(verbose=False,
                               parser=parser,
                               patterns=patterns)

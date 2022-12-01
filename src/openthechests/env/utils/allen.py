@@ -1,5 +1,7 @@
-import random
+# TODO Priority 1: review and refactor script files and add more allen functions
 
+
+import random
 from src.openthechests.env.elements.Event import Event
 from src.openthechests.env.utils.helper_functions import my_normal
 

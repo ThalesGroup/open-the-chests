@@ -1,6 +1,6 @@
-from examples.create_env.env_info import all_event_types, all_event_attributes, all_noise_types, \
+from docs.examples.create_env.env_info import all_event_types, all_event_attributes, all_noise_types, \
     all_noise_attributes
-from examples.create_env.instructions import instructions
+from docs.examples.create_env.instructions import instructions
 from src.openthechests.src import BoxEventEnv
 """
 Example : Create environment with gym wrapper
@@ -19,7 +19,7 @@ env = BoxEventEnv(instructions=instructions,
                   stb3=True)
 
 # initialise class using a YAML configuration file
-from_config = BoxEventEnv.from_config_file(config_file_name="example_config/multiple_per_box.yaml",
+from_config = BoxEventEnv.from_config_file(env_config_file="example_config/multiple_per_box.yaml",
                                            verbose=False,
                                            stb3=True)
 

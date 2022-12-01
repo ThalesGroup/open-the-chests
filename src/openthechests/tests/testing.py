@@ -1,3 +1,5 @@
+# TODO Priority 1: move testing script and transform into unitary tests
+
 import random
 
 import plotly.io as pio
@@ -11,8 +13,6 @@ from src.openthechests.env.OpenTheChestsGym import OpenTheChestsGym
 
 pio.renderers.default = "browser"
 
-
-# TODO (priority 2) add seed to environment
 
 if __name__ == '__main__':
     # conf = "multiple_per_box.yaml"
