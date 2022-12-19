@@ -24,7 +24,8 @@ class OpenTheChests:
         Environment that allows to interact and _open boxes after observing symbols.
         Example of environment usage and initialisation in examples.create_env .
 
-        :param instructions: List of commands allowing to define patterns for each box
+        :param instructions: List of commands allowing to define
+         for each box
         :param all_event_types: List of all possible event types that can take place
         :param all_event_attributes: Dictionary of al event types with a corresponding list of possible values
         :param all_noise_types: List of all possible types to be used for noise generation only

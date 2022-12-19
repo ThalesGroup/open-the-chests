@@ -1,9 +1,24 @@
 # TODO Priority 1: review and refactor script files and add more allen functions
 
+import numpy as np
 
-import random
 from src.openthechests.env.elements.Event import Event
 from src.openthechests.env.utils.helper_functions import my_normal
+
+
+def overlapped(second: Event, first: Event):
+    """
+    Allows to define the allen relation "overlaps" between two events.
+    The second event is set to begin at a randomly chosen time overlapping with the first one.
+
+    :param second: The second event to be placed after the first one.
+    :param first: The first event serving as reference to the second one.
+    :return: The transformed second event
+    """
+    second_earliest_start = max(0, first.end - second.start)
+    second_start = np.random.uniform(second_earliest_start, first.end)
+    new_event = second.shifted(second_start)
+    return new_event
 
 
 def after(second: Event, first: Event, gap_dist: (int, int)):
@@ -34,7 +49,7 @@ def during(second: Event, first: Event):
     """
     assert (first.duration >= second.duration), \
         f"An event can be longer than the one containing it! {first.duration} > {second.duration}"
-    gap_size = random.uniform(0, first.duration - second.duration)
+    gap_size = np.random.uniform(0, first.duration - second.duration)
     second_start = first.start + gap_size
     new_event = second.shifted(second_start)
     return new_event
@@ -52,4 +67,4 @@ def met_by(second: Event, first: Event):
     return second.shifted(first.end)
 
 
-allen_functions = {"after": after, "during": during, "met_by": met_by}
+allen_functions = {"after": after, "during": during, "met_by": met_by, "overlapped": overlapped}
