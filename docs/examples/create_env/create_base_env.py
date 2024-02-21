@@ -23,7 +23,11 @@ first_obs = env.reset()
 
 # define a binary vector with the same length as the number of boxes
 # this will define the action of which buttons to press
+<<<<<<< HEAD:docs/examples/create_env/create_base_env.py
 example_action = [[random.randint(0, 1) for i in range(env._num_boxes)]]
+=======
+example_action = [random.randint(0, 1) for i in range(env.num_boxes)]
+>>>>>>> 82184d34c9c7c49e5a86e17761753d20e60dbf20:openthechests/examples/create_env/create_base_env.py
 
 # apply the action and evolve the environment to get the next observation
 obs, reward, done, info = env.step(example_action)
