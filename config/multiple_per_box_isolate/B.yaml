@@ -1,0 +1,12 @@
+GENERAL:
+  delay: 20
+  noise: 0.9
+INSTANTIATE:
+  - name: b1
+    type: B
+    params:
+      bg: red
+      fg: green
+    duration:
+      mu: 7
+      sigma: 0

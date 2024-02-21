@@ -1,0 +1,12 @@
+GENERAL:
+  delay: 25
+  noise: 0
+INSTANTIATE:
+  - name: e1
+    type: E
+    params:
+      bg: red
+      fg: pink
+    duration:
+      mu: 5
+      sigma: 2

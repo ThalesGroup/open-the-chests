@@ -1,0 +1,126 @@
+processing_sequence:
+  - concurrent_techniques:
+      - module: Process
+        function: DQN_process
+        params:
+          batch_size: !explore batch_size
+          buffer_size: !explore buffer_size
+          exploration_final_eps: !explore exploration_final_eps
+          exploration_fraction: !explore exploration_fraction
+          target_update_interval: !explore target_update_interval
+          learning_starts: !explore learning_starts
+          train_freq: !explore train_freq
+          subsample_steps: !explore subsample_steps
+        global: monitor_file
+
+      - module: Process
+        function: TRPO_process
+        params:
+          batch_size: !explore batch_size
+          n_critic_updates: !explore n_critic_updates
+          cg_max_steps: !explore cg_max_steps
+          target_kl: !explore target_kl
+        global: monitor_file
+
+      - module: Process
+        function: A2C_process
+        params:
+          normalize_advantage: !explore normalize_advantage
+          max_grad_norm: !explore max_grad_norm
+          use_rms_prop: !explore use_rms_prop
+          ent_coef: !explore ent_coef
+          vf_coef: !explore vf_coef
+        global: monitor_file
+
+      - module: Process
+        function: PPO_process
+        params:
+          batch_size: !explore batch_size
+          ent_coef: !explore ent_coef
+          clip_range: !explore clip_range
+          n_epochs: !explore n_epochs
+          max_grad_norm: !explore max_grad_norm
+          vf_coef: !explore vf_coef
+        global: monitor_file
+
+
+    shared_params:
+      gamma: !explore gamma
+      gae_lambda: !explore gae_lambda
+      n_steps: !explore n_steps
+      learning_rate: !explore learning_rate
+      ortho_init: !explore learning_rate
+      net_arch: !explore net_arch
+      activation_fn: !explore activation_fn
+      seed: !explore seed
+
+    shared_data:
+      - data1
+
+parameter_space:
+  - ref: subsample_steps
+    values: [1, 2, 4, 8]
+  - ref: train_freq
+    values: [1, 2, 8, 16, 128, 256, 1000]
+  - ref: learning_starts
+    values: [1, 1000, 5000, 10000, 20000]
+  - ref: target_update_interval
+    values: [1, 1000, 5000, 10000, 15000, 20000]
+  - ref: exploration_fraction
+    values: !uniform 0, 0.5
+  - ref: exploration_final_eps
+    values: !uniform 0, 0.2
+  - ref: buffer_size
+    values: [10000, 50000, 100000, 1000000]
+  - ref: gamma
+    values: [0.9, 0.95, 0.98, 0.995, 0.9999]
+  - ref: gae_lambda
+    values: [0.8, 0.9, 0.95, 0.98, 1.0]
+  - ref: n_steps
+    values: [8, 32, 64, 128, 256, 512, 1024, 2048]
+  - ref: learning_rate
+    values: !uniform 0.00001, 1
+  - ref: net_arch
+    values: ["small", "medium"]
+  - ref: activation_fn
+    values: ["tanh", "relu"]
+  - ref: normalize_advantage
+    values: [False, True]
+  - ref: use_rms_prop
+    values: [False, True]
+  - ref: ent_coef
+    values: !uniform 0.00000001, 0.1
+  - ref: vf_coef
+    values: !uniform 0, 1
+  - ref: batch_size
+    values: [16, 32, 64, 128, 256, 512, 1024, 2048]
+  - ref: clip_range
+    values: [0.1, 0.2, 0.3, 0.4]
+  - ref: n_epochs
+    values: [1, 5, 10, 20]
+  - ref: max_grad_norm
+    values: [0.3, 0.6, 0.8, 1, 2, 5]
+  - ref: seed
+    values: [0, 42, 666]
+  - ref: n_critic_updates
+    values: [5, 10, 20, 25, 30]
+  - ref: cg_max_steps
+    values: [5, 10, 20, 25, 30]
+  - ref: target_kl
+    values: [0.1, 0.05, 0.03, 0.02, 0.01, 0.005, 0.001]
+
+global:
+  monitor_file: "excog_experiments/temp/<RUID>/"
+
+parameter_sampler:
+  class: LowDiscrepancyRandomSampler
+  params:
+    n_points: 250
+
+
+
+datasets:
+  data1: !raw_file excog_experiments/data
+
+
+

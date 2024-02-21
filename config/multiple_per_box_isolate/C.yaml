@@ -1,0 +1,12 @@
+GENERAL:
+  delay: 15
+  noise: 0.9
+INSTANTIATE:
+  - name: c1
+    type: C
+    params:
+      bg: pink
+      fg: orange
+    duration:
+      mu: 2
+      sigma: 2

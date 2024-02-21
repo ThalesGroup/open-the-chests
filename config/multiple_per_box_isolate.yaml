@@ -1,0 +1,38 @@
+EVENT_TYPES:
+  NORMAL:
+    - A
+    - B
+    - C
+    - D
+    - E
+  NOISE:
+    - G
+    - H
+    - F
+EVENT_ATTRIBUTES:
+  NORMAL:
+    fg:
+      - red
+      - blue
+      - green
+      - orange
+      - pink
+    bg:
+      - red
+      - blue
+      - green
+      - orange
+      - pink
+  NOISE:
+    fg:
+      - yellow
+      - purple
+      - black
+    bg:
+      - yellow
+      - purple
+      - black
+INSTRUCTIONS:
+  - multiple_per_box/A.yaml
+  - multiple_per_box_isolate/B.yaml
+  - multiple_per_box_isolate/C.yaml
