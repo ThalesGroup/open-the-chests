@@ -2,12 +2,12 @@ import unittest
 
 import numpy as np
 
-from src.openthechests.env.elements.Event import Event
-from src.openthechests.env.elements.Generator import Generator
-from src.openthechests.env.elements.InteractiveBox import InteractiveBox
-from src.openthechests.env.elements.Parser import Parser
-from src.openthechests.env.elements.Pattern import Pattern
-from src.openthechests.env.utils.helper_functions import bug_print
+from openthechests.env.elements.Event import Event
+from openthechests.env.elements.Generator import Generator
+from openthechests.env.elements.InteractiveBox import InteractiveBox
+from openthechests.env.elements.Parser import Parser
+from openthechests.env.elements.Pattern import Pattern
+from openthechests.env.utils.helper_functions import bug_print
 
 instruction = [
     {'command': 'delay', 'parameters': 10},

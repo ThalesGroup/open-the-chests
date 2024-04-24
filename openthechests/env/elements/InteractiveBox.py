@@ -1,8 +1,8 @@
-from src.openthechests.env.elements.Pattern import Pattern
+from openthechests.env.elements.Pattern import Pattern
 
 
 # TODO (priority 4) doc
-from src.openthechests.env.utils.helper_functions import bug_print
+from openthechests.env.utils.helper_functions import bug_print
 
 
 class InteractiveBox:

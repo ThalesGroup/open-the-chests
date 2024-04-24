@@ -1,10 +1,9 @@
-from typing import List
-from src.openthechests.env.GUI import BoxEventGUI
-from src.openthechests.env.elements.Generator import Generator
-from src.openthechests.env.elements.Parser import Parser
-from src.openthechests.env.elements.InteractiveBox import InteractiveBox
-from src.openthechests.env.elements.Pattern import Pattern
-from src.openthechests.env.utils.helper_functions import to_stb3_obs_format, bug_print
+from openthechests.env.GUI import BoxEventGUI
+from openthechests.env.elements.Generator import Generator
+from openthechests.env.elements.Parser import Parser
+from openthechests.env.elements.InteractiveBox import InteractiveBox
+from openthechests.env.elements.Pattern import Pattern
+from openthechests.env.utils.helper_functions import to_stb3_obs_format, bug_print
 
 
 # TODO Priority 1: add seed option
@@ -58,8 +57,8 @@ class OpenTheChests:
         self.generator = Generator(parser=self.parser,
                                    patterns=self.patterns,
                                    verbose=self.verbose)
-        self.GUI = BoxEventGUI(num_patterns=self._num_boxes,
-                               attr_to_color=self.parser.all_attributes)
+        # self.GUI = BoxEventGUI(num_patterns=self._num_boxes,
+        #                      attr_to_color=self.parser.all_attributes)
 
         if self.verbose:
             print(f"All event types : {all_event_types}")
@@ -67,6 +66,9 @@ class OpenTheChests:
             print(f"All event attributes : {all_event_attributes}")
             print(f"All noise attributes : {all_noise_attributes}")
             print(f"Initialising {self._num_boxes} boxes with patterns")
+
+    def get_all_types(self):
+        return self.parser.all_event_types + self.parser.all_noise_types
 
     def get_num_boxes(self):
         return self._num_boxes
@@ -201,7 +203,7 @@ class OpenTheChests:
             print(f"Active timeline {self.generator.get_timeline()}")
 
         next_event, signal = self.generator.next_event()
-        bug_print(signal)
+        # bug_print(signal)
         if next_event.type != "Empty":
             self._context = next_event
             self._time = self._context.end

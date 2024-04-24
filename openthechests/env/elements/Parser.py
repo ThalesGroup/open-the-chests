@@ -2,9 +2,9 @@ import copy
 import random
 from typing import List
 
-from src.openthechests.env.elements.Event import Event
-from src.openthechests.env.utils import helper_functions
-from src.openthechests.env.utils.allen import allen_functions
+from openthechests.env.elements.Event import Event
+from openthechests.env.utils import helper_functions
+from openthechests.env.utils.allen import allen_functions
 
 
 class Parser:

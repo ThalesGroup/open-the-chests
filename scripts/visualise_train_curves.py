@@ -1,6 +1,6 @@
 from matplotlib import pyplot as plt
 
-from src.openthechests.env.utils.modified_plotting import X_TIMESTEPS, plot_results
+from openthechests.env.utils.modified_plotting import X_TIMESTEPS, plot_results
 
 models = ["A2C", "DQN", "PPO", "TRPO"]
 confs = ["one_per_box", "one_distinct_per_box", "multiple_per_box", "noise_two_per_box"]

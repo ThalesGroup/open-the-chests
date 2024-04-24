@@ -8,9 +8,9 @@ from torch import nn
 
 from stable_baselines3 import A2C, PPO, DQN
 
-from src.openthechests import ENV_CONFIG_FOLDER, EXCOG_EXP_FOLDER
-from src.openthechests import BoxEventEnv
-from src.openthechests import evaluate_multiple_times
+from openthechests import ENV_CONFIG_FOLDER, EXCOG_EXP_FOLDER
+from openthechests import BoxEventEnv
+from openthechests import evaluate_multiple_times
 
 
 def load_env_monitor(data1, monitor_file, discrete=False):

@@ -4,8 +4,7 @@ import random
 import plotly.io as pio
 from stable_baselines3 import DQN
 
-from src.openthechests.env.OpenTheChestsGym import OpenTheChestsGym
-from src.openthechests.env.utils.helper_functions import bug_print
+from openthechests.env.OpenTheChestsGym import OpenTheChestsGym
 
 pio.renderers.default = "browser"
 

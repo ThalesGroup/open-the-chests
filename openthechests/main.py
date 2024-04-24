@@ -5,9 +5,9 @@ import pickle
 from stable_baselines3.common import results_plotter
 from stable_baselines3.common.monitor import Monitor
 
-from src.openthechests.env.OpenTheChestsGym import OpenTheChestsGym
+from openthechests.env.OpenTheChestsGym import OpenTheChestsGym
 from models import a2c_model, dqn_model, ppo_model, trpo_model
-from src.openthechests.env.utils.evaluators import evaluate_multiple_times
+from openthechests.env.utils.evaluators import evaluate_multiple_times
 
 available_models = ["A2C", "DQN", "PPO", "TRPO"]
 

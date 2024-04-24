@@ -4,8 +4,8 @@
 from docs.examples.create_env.env_info import all_event_types, all_noise_types, all_event_attributes, \
     all_noise_attributes
 from docs.examples.create_env.instructions import instructions
-from src.openthechests.env.GUI import BoxEventGUI
-from src.openthechests.env.elements.Parser import Parser
+from openthechests.env.GUI import BoxEventGUI
+from openthechests.env.elements.Parser import Parser
 
 p = Parser(all_event_types, all_noise_types, all_event_attributes, all_noise_attributes)
 

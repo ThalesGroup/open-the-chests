@@ -2,11 +2,11 @@ import plotly.io as pio
 from sb3_contrib import TRPO
 from stable_baselines3.common.monitor import Monitor
 from excog_experiments.Process import param_prepare
-from src.openthechests.env.OpenTheChestsGym import OpenTheChestsGym
-from src.openthechests.env.utils.evaluators import evaluate_multiple_times, evaluate_multiple_times_isolate, \
+from openthechests.env.OpenTheChestsGym import OpenTheChestsGym
+from openthechests.env.utils.evaluators import evaluate_multiple_times, evaluate_multiple_times_isolate, \
     my_evaluate_isolate
-from src.openthechests.env.utils.helper_functions import bug_print
-from src.openthechests.globals import ENV_CONFIG_FOLDER
+from openthechests.env.utils.helper_functions import bug_print
+from openthechests.globals import ENV_CONFIG_FOLDER
 
 pio.renderers.default = "browser"
 

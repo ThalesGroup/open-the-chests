@@ -2,8 +2,8 @@
 
 import numpy as np
 
-from src.openthechests.env.elements.Event import Event
-from src.openthechests.env.utils.helper_functions import my_normal
+from openthechests.env.elements.Event import Event
+from openthechests.env.utils.helper_functions import my_normal
 
 
 def overlapped(second: Event, first: Event):
