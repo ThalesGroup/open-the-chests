@@ -1,2 +1,0 @@
-PROJECT_FOLDER = "/home/S3G-LABS/u1226/dev/openchests/"
-ENV_CONFIG_FOLDER = PROJECT_FOLDER + "config/"

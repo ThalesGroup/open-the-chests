@@ -40,7 +40,6 @@ openthechests/
 │       ├── OpenTheChests.py
 │       └── OpenTheChestsGym.py
 │
-├── tests/
 ├── demo.py
 ├── README.md
 └── requirements.txt
