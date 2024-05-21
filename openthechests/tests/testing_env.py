@@ -1,8 +1,8 @@
 import unittest
 
-from openthechests.env.OpenTheChests import OpenTheChests
-from openthechests.env.elements.Event import Event
-from openthechests.env.utils.helper_functions import bug_print
+from openthechests.src.OpenTheChests import OpenTheChests
+from openthechests.src.elements.Event import Event
+from openthechests.src.utils.helper_functions import bug_print
 
 
 def simple_instruction_of_type(type):

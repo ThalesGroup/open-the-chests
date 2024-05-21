@@ -2,12 +2,12 @@ import unittest
 
 import numpy as np
 
-from openthechests.env.elements.Event import Event
-from openthechests.env.elements.Generator import Generator
-from openthechests.env.elements.InteractiveBox import InteractiveBox
-from openthechests.env.elements.Parser import Parser
-from openthechests.env.elements.Pattern import Pattern
-from openthechests.env.utils.helper_functions import bug_print
+from openthechests.src.elements.Event import Event
+from openthechests.src.elements.Generator import Generator
+from openthechests.src.elements.InteractiveBox import InteractiveBox
+from openthechests.src.elements.Parser import Parser
+from openthechests.src.elements.Pattern import Pattern
+from openthechests.src.utils.helper_functions import bug_print
 
 instruction = [
     {'command': 'delay', 'parameters': 10},
@@ -149,9 +149,7 @@ class TestElements(unittest.TestCase):
         pattern = Pattern(instruction=simple_instruction, id=0)
         pattern.timeout = 1000
         patterns = [pattern]
-        generator = Generator(verbose=False,
-                              parser=parser,
-                              patterns=patterns)
+        generator = Generator(parser=parser, patterns=patterns, verbose=False)
         generator.reset()
         event, signal = generator.next_event()
         self.assertEqual(event.get_type(), "A")
@@ -167,9 +165,7 @@ class TestElements(unittest.TestCase):
         self.assertTrue("satisfied" in another_signal[patterns[0].id])
 
         three_event_pattern = Pattern(instruction=three_event_instruction, id=42)
-        generator = Generator(verbose=False,
-                              parser=parser,
-                              patterns=[three_event_pattern])
+        generator = Generator(parser=parser, patterns=[three_event_pattern], verbose=False)
         generator.reset()
         info = [generator.next_event() for _ in range(3)]
         self.assertTrue("active" in info[0][1][three_event_pattern.id])

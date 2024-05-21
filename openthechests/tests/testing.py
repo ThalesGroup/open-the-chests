@@ -8,8 +8,8 @@ from stable_baselines3 import DQN
 from stable_baselines3.common.monitor import Monitor
 
 from excog_experiments.Process import param_prepare
-from openthechests.globals import ENV_CONFIG_FOLDER
-from openthechests.env.OpenTheChestsGym import OpenTheChestsGym
+from globals import ENV_CONFIG_FOLDER
+from openthechests.src.OpenTheChestsGym import OpenTheChestsGym
 
 pio.renderers.default = "browser"
 
