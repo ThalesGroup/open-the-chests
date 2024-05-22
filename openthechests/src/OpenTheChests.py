@@ -204,8 +204,6 @@ class OpenTheChests:
 
         self.done = self.check_end()
 
-        reward = 1 if self.done else 0
-
         if self.verbose:
             print("Step Done \n")
 
