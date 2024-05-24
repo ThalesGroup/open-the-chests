@@ -1,9 +1,0 @@
- Name                Version  License                 
- PyYAML              6.0.1    MIT License             
- cloudpickle         3.0.0    BSD License             
- gym                 0.26.2   MIT                     
- gym-notices         0.0.8    MIT License             
- importlib_metadata  7.1.0    Apache Software License 
- numpy               1.26.4   BSD License             
- pkg_resources       0.0.0    UNKNOWN                 
- zipp                3.18.2   MIT License             

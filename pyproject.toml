@@ -9,24 +9,22 @@ authors = [
   { name="Nicolas Museux", email="nicolas.museux@thalesgroup.com" },
   { name="Ivelina Stoyanova", email="ivelina.stoyanova@thalesgroup.com" },
 ]
-description = "Training environment for reinforcement learning with event-based states"
+description = "Training environment for reinforcement learning with event-based context"
 readme = "README.md"
 license = {file = "LICENSE"}
 requires-python = ">=3.9"
 dependencies = [
-    gym==0.21.0
-    matplotlib==3.6.0
-    numpy==1.23.3
-    pandas==1.5.0
-    plotly==5.10.0
-    PySimpleGUI==4.60.3
-    PyYAML==6.0
-    sb3-contrib==1.6.0
-    stable-baselines3==1.6.0
+    "gym>=0.21.0",
+    "numpy>=1.23.3",
+    "PyYAML>=6.0",
+    "plotly>=5.10.0",
+    "pandas>=1.5.0",
+    "matplotlib>=3.6.0",
+    "stable_baseline3>=1.6.0"
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
-    "License :: 0-clause BSD License",
+    "License :: 3-clause BSD License",
     "Operating System :: GNU/Linux",
 ]
 
