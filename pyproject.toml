@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=61.0", "setuptools_scm>=8"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "openthechests"
+dynamic = ["version"]
+authors = [
+  { name="Nicolas Museux", email="nicolas.museux@thalesgroup.com" },
+  { name="Ivelina Stoyanova", email="ivelina.stoyanova@thalesgroup.com" },
+]
+description = "Training environment for reinforcement learning with event-based states"
+readme = "README.md"
+license = {file = "LICENSE"}
+requires-python = ">=3.9"
+dependencies = [
+    gym==0.21.0
+    matplotlib==3.6.0
+    numpy==1.23.3
+    pandas==1.5.0
+    plotly==5.10.0
+    PySimpleGUI==4.60.3
+    PyYAML==6.0
+    sb3-contrib==1.6.0
+    stable-baselines3==1.6.0
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: 0-clause BSD License",
+    "Operating System :: GNU/Linux",
+]
+
+[project.urls]
+"Homepage" = "https://git.s3g-labs.trt/u1226/openthechests"
+"Bug Tracker" = "https://git.s3g-labs.trt/u1226/openthechests/-/issues"
+"Repository" = "https://git.s3g-labs.trt/u1226/openthechests.git"
+
+[tool.setuptools_scm]
+git_describe_command = "git describe"
+# can be empty if no extra settings are needed, presence enables setuptools_scm
+
