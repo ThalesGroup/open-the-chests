@@ -8,9 +8,9 @@ at which moment the chests can be opened.
 
 ## Quick Start
 
-To install all libraries needed to execute the environment simply run:
+To install Open-the-Chests and all its libraries simply run:
 ```shell
-pip install -r requirements.txt
+pip install openthechests
 ```
 The environment is then ready to execute by simply running the `demo.py` file.
 
@@ -63,6 +63,10 @@ openthechests/
 
 - `requirements.txt`: Lists the dependencies required to run the project.
 
+- `third_parties_licences.txt`: Lists the licences to apply from the dependencies
 
+# Licence
+
+Open-the-chests applies the 3-clause BSD licence.
 
 
