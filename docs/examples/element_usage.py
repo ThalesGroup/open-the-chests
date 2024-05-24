@@ -1,44 +1,53 @@
-# TODO Priority 1: fix examples and move them somewhere where they make more sense
+from copy import deepcopy
 
-from re import Pattern
 from docs.examples.create_env.instructions import instructions
-from docs.examples.create_env.env_info import all_event_types, all_noise_types, all_event_attributes, \
-    all_noise_attributes
-from openthechests.env.elements.Parser import Parser
-from openthechests.env.elements.Event import Event
-from openthechests.env.elements.InteractiveBox import InteractiveBox
+from docs.examples.create_env.env_info import all_event_types, all_noise_types, all_event_attributes, all_noise_attributes
+from openthechests.src.elements.Generator import Generator
+from openthechests.src.elements.Parser import Parser
+from openthechests.src.elements.Event import Event
+from openthechests.src.elements.Pattern import Pattern
 
-
-# create an event with the given attributes and start end _time
+# Create an event with the given attributes and start end time
 e = Event("A", {"attr1": "blue", "attr2": "green"}, 5, 10)
 shifted_forward = e.shifted(10)
 shifted_backward = e.shifted(-5)
 
-
-# instantiate a parser using all event information
+# Instantiate a parser using all event information
 parser = Parser(all_event_types, all_noise_types, all_event_attributes, all_noise_attributes)
 
-# add noise to the instruction
+# Add noise to the instruction
 instruction = instructions[0]
-# use line where command == noise
 instruction[1]["parameters"] = 0.5
 
-# define a pattern with the help of a list of instructions
-pattern = Pattern(parser=parser,
-                  instruction=instruction,
-                  verbose=False)
+# Define a pattern with the help of a list of instructions
+pattern_id = 1
+pattern = Pattern(instruction=instruction, id=pattern_id)
 
-# generate a list of noise event proportional to a list length
-noise_list = pattern.generate_noise_events(pattern_end=20, pattern_len=10)
+# Instantiate a generator
+generator = Generator(parser=parser, patterns=[pattern])
 
-# generate events following the instructions, generate noise and fill the pattern stack with events
-# starting at _time t
-pattern.fill_event_stack(t=15)
+# Reset the generator to initialize the event stacks
+generator.reset()
 
-# get the next event on the stack
-next_on_stack = pattern.get_next()
+expected_events = deepcopy(generator.event_stacks)
+print(f"Expected events to be generated: {expected_events}")
 
-# define a box using the selected pattern
-box = InteractiveBox(id=42,
-                     pattern=pattern,
-                     verbose=False)
+# Get the 5 next events from the generator
+for i in range(5):
+    next_event, signal = generator.next_event()
+    expected_event = expected_events[pattern_id][i]
+    print(f"Next event: {next_event}, Signal: {signal}")
+    assert expected_event == next_event
+
+    # Get the current timeline of events
+    next_events = generator.get_timeline()
+    print(f"Current timeline: {next_events}")
+
+# Disable the timeline for a specific pattern (if needed)
+generator.disable_timeline(pattern_id=1)
+
+# Get the current (empty) timeline of events
+timeline = generator.get_timeline()
+print(f"Empty timeline after disable: {timeline}")
+
+

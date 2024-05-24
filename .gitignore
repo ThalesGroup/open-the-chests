@@ -2,9 +2,9 @@
 .idea/
 __pycache__
 venv
-excog_experiments/excog_results/
-excog_experiments/tmp/
-excog_experiments/excog_experiments/
+../benchmark/excog_experiments/excog_results/
+../benchmark/excog_experiments/tmp/
+../benchmark/excog_experiments/excog_experiments/
 results/
 excog_results/
 *.png*
