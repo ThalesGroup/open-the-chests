@@ -10,4 +10,3 @@ excog_results/
 *.png*
 dist/**
 openthechests.egg-info/**
-openthechests/src/GUI.py
