@@ -67,6 +67,6 @@ openthechests/
 
 # Licence
 
-Open-the-chests applies the 3-clause BSD licence.
+Open-the-chests applies the 3-clauses BSD licence.
 
 

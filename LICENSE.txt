@@ -1,3 +1,5 @@
+BSD 3-clauses
+
 Copyright 2022-2024 Open-the-Chests Developers.
 All rights reserved.
 
