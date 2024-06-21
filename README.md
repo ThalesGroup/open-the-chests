@@ -1,3 +1,5 @@
+![image](./docs/otc_logo.png)
+
 # Open The Chests Project
 
 Open the Chests is a game that mimics the problem of situation recognition in a concurrent event-based environment.
