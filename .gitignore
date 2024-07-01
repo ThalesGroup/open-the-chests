@@ -10,3 +10,5 @@ excog_results/
 *.png*
 dist/**
 openthechests.egg-info/**
+todo/
+todo/**
