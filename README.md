@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 ![image](./docs/otc_logo.png)
 
 # Open The Chests Project
