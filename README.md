@@ -10,7 +10,7 @@ at which moment the chests can be opened.
 
 ## Quick Start
 
-To install Open-the-Chests and all its libraries simply run:
+**Open-the-Chests** is available on [Pypi](https://pypi.org/project/openthechests/). To install it and all its libraries simply run:
 ```shell
 pip install openthechests
 ```
