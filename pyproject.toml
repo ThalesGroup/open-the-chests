@@ -24,14 +24,14 @@ dependencies = [
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
-    "License :: 3-clause BSD License",
-    "Operating System :: GNU/Linux",
+    "License :: OSI Approved :: Three-Clause BSD (3BSD)",
+    "Operating System :: OS Independent",
 ]
 
 [project.urls]
-"Homepage" = "https://git.s3g-labs.trt/u1226/openthechests"
-"Bug Tracker" = "https://git.s3g-labs.trt/u1226/openthechests/-/issues"
-"Repository" = "https://git.s3g-labs.trt/u1226/openthechests.git"
+"Homepage" = "https://github.com/ThalesGroup/open-the-chests"
+"Bug Tracker" = "https://github.com/ThalesGroup/open-the-chests/issues"
+"Repository" = "https://github.com/ThalesGroup/open-the-chests.git"
 
 [tool.setuptools_scm]
 git_describe_command = "git describe"
