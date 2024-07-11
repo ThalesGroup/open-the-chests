@@ -17,9 +17,11 @@ pip install openthechests
 The environment is then ready to execute by simply running the `demo.py` file.
 
 ## Running the Demo
-The execution of the demo file generates an environment using a `YAML` configuration
+To test the environment, download the `docs` and `demo.py` folders.
+The `docs` folder contains examples of usage of the environment that are representative of its functioning as well as an example configuration for the demonstration. 
+The execution of the `demo.py` file generates an environment using a `YAML` configuration
 file and allows you to interact with the environment manually.
-To run the demo, use the following command:
+To run the demonstration, use the following command:
 ```shell
 python demo.py
 ```
