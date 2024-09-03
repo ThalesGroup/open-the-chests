@@ -71,3 +71,22 @@ openthechests/
 
 Open-the-chests applies the 3-clauses BSD licence.
 
+# Citation
+
+If you use this training environmenet please cite:
+
+```
+@inproceedings{stoy24otc,
+    author = {Stoyanova, Ivelina and Museux, Nicolas and Nguyen, Sao-Maï and Filliat, David},
+    title = {Open the {C}hests: An {E}nvironment for {A}ctivity {R}ecognition and {S}equential {D}ecision {P}roblems {U}sing {T}emporal {L}ogic},
+    year = {2024},
+    month = {October},
+    booktitle = {31st International Symposium on Temporal Representation and Reasoning},
+    address = {Montpellier, France},
+    location =	{Dagstuhl, Germany},
+    publisher =	{Schloss Dagstuhl -- Leibniz-Zentrum f{\"u}r Informatik},
+    series =	{Leibniz International Proceedings in Informatics (LIPIcs)},
+}
+
+```
+
