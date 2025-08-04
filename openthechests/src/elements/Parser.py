@@ -1,10 +1,9 @@
 import copy
 import random
-from typing import List
+from typing import List, Dict
 
-from openthechests.src.elements.Event import Event
-from openthechests.src.utils import helper_functions
-from openthechests.src.utils.allen import allen_functions
+from openthechests.openthechests.src.elements.Event import Event
+from openthechests.openthechests.src.utils.allen import allen_relations
 
 
 class Parser:

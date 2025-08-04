@@ -1,5 +1,6 @@
 # TODO Priority 1: review and refactor script files and add more allen functions
 from copy import deepcopy
+from typing import List, Dict
 
 import numpy as np
 
@@ -124,3 +125,5 @@ allen_functions = {"after": after,
                    "starts": starts,
                    "ends": ends,
                    "equals": equals}
+
+allen_relations = allen_functions.keys()

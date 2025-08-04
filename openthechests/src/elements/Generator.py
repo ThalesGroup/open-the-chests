@@ -3,9 +3,9 @@ from typing import List, Dict
 
 import numpy as np
 
-from openthechests.src.elements.Event import Event
-from openthechests.src.elements.Parser import Parser
-from openthechests.src.elements.Pattern import Pattern
+from openthechests.openthechests.src.elements.Event import Event
+from openthechests.openthechests.src.elements.Parser import Parser
+from openthechests.openthechests.src.elements.Pattern import Pattern
 
 
 class Generator:
