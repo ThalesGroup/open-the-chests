@@ -5,6 +5,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from typing import List, Union
+import matplotlib.patheffects as path_effects
 
 from stable_baselines3.common.monitor import load_results
 
@@ -120,13 +121,14 @@ def plot_results(
 
 def draw_event_sequence_matplot(events: List[Union[dict, "Event"]],
                                 start_time: float = 0,
-                                end_time: float = 50,
+                                end_time: float = None,
                                 env_name: str = "Example") -> None:
     """
     Draw a horizontal timeline of events using matplotlib.
 
     Each event is shown as a colored bar, with its label centered inside.
     Events are placed on separate rows if they overlap in time.
+    The x-axis automatically adjusts to the maximum end time if `end_time` is None.
 
     Parameters
     ----------
@@ -138,9 +140,9 @@ def draw_event_sequence_matplot(events: List[Union[dict, "Event"]],
         - bg_color (str) or attributes["bg"] (for Event)
         - symbol_color (str) or attributes["fg"] (for Event)
     start_time : float, optional
-        Minimum time to display on the x-axis.
+        Minimum time to display on the x-axis (default is 0).
     end_time : float, optional
-        Maximum time to display on the x-axis.
+        Maximum time to display on the x-axis. If None, it will be inferred from events.
     env_name : str, optional
         Name of the environment to show in the plot title.
 
@@ -149,30 +151,37 @@ def draw_event_sequence_matplot(events: List[Union[dict, "Event"]],
     None
         Displays a matplotlib figure of the event timeline.
     """
-    fig, ax = plt.subplots(figsize=(15, 5))  # wide figure for better readability
+    fig, ax = plt.subplots(figsize=(15, 5))
 
-    last_event_end_times = []  # Tracks last end time per row to avoid overlap
-    height = 1  # Height of each event bar
+    last_event_end_times = []
+    height = 1
+
+    # Infer end_time if not provided
+    if end_time is None:
+        end_time = max(
+            (getattr(e, "end", 0) for e in events),
+            default=start_time
+        ) + 1
 
     for event in events:
-        # Support both dicts and Event objects
-        if hasattr(event, "start"):  # Event instance
+        # Support dicts and Event objects
+        if hasattr(event, "start"):
             event_name = getattr(event, "type", "?")
             start = event.start
             end = event.end
             color = event.attributes.get("bg", "#CCCCCC")
             text_color = event.attributes.get("fg", "#000000")
-        else:  # dict format
+        else:
             event_name = event.get("symbol", "?")
             start = event.get("start_time", 0)
             end = event.get("end_time", 0)
             color = event.get("bg_color", "#CCCCCC")
             text_color = event.get("symbol_color", "#000000")
 
-        # Determine row placement (to avoid overlaps)
+        # Find row to place event
         line = 0
         while line < len(last_event_end_times):
-            if start >= last_event_end_times[line]:  # Fits in this row
+            if start >= last_event_end_times[line]:
                 break
             line += 1
         if line == len(last_event_end_times):
@@ -180,17 +189,27 @@ def draw_event_sequence_matplot(events: List[Union[dict, "Event"]],
         else:
             last_event_end_times[line] = end
 
-        # Draw rectangle for event
+        # Draw event rectangle
         y_pos = line * (height + 0.5)
-        rect_width = max(end - start, 0.1)  # Ensure non-zero width
+        rect_width = max(end - start, 0.1)
         rect = patches.Rectangle((start, y_pos), rect_width, height,
                                  color=color, alpha=0.7)
         ax.add_patch(rect)
 
-        # Add centered label
-        ax.text(start + rect_width / 2, y_pos + height / 2,
-                event_name, ha='center', va='center',
-                color=text_color, fontsize=12, fontweight='bold')
+        # Draw event letter with black outline
+        txt = ax.text(start + rect_width / 2, y_pos + height * 0.65,
+                      event_name, ha='center', va='center',
+                      color=text_color, fontsize=12, fontweight='bold')
+        txt.set_path_effects([
+            path_effects.Stroke(linewidth=3, foreground="black"),
+            path_effects.Normal()
+        ])
+
+        # Draw duration label just below the letter
+        duration = round(end - start, 2)
+        ax.text(start + rect_width / 2, y_pos + height * 0.35,
+                f"{duration}s", ha='center', va='center',
+                fontsize=8, color='black')
 
     # Configure plot
     ax.set_xlim(start_time, end_time)
@@ -199,3 +218,4 @@ def draw_event_sequence_matplot(events: List[Union[dict, "Event"]],
     ax.set_ylabel("Event Sequences")
     ax.set_title(f"Observed Event Timeline ({env_name})")
     plt.show()
+
