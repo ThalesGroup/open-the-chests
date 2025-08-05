@@ -10,36 +10,50 @@ from openthechests.openthechests.src.elements.Pattern import Pattern
 
 class Generator:
     """
-    A class to generate events based on patterns and a parser.
+    Generates synthetic event sequences from a set of `Pattern` objects using a `Parser`.
 
-    Attributes:
-    -----------
+    This class orchestrates:
+    - Sampling of patterns (structured event instructions)
+    - Temporal placement of events in time
+    - Injection of noise events
+    - Management of "event stacks" per pattern, which represent pending events in the simulation
+
+    It is primarily used inside an environment loop to produce:
+    - The **next event** to process
+    - Corresponding **signals** indicating pattern state changes (e.g., "active", "satisfied")
+
+    Attributes
+    ----------
     parser : Parser
-        The parser structure used for sampling events.
-    patterns : Dict[int, Pattern]
-        A dictionary mapping pattern IDs to their respective Pattern objects.
+        The parser responsible for instantiating events and adding noise.
+        Must implement `instantiate_pattern()` and `make_noise()`.
+    patterns : dict[int, Pattern]
+        A mapping from pattern IDs to `Pattern` instances.
     verbose : bool
-        A flag to enable verbose output for debugging purposes.
-    event_stacks : dict
-        A dictionary storing event stacks for each pattern.
+        If True, prints debug output during event generation.
+    event_stacks : dict[int, list[Event]]
+        Internal storage of pending events per pattern.
+        Each value is a list of `Event` objects, sorted by start time.
 
-    Methods:
-    --------
-    reset():
-        Resets the event stacks and fills them with generated events based on patterns.
-    next_event():
-        Retrieves the next event to be processed and updates the event stacks.
-    disable_timeline(pattern_id: int):
-        Disables the timeline for a specific pattern by removing its event stack.
-    get_timeline():
-        Returns the current timeline of events.
+    Methods
+    -------
+    reset() -> None
+        Clears all event stacks and regenerates them from scratch for each pattern.
+    next_event() -> tuple[Event, dict]
+        Returns the chronologically earliest event across all patterns
+        and updates stacks/signals accordingly.
+    disable_timeline(pattern_id: int) -> None
+        Removes the event stack for a given pattern ID.
+    get_timeline() -> list[Event]
+        Returns the first (next) event from each pattern's stack.
 
-    Hidden Methods
-    --------------
-    _generate_noise_events(pattern_noise, pattern_end, pattern_len):
-        Generates a list of noise events proportional to the list of normal events for the pattern.
-    _fill_event_stack(t, pattern, last_generated_event=None):
-        Fills the pattern stack starting at time t with generated events.
+    Private Methods
+    ---------------
+    _generate_noise_events(pattern_noise: float, pattern_end: float, pattern_len: int) -> list[Event]
+        Samples noise events according to a binomial distribution and shifts them to before `pattern_end`.
+    _fill_event_stack(t: float, pattern: Pattern, last_generated_event: Event | None) -> list[Event]
+        Generates all events for a pattern starting from time `t`, including noise,
+        and returns them as a sorted event list.
     """
 
     def __init__(self,
@@ -47,19 +61,20 @@ class Generator:
                  patterns: List[Pattern],
                  verbose: bool = False):
         """
-        Initializes the Generator with a parser, patterns, and an optional verbosity flag.
+        Initialize the Generator.
 
-        :param parser: Parser
-            The parser structure used for sampling events.
-        :param patterns: List[Pattern]
-            A list of patterns used to generate events.
-        :param verbose: bool, optional
-            A flag to enable verbose output for debugging purposes (default is False).
+        Parameters
+        ----------
+        parser : Parser
+            Responsible for instantiating event objects and generating noise.
+        patterns : list[Pattern]
+            The set of patterns to generate from.
+        verbose : bool, optional
+            If True, enable debug printing.
         """
         self.parser: Parser = parser
-        self.patterns: Dict[(int, Pattern)] = {pattern.id: pattern for pattern in patterns}
+        self.patterns: Dict[int, Pattern] = {pattern.id: pattern for pattern in patterns}
         self.verbose: bool = verbose
-
         self.event_stacks = dict()
 
     def reset(self):
