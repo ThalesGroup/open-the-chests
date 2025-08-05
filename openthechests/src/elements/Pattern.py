@@ -18,17 +18,21 @@ def validate_pattern_instructions(instructions: List[Dict]) -> None:
     - Allen relation commands refer to defined variables.
     - Allen relation commands are among supported types.
     - Optional fields like 'gap_dist' are structurally valid.
+    - Every event variable participates in at least one Allen relation.
 
     Parameters
     ----------
     instructions : List[Dict]
         The instruction list to validate.
+
     Raises
     ------
     ValueError
-        If any instruction is malformed, has missing keys, or refers to undefined variables.
+        If any instruction is malformed, has missing keys, refers to undefined variables,
+        or an event does not participate in at least one Allen relation.
     """
     defined_vars = set()
+    participated_vars = set()
     delay_seen = False
     noise_seen = False
 
@@ -78,6 +82,10 @@ def validate_pattern_instructions(instructions: List[Dict]) -> None:
             if src not in defined_vars or tgt not in defined_vars:
                 raise ValueError(f"'{cmd}' refers to undefined variable(s): {src}, {tgt} at index {i}.")
 
+            # Track participation
+            participated_vars.add(src)
+            participated_vars.add(tgt)
+
             # Enforce required 'other' fields for specific relations
             if cmd == "after":
                 if "other" not in instr or "gap_dist" not in instr["other"]:
@@ -89,8 +97,14 @@ def validate_pattern_instructions(instructions: List[Dict]) -> None:
                 # For other relations, 'other' must not include unsupported fields
                 if "other" in instr and instr["other"] not in (None, {}):
                     raise ValueError(f"Unexpected 'other' field in '{cmd}' at index {i}; only 'after' supports it.")
+
         else:
             raise ValueError(f"Unknown command '{cmd}' at index {i}.")
+
+    # Final check: every defined variable must participate in at least one relation
+    for var in defined_vars:
+        if var not in participated_vars:
+            raise ValueError(f"Event variable '{var}' does not participate in any Allen relation.")
 
 
 class Pattern:
