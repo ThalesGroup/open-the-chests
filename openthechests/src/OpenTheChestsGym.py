@@ -1,3 +1,6 @@
+import random
+from typing import Optional
+
 import numpy as np
 import gymnasium as gym
 import yaml
@@ -220,15 +223,21 @@ class OpenTheChestsGym(gym.Env):
         obs, reward, done, info = self.env.step(action)
         return obs, reward, done, None, info
 
-    def reset(self):
-        """
-        Resets the environment to a new episode and returns the initial observation.
+    def reset(self, seed: Optional[int] = None, options: Optional[dict] = None):
+        """Start a new episode.
 
-        Returns
-        -------
-        observation : dict
-            The initial observation of the environment.
+        Args:
+            seed: Random seed for reproducible episodes
+            options: Additional configuration (unused for now)
+
+        Returns:
+            tuple: (observation, info) for the initial state
         """
+
+        if seed is not None:
+            random.seed(seed)
+            np.random.seed(seed)
+
         return self.env.reset()
 
     def render(self):
