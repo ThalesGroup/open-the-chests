@@ -215,13 +215,13 @@ class OpenTheChestsGym(gym.Env):
             Cumulative reward from this action.
         done : bool
             Whether the episode has ended.
-        truncated : None
-            Placeholder for Gym's API compatibility (unused here).
+        truncated : bool
+            Whether the episode has ended due to a timeout.
         info : dict
             Metadata (currently unused).
         """
-        obs, reward, done, info = self.env.step(action)
-        return obs, reward, done, None, info
+        obs, reward, done, truncated, info = self.env.step(action)
+        return obs, reward, done, truncated, info
 
     def reset(self, seed: Optional[int] = None, options: Optional[dict] = None):
         """Start a new episode.

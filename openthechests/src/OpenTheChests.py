@@ -16,6 +16,8 @@ class OpenTheChests:
 
     Attributes
     ----------
+    truncated: bool
+        Whetehr the environment has reached a timeout.
     discrete : bool
         Whether the environment uses discrete (integer) actions.
     verbose : bool
@@ -119,6 +121,7 @@ class OpenTheChests:
         self._time = 0
         self._num_boxes = len(instructions)
 
+        self.truncated = None
         self.discrete = discrete
         self.verbose = verbose
         self.done = False
@@ -249,12 +252,12 @@ class OpenTheChests:
         obs = self.get_observations()
 
         # Check whether the episode should end
-        self.done = self.check_end()
+        self.done, self.truncated = self.check_end()
 
         if self.verbose:
             print("Step Done \n")
 
-        return obs, reward, self.done, dict()
+        return obs, reward, self.done, self.truncated, dict()
 
     def get_observations(self):
         """
@@ -426,24 +429,17 @@ class OpenTheChests:
 
     def check_end(self):
         """
-        Determines whether the environment episode should terminate.
-
-        The environment is considered finished in either of the following scenarios:
-        1. **All boxes are opened**: Every box has been successfully opened by the agent.
-        2. **Too many deactivations**: The total number of deactivations across all boxes
-           exceeds the environment's `_timeout_threshold`, signaling failure.
-
-        This function is typically called at the end of each step to update the `done` status.
+        Determines whether the environment episode should terminate or truncate.
 
         Returns
         -------
-        bool
-            True if the environment is done (either all boxes opened or deactivation threshold reached),
-            False otherwise.
+        tuple[bool, bool]
+            - terminated (bool): True if all boxes are opened (task success).
+            - truncated (bool): True if the number of box deactivations exceeds the timeout threshold (failure).
         """
-        all_end = all([box.is_open() for box in self.boxes])
-        all_deactivations = sum([b.num_deactivations for b in self.boxes])
-        return all_end or (all_deactivations >= self._timeout_threshold)
+        terminated = all(box.is_open() for box in self.boxes)
+        truncated = sum(box.num_deactivations for box in self.boxes) >= self._timeout_threshold
+        return terminated, truncated
 
     def render(self):
         """
