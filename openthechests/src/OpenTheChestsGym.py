@@ -238,7 +238,7 @@ class OpenTheChestsGym(gym.Env):
             random.seed(seed)
             np.random.seed(seed)
 
-        return self.env.reset()
+        return self.env.reset(), dict()
 
     def render(self):
         self.env.render()
