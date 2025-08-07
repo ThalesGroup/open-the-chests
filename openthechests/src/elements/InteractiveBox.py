@@ -121,7 +121,7 @@ class InteractiveBox:
         assert not self.state["active"], "Box is already active."
 
         if self.verbose:
-            print(f"Activating box {self.id}")
+            print(f"Activating box {self.id}.")
         self.state["active"] = True
         self.state["_ready"] = False
         self.state["_open"] = False
@@ -139,7 +139,7 @@ class InteractiveBox:
         assert self.state["active"], "Box must be active to be deactivated."
 
         if self.verbose:
-            print(f"Deactivating box {self.id}")
+            print(f"Deactivating box {self.id}.")
         self.num_deactivations += 1
         self.state["active"] = False
         self.state["_ready"] = False

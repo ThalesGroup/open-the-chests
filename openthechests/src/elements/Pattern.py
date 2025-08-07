@@ -102,9 +102,10 @@ def validate_pattern_instructions(instructions: List[Dict]) -> None:
             raise ValueError(f"Unknown command '{cmd}' at index {i}.")
 
     # Final check: every defined variable must participate in at least one relation
-    for var in defined_vars:
-        if var not in participated_vars:
-            raise ValueError(f"Event variable '{var}' does not participate in any Allen relation.")
+    if len(defined_vars)>1:
+        for var in defined_vars:
+            if var not in participated_vars:
+                raise ValueError(f"Event variable '{var}' does not participate in any Allen relation.")
 
 
 class Pattern:

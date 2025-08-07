@@ -1,75 +1,82 @@
 from openthechests.openthechests.src.elements.Generator import Generator
-from openthechests.openthechests.src.elements.Parser import Parser
 from openthechests.openthechests.src.elements.InteractiveBox import InteractiveBox
+from openthechests.openthechests.src.elements.Parser import Parser
 from openthechests.openthechests.src.elements.Pattern import Pattern
 from openthechests.openthechests.src.utils.helper_functions import to_stb3_obs_format
 
 
 class OpenTheChests:
     """
-    Environment that allows interaction with and opening of boxes after observing symbols.
-    Example of environment usage and initialization in examples.create_env.
+    OpenTheChests is a symbolic event-based interactive environment where players observe timed events
+    and must open boxes (chests) at the right time based on symbolic and temporal cues.
 
-    Attributes:
-    -----------
+    It is used for tasks involving pattern recognition, temporal reasoning, and decision-making.
+    The environment generates complex, noisy event sequences and provides symbolic observations
+    and contextual cues.
+
+    Attributes
+    ----------
     discrete : bool
-        Flag to determine if actions are in integer format.
+        Whether the environment uses discrete (integer) actions.
     verbose : bool
-        Flag to enable detailed print statements for debugging.
+        Whether to print debug information.
     done : bool
-        Flag to indicate if the environment episode is done.
-    patterns : list
-        The list of patterns used to define the behavior of the boxes.
-    boxes : list
-        The list of InteractiveBox objects in the environment.
+        Whether the environment has reached a terminal state.
+    patterns : list[Pattern]
+        The list of Pattern objects defining event structures for each box.
+    boxes : list[InteractiveBox]
+        List of interactive boxes that can be opened by pressing buttons.
     parser : Parser
-        The parser used to interpret event and noise information.
+        Used to instantiate events, generate noise, and convert event observations to a labeled format.
     generator : Generator
-        The generator used to create event stacks based on patterns.
+        Responsible for producing timelines of events (both real and noisy) from patterns.
 
-    Hidden Attributes:
-    ------------------
+    Hidden Attributes
+    -----------------
     _timeout_threshold : int
-        The threshold for the number of times boxes can be collectively deactivated before ending the game.
-    _action : list
-        The current action being applied in the environment.
+        Max number of allowed box deactivations before ending the episode.
+    _action : list[int]
+        The last action taken in the environment.
     _context : Event
-        The current event context in the environment.
+        The most recent event in the environment timeline.
     _stb3 : bool
-        Flag to determine if the environment should be compatible with Stable Baselines 3.
+        Whether to format observations for Stable Baselines 3 compatibility.
     _time : float
-        The current time in the environment.
+        The current simulated time in the environment.
     _num_boxes : int
-        The number of boxes in the environment.
+        Number of interactive boxes in the environment.
 
-    Methods:
-    --------
-    uses_discrete_actions():
-        Returns whether the environment uses discrete actions.
-    get_all_types():
-        Returns a list of all event and noise types.
-    get_num_boxes():
-        Returns the number of boxes in the environment.
-    reset():
-        Resets the environment to its initial state.
-    step(action):
-        Advances the environment by one step using the selected action.
-    get_observations():
-        Returns the current observations of the environment.
-    check_end():
-        Verifies if it is time to send a done signal indicating the end of the game.
+    Methods
+    -------
+    reset() -> tuple
+        Resets the environment, including boxes, patterns, and timeline.
+    step(action) -> tuple
+        Applies an action, advances time, updates the environment, and returns observation, reward, done, and info.
+    get_observations() -> dict
+        Returns the current state and context as the observation.
+    uses_discrete_actions() -> bool
+        Returns whether the environment expects discrete actions.
+    get_all_types() -> list
+        Returns all event and noise types used in the environment.
+    get_num_boxes() -> int
+        Returns the number of interactive boxes (chests) in the environment.
+    check_end() -> bool
+        Checks whether the episode has ended based on conditions.
+    render() -> None
+        Updates the GUI display (if applicable).
 
-    Hidden Methods:
-    ---------------
-    _internal_step():
-        Executes one internal step to advance the environment timeline and update context.
-    _advance_timeline():
-        Advances the internal environment evolution by getting the next event.
-    _update_boxes(signal):
-        Updates the states of all boxes based on the current environment time and evolution.
-    _apply_action(action):
-        Applies the given action to the system and updates the environment according to action effects.
+    Hidden Methods
+    --------------
+    _internal_step() -> None
+        Advances the timeline by one step and updates context and box states.
+    _advance_timeline() -> dict
+        Gets the next event from the generator and moves time forward.
+    _update_boxes(signal: dict) -> None
+        Applies the signal to all boxes to update their internal state.
+    _apply_action(action: list[int]) -> int
+        Applies a user action (open box) and returns the resulting reward.
     """
+
     def __init__(self,
                  instructions: list,
                  all_event_types: list,
@@ -81,77 +88,98 @@ class OpenTheChests:
                  stb3: bool = False,
                  discrete: bool = False):
         """
-        Initializes the OpenTheChests environment with the given parameters.
+        Initializes the environment with a list of event patterns and configuration.
 
-        :param instructions: list
-            List of commands allowing to define behavior for each box.
-        :param all_event_types: list
-            List of all possible event types that can take place.
-        :param all_event_attributes: dict
-            Dictionary of all event types with a corresponding list of possible values.
-        :param all_noise_types: list
-            List of all possible types to be used for noise generation only.
-        :param all_noise_attributes: dict
-            Dictionary of all possible types to be used for noise generation only.
-        :param verbose: bool
-            Flag to enable detailed print statements for debugging.
-        :param timeout_threshold: int, optional
-            The threshold for the number of times boxes can be collectively deactivated before ending the game (default is 30).
-        :param stb3: bool, optional
-            Flag to determine if the environment should be compatible with Stable Baselines 3 (default is False).
-        :param discrete: bool, optional
-            Flag to determine if actions are in integer format (default is False).
-
-        Note: When accepting integer actions, each value will be transformed into its corresponding binary number.
+        Parameters
+        ----------
+        instructions : list
+            Instruction sets used to define behavior for each box.
+        all_event_types : list
+            List of all symbolic event types.
+        all_event_attributes : dict
+            Mapping from attribute name to list of valid values for event types.
+        all_noise_types : list
+            List of event types used exclusively for noise generation.
+        all_noise_attributes : dict
+            Mapping from attribute name to valid values for noise types.
+        verbose : bool
+            Whether to enable verbose debug printing.
+        timeout_threshold : int
+            Max number of total box deactivations before ending the episode.
+        stb3 : bool
+            Whether to format observations to be SB3-compatible.
+        discrete : bool
+            Whether the environment uses discrete actions (integers) instead of binary vectors.
         """
 
         self._timeout_threshold = timeout_threshold
-        self.discrete = discrete
         self._action = None
         self._context = None
         self._stb3 = stb3
         self._time = 0
-        self.verbose = verbose
-        self.done = False
         self._num_boxes = len(instructions)
 
+        self.discrete = discrete
+        self.verbose = verbose
+        self.done = False
         self.patterns = [Pattern(id=idx, instruction=instr) for idx, instr in enumerate(instructions)]
         self.boxes = [InteractiveBox(id=pattern.id, verbose=self.verbose) for pattern in self.patterns]
-
         self.parser = Parser(all_event_types=all_event_types,
                              all_noise_types=all_noise_types,
                              all_event_attributes=all_event_attributes,
                              all_noise_attributes=all_noise_attributes)
         self.generator = Generator(parser=self.parser, patterns=self.patterns, verbose=self.verbose)
-        # self.GUI = BoxEventGUI(num_patterns=self._num_boxes,
-        #                      attr_to_color=self.parser.all_attributes)
 
         if self.verbose:
             print(f"All event types : {all_event_types}")
             print(f"All noise types : {all_noise_types}")
             print(f"All event attributes : {all_event_attributes}")
             print(f"All noise attributes : {all_noise_attributes}")
-            print(f"Initialising {self._num_boxes} boxes with patterns")
+            print(f"Initialising {self._num_boxes} boxes.")
 
     def uses_discrete_actions(self):
+        """
+        Returns whether the environment is configured to use discrete actions.
+
+        Returns
+        -------
+        bool
+            True if discrete actions are enabled, False otherwise.
+        """
         return self.discrete
 
     def get_all_types(self):
+        """
+        Returns all event and noise types defined in the parser.
+
+        Returns
+        -------
+        list[str]
+            Combined list of event types and noise types.
+        """
         return self.parser.all_event_types + self.parser.all_noise_types
 
     def get_num_boxes(self):
+        """
+        Returns the number of interactive boxes in the environment.
+
+        Returns
+        -------
+        int
+            Number of boxes.
+        """
         return self._num_boxes
 
     def reset(self):
         """
-        Resets the environment to its initial state.
+        Fully resets the environment, boxes, and event timeline.
         Restarts time, resets each box and its pattern, and refills the timeline of events.
         Gets one observation of the newly reset environment.
 
-        Note: The observation form may vary depending on the _stb3 parameter.
-
-        :return: dict
-            The first observation of the newly reset environment.
+        Returns
+        -------
+        tuple[dict, dict]
+            Observation and an empty info dictionary.
         """
 
         if self.verbose:
@@ -162,93 +190,116 @@ class OpenTheChests:
 
         for box in self.boxes:
             box.reset()
-            # TODO priority 2: should boxes be active from the beginning?
-            box._activate()
 
         self._internal_step()
 
         obs = self.get_observations()
 
         if self.verbose:
-            print("Reset Done")
+            print("Reset Done.")
 
-        return obs, {}
+        return obs
 
     def step(self, action):
         """
-        Moves the environment forward by one step using the selected action.
-        The forward move consists of three steps:
-         - Apply the action to the environment
-         - Advance the environment's internal interactions
-         - Extract observation and return it to the user
+        Advances the environment by one interaction step based on the provided action.
 
-        :param action: list or int
-            List of box ids to attempt to open, or an integer action if discrete actions are used.
-        :return: tuple
-            A tuple containing the observation, reward, done flag, and an empty dictionary.
+        This method performs:
+        1. **Action parsing**: Converts the action into a binary list if using discrete actions.
+        2. **Action application**: Applies the action to boxes (e.g., attempts to open them) and calculates rewards.
+        3. **Timeline advancement**: Internally advances the event timeline and updates the current context.
+        4. **Observation generation**: Collects the current state and context for the agent.
+
+        Parameters
+        ----------
+        action : list[int] or int
+            - If `discrete` is False: a binary list of length equal to the number of boxes,
+              where each index indicates whether to press a box's button.
+            - If `discrete` is True: an integer representing the binary-encoded action.
+
+        Returns
+        -------
+        tuple
+            (observation, reward, done, info)
+            - **observation** : dict
+                The current observation including box states and context.
+            - **reward** : int
+                The cumulative reward from all box interactions in this step.
+            - **done** : bool
+                Whether the episode has ended (all boxes opened or max deactivations reached).
+            - **info** : dict
+                Placeholder for additional metadata (currently empty).
         """
 
         if self.verbose:
             print("\nStart Step")
 
-        # if action is discrete turn it into a vector
+        # If action is discrete, decode it into a binary list of button presses
         if self.discrete:
             action = [int(x) for x in bin(action)[2:]]
             action = (self._num_boxes - len(action)) * [0] + action
-        # apply action and collect reward
+
+        # Apply the action and compute reward
         reward = self._apply_action(action=action)
 
-        # advance environment and collect context
+        # Advance environment timeline and update context
         self._internal_step()
+
+        # Collect updated observation
         obs = self.get_observations()
 
+        # Check whether the episode should end
         self.done = self.check_end()
 
         if self.verbose:
             print("Step Done \n")
 
-        # TODO (priority 2) fill info dict? use it somehow?
         return obs, reward, self.done, dict()
 
     def get_observations(self):
         """
-        Returns the last observation of information visible to a player.
-        The return contains:
-            - State information under the form of binary vectors showing if boxes are active or open
-            - Context information giving the last observed event in its labeled form
+        Returns the current observation available to the agent/player.
 
-        Example:
-        {'state':
-            {'active': [True, True, True], 'open': [False, False, False]},
-        'context':
-            Event('e_type': 2, 'attr': {'bg': 6, 'fg': 3}, 'start' : 0, 'end': 4.582803102406337)
+        The observation includes:
+        - The **state** of all boxes: whether each is active or open (as boolean lists).
+        - The **context**, which is the most recent event, label-encoded based on the parser configuration.
+
+        Example output:
+        {
+            'state': {
+                'active': [True, False, True],
+                'open': [False, True, False]
+            },
+            'context': Event(
+                type=2,
+                attributes={'bg': 6, 'fg': 3},
+                start=0.0,
+                end=4.58
+            )
         }
 
-        Note: Depending on the _stb3 parameter, the returned dictionary can have different forms:
-            - _stb3 == True: one-level dictionary with entries for each information
-            - otherwise: two-level dictionary
-        This is because stable baselines do not accept multiple-level dictionaries as input,
-        so the output is transformed into a one-level dictionary with multiple values.
+        Notes
+        -----
+        - If `self._stb3` is True, the observation will be flattened into a single-level dictionary
+          to ensure compatibility with Stable Baselines3 (which does not support nested dicts).
+        - Labeling converts string-based event types/attributes into integer indices based on initialization data.
 
-        :return: dict
-            Dictionary containing environment information.
+        Returns
+        -------
+        dict
+            The observation dictionary containing box state and the current labeled context event.
         """
-        active = []
-        open = []
+        active = [box.is_active() for box in self.boxes]
+        open_ = [box.is_open() for box in self.boxes]
 
-        # TODO (priority 3) this can be optimised
-        for box_id in range(self._num_boxes):
-            active.append(self.boxes[box_id].is_active())
-            open.append(self.boxes[box_id].is_open())
+        box_states = {"active": active, "open": open_}
+        labeled_context = self.parser.event_to_labelled(self._context)
 
-        box_states = {"active": active, "open": open}
-
-        # TODO priority 3: rethink labeling
-        obs = {"state": box_states, "context": self.parser.event_to_labelled(self._context
-                                                                             )}
+        obs = {"state": box_states, "context": labeled_context}
 
         if self._stb3:
             obs = to_stb3_obs_format(observation=obs)
+
         return obs
 
     def _internal_step(self):
@@ -257,71 +308,105 @@ class OpenTheChests:
         Update box states to take into account new information.
         """
         if self.verbose:
-            print("Making one internal step to get context and advance timeline")
+            print("Making one internal step to get context and advance timeline.")
 
         signal = self._advance_timeline()
         self._update_boxes(signal=signal)
 
     def _advance_timeline(self):
         """
-        Advances the internal environment evolution by getting the next event.
-        Start by getting the next event to be played by selecting from the timeline of next events the one with the
-        smallest ending time.
-        Add this event as the current context and advance the current time to the end of the event.
-        Check if any other boxes are satisfied by this event.
+        Advances the environment timeline by retrieving and applying the next event.
 
-        :return: dict
-            Signal dictionary indicating which boxes are satisfied or active.
+        This method:
+        - Selects the next event to play across all pattern timelines (based on the earliest end time).
+        - Updates the internal `context` to this new event.
+        - Advances the environment's internal clock (`_time`) to the end of the current event.
+        - Collects and returns a signal dictionary indicating which patterns (boxes) are now active or satisfied.
+
+        The signal is used to update the states of the interactive boxes in the environment.
+
+        Returns
+        -------
+        dict
+            A dictionary mapping pattern IDs to signal lists (e.g., {"satisfied", "active"}).
         """
 
         if self.verbose:
             print(f"Active timeline {self.generator.get_timeline()}")
 
         next_event, signal = self.generator.next_event()
-        # bug_print(signal)
+
         if next_event.type != "Empty":
             self._context = next_event
             self._time = self._context.end
 
         if self.verbose:
-            print(f"Finding closes end value {self._time}")
-            print(f"Advancing _time to {self._time}")
+            print(f"The last observed event ends at {round(self._time, 3)}")
+            print(f"Advancing _time to {round(self._time, 3)}")
             print(f"Observing context {self._context}")
 
         return signal
 
-    def _update_boxes(self, signal=[]):
+    def _update_boxes(self, signal=None):
         """
-        Updates the states of all boxes based on the current environment time and evolution.
+        Updates the state of each interactive box using the provided signal.
 
-        :param signal: list
-            Signal list indicating which boxes are satisfied or active.
+        Each box receives its corresponding signal based on its pattern ID.
+        If a box has no signal in the current step, it is updated with an empty list.
+
+        Parameters
+        ----------
+        signal : dict, optional
+            A dictionary mapping box (pattern) IDs to a list of signals (e.g., {"active", "satisfied"}).
+            Defaults to an empty dictionary if not provided.
         """
+        signal = signal or {}
         for box in self.boxes:
-            box.update(signal=[] if box.id not in signal else signal[box.id])
+            box.update(signal=signal.get(box.id, []))
 
     def _apply_action(self, action):
         """
-        Applies the given action to the system and updates the environment according to action effects.
-        Attempts to open the corresponding box if the action at index i is set to 1.
-        If the box is opened, disables its timeline and gives a positive reward.
-        Otherwise, if the button is wrongly pressed or the chest is ready to open yet ignored, a reward of -1 is applied.
-        In all other cases, the reward is 0.
+        Processes the player's action by interacting with the boxes and computing the resulting reward.
 
-        :param action: list
-            The action to apply.
-        :return: int
-            Reward obtained for the selected action.
+        Each element in the `action` list corresponds to whether a button press is attempted on a specific box:
+        - 1: attempt to press the box's button.
+        - 0: do not press the box's button.
+
+        Reward logic:
+        - **+1**: Correctly pressed a box when it was ready, causing it to open.
+        - **-1**: Incorrect press (e.g., pressing a box that wasn't ready) or failing to press a ready box.
+        - **0**: No action was taken on a box that wasn't ready.
+
+        If a box is successfully opened, its future timeline is disabled.
+
+        Parameters
+        ----------
+        action : list[int]
+            A list of 0s and 1s representing the decision to press or not press each box's button.
+            Must be the same length as the number of boxes in the environment.
+
+        Returns
+        -------
+        int
+            The total reward obtained from this step across all boxes.
+
+        Raises
+        ------
+        AssertionError
+            If the length of the action list does not match the number of boxes.
         """
         assert len(action) == self._num_boxes, f"Got action of size {len(action)} while boxes are {self._num_boxes}."
 
-        # TODO (priority 3) make code prettier reduce all ifs and separate press and reward if possible
         self._action = action
         if self.verbose:
-            print(f"Applying action {action}")
+            print(f"Applying action {action}.")
+
         reward = []
+
         for box_id in range(len(action)):
             current_box = self.boxes[box_id]
+
+            # Case: attempt to press the box button
             if action[box_id] == 1:
                 opened = current_box.press_button()
                 if opened:
@@ -329,22 +414,32 @@ class OpenTheChests:
                     reward.append(1)
                 else:
                     reward.append(-1)
+
+            # Case: no press, but check if box should have been opened
             else:
                 if current_box.is_ready():
                     reward.append(-1)
                 else:
                     reward.append(0)
+
         return sum(reward)
 
     def check_end(self):
         """
-        Verifies if it is time to send a done signal indicating the end of the game.
-        A done signal can be sent in one of two cases:
-            - All boxes have been opened, indicating the end of the game.
-            - All boxes have been collectively deactivated more than _timeout_threshold times.
+        Determines whether the environment episode should terminate.
 
-        :return: bool
-            Boolean indicating the end of the game.
+        The environment is considered finished in either of the following scenarios:
+        1. **All boxes are opened**: Every box has been successfully opened by the agent.
+        2. **Too many deactivations**: The total number of deactivations across all boxes
+           exceeds the environment's `_timeout_threshold`, signaling failure.
+
+        This function is typically called at the end of each step to update the `done` status.
+
+        Returns
+        -------
+        bool
+            True if the environment is done (either all boxes opened or deactivation threshold reached),
+            False otherwise.
         """
         all_end = all([box.is_open() for box in self.boxes])
         all_deactivations = sum([b.num_deactivations for b in self.boxes])
@@ -354,10 +449,4 @@ class OpenTheChests:
         """
         Update GUI with all information needed to display environment and update display step.
         """
-        self.GUI.add_event_to_history(self._context)
-        self.GUI.update_variable("context", self._context)
-        self.GUI.update_variable("_time", self._time)
-        self.GUI.update_variable("last_action", self._action)
-        self.GUI.update_variable("boxes", self.boxes)
-        self.GUI.update_variable("patterns", self.patterns)
-        self.GUI.step()
+        pass
