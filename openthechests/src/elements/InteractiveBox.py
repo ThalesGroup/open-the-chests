@@ -102,7 +102,7 @@ class InteractiveBox:
         assert self.state["_ready"], "Cannot _open a box unless it's _ready."
 
         if self.verbose:
-            print(f"Opening box {self.id}")
+            print(f"Opening box {self.id}.")
         self.state["_open"] = True
         self.state["_ready"] = False
         self.state["active"] = False
@@ -157,7 +157,7 @@ class InteractiveBox:
         assert self.state["active"], "Deactivated box cannot be marked _ready."
 
         if self.verbose:
-            print(f"Ready box {self.id}")
+            print(f"Ready box {self.id}.")
         self.state["active"] = True
         self.state["_ready"] = True
         self.state["_open"] = False
@@ -175,6 +175,9 @@ class InteractiveBox:
             if self.state["active"] and self.state["_ready"]:
                 self._open()
                 return True
+            else:
+                if self.verbose:
+                    print(f"Unsuccessful opening of box {self.id}.")
         return False
 
     def update(self, signal: list = None) -> None:
