@@ -197,7 +197,7 @@ class Generator:
                                                                                  next_event)
         for pattern_id, stack in self.event_stacks.items():
             if pattern_id != pattern_to_sample_id:
-                if next_event.start >= stack[0].start:
+                if next_event.end >= stack[0].start:
                     signal[pattern_id].append("active")
 
         return next_event, dict(signal)

@@ -155,7 +155,7 @@ class Event:
 
     def __str__(self) -> str:
         """Returns user-friendly string representation of the event."""
-        return f"Event(type='{self.type}', attr={self.attributes}, start={self.start}, end={self.end})"
+        return f"Event(type='{self.type}', attr={self.attributes}, start={round(self.start, 3)}, end={round(self.end, 3)})"
 
     def __repr__(self) -> str:
         """Returns debug string representation of the event."""
