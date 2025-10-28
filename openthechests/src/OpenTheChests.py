@@ -162,6 +162,17 @@ class OpenTheChests:
         """
         return self.parser.all_event_types + self.parser.all_noise_types
 
+    def get_all_attributes(self):
+        """
+        Returns all event and noise attributes defined in the parser.
+
+        Returns
+        -------
+        list[str]
+            Combined list of event attributes and noise attributes.
+        """
+        return self.parser.all_attributes
+
     def get_num_boxes(self):
         """
         Returns the number of interactive boxes in the environment.

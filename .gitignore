@@ -2,13 +2,4 @@
 .idea/
 __pycache__
 venv
-../benchmark/excog_experiments/excog_results/
-../benchmark/excog_experiments/tmp/
-../benchmark/excog_experiments/excog_experiments/
-results/
-excog_results/
 *.png*
-dist/**
-openthechests.egg-info/**
-todo/
-todo/**

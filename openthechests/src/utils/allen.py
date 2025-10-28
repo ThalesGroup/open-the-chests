@@ -17,7 +17,8 @@ def overlapped(second: Event, first: Event):
     :param first: The first event serving as reference to the second one.
     :return: The transformed second event
     """
-    overlap_size = np.random.uniform(0, second.duration)
+    overlap_size = min(first.duration, second.duration)
+    overlap_size = np.random.uniform(0, overlap_size)
     new_event = second.shifted(first.end - overlap_size)
     return new_event
 

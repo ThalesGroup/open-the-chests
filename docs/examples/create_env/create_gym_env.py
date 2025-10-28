@@ -1,11 +1,12 @@
-from docs.examples.create_env.env_info import all_event_types, all_event_attributes, all_noise_types, \
-    all_noise_attributes
-from docs.examples.create_env.instructions import instructions
-from openthechests.src.OpenTheChestsGym import OpenTheChestsGym
+
 
 """
 Example : Create environment with gym wrapper
 """
+from openthechests.docs.examples.create_env.env_info import all_event_types, all_event_attributes, all_noise_types, \
+    all_noise_attributes
+from openthechests.docs.examples.create_env.instructions import instructions
+from openthechests.openthechests.src.OpenTheChestsGym import OpenTheChestsGym
 
 # define a list of all possible event types to be used by the instructions
 # initialise environment using class and instructions list
@@ -37,6 +38,6 @@ for step in range(100):
     # Take a random action
     action = env.action_space.sample()
     print("Action: ", action)
-    obs, reward, done, info = env.step(action)
+    obs, reward, done, truncated, info = env.step(action)
     print('obs =', obs, 'reward=', reward, 'done=', done)
     # env.render()

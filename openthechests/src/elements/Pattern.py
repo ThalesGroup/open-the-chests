@@ -7,6 +7,8 @@ import matplotlib.patheffects as path_effects
 
 from openthechests.openthechests.src.utils.allen import allen_relations
 
+from typing import List, Dict
+
 
 def validate_pattern_instructions(instructions: List[Dict]) -> None:
     """
@@ -15,10 +17,12 @@ def validate_pattern_instructions(instructions: List[Dict]) -> None:
     Checks include:
     - Proper use of 'delay' and 'noise' (only once, numeric parameters).
     - Each 'instantiate' has correct parameters and a unique variable_name.
-    - Allen relation commands refer to defined variables.
-    - Allen relation commands are among supported types.
-    - Optional fields like 'gap_dist' are structurally valid.
-    - Every event variable participates in at least one Allen relation.
+    - Allen relation commands refer to defined variables and are supported.
+    - Allen relation 'parameters' are ordered as [second_event, first_event].
+    - 'after' and 'before' must provide other.gap_dist with 'mu' and 'sigma'.
+    - For containment relations ('during', 'starts', 'ends'):
+        (second.mu + second.sigma) < (first.mu - first.sigma)
+    - Every event variable participates in at least one Allen relation (if >1 events).
 
     Parameters
     ----------
@@ -29,19 +33,34 @@ def validate_pattern_instructions(instructions: List[Dict]) -> None:
     ------
     ValueError
         If any instruction is malformed, has missing keys, refers to undefined variables,
-        or an event does not participate in at least one Allen relation.
+        violates ordering/bonus-parameter rules, or violates containment length constraints.
     """
+    # Supported Allen relations (extend as you add more)
+    allowed_rels = {
+        "after", "before", "during", "met_by", "overlapped", "starts", "ends", "equals"
+    }
+    # Relations that require extra fields in 'other'
+    rel_requires_other = {
+        "after": {"gap_dist"},
+        "before": {"gap_dist"},
+    }
+    # Relations implying containment (second inside first)
+    containment_rels = {"during", "starts", "ends"}
+
     defined_vars = set()
     participated_vars = set()
     delay_seen = False
     noise_seen = False
+
+    # Collect distributions from 'instantiate' to validate containment later
+    dists_by_var: Dict[str, Dict[str, float]] = {}
 
     for i, instr in enumerate(instructions):
         cmd = instr.get("command")
         if cmd is None:
             raise ValueError(f"Instruction {i} is missing 'command' field.")
 
-        # Check delay
+        # --- delay ---
         if cmd == "delay":
             if delay_seen:
                 raise ValueError("Multiple 'delay' commands found.")
@@ -49,7 +68,7 @@ def validate_pattern_instructions(instructions: List[Dict]) -> None:
                 raise ValueError("'delay' must have a numeric parameter.")
             delay_seen = True
 
-        # Check noise
+        # --- noise ---
         elif cmd == "noise":
             if noise_seen:
                 raise ValueError("Multiple 'noise' commands found.")
@@ -57,52 +76,91 @@ def validate_pattern_instructions(instructions: List[Dict]) -> None:
                 raise ValueError("'noise' must have a numeric parameter.")
             noise_seen = True
 
-        # Check instantiate
+        # --- instantiate ---
         elif cmd == "instantiate":
             if "variable_name" not in instr:
                 raise ValueError(f"'instantiate' at index {i} is missing 'variable_name'.")
-            if instr["variable_name"] in defined_vars:
-                raise ValueError(f"Duplicate variable_name '{instr['variable_name']}' found.")
+            var = instr["variable_name"]
+            if var in defined_vars:
+                raise ValueError(f"Duplicate variable_name '{var}' found.")
             params = instr.get("parameters")
             if not (isinstance(params, tuple) and len(params) == 3):
                 raise ValueError(f"'instantiate' parameters must be (type, attrs, dist) tuple at index {i}.")
             _, attrs, dist = params
             if not isinstance(attrs, dict):
                 raise ValueError(f"'instantiate' attrs must be dict at index {i}.")
-            if not isinstance(dist, dict) or not all(k in dist for k in ("mu", "sigma")):
+            if not (isinstance(dist, dict) and all(k in dist for k in ("mu", "sigma"))):
                 raise ValueError(f"'instantiate' dist must be dict with 'mu' and 'sigma' at index {i}.")
-            defined_vars.add(instr["variable_name"])
 
-        # Allen-style temporal relation
-        elif cmd in allen_relations:
+            # Record definition and its distribution
+            defined_vars.add(var)
+            dists_by_var[var] = dist
+
+        # --- Allen relations ---
+        elif cmd in allowed_rels:
             params = instr.get("parameters")
             if not (isinstance(params, list) and len(params) == 2):
                 raise ValueError(f"'{cmd}' must specify two variables in 'parameters' list at index {i}.")
-            src, tgt = params
-            if src not in defined_vars or tgt not in defined_vars:
-                raise ValueError(f"'{cmd}' refers to undefined variable(s): {src}, {tgt} at index {i}.")
 
-            # Track participation
-            participated_vars.add(src)
-            participated_vars.add(tgt)
+            # Enforce parameter order: [second_event, first_event]
+            second_var, first_var = params[0], params[1]
 
-            # Enforce required 'other' fields for specific relations
-            if cmd == "after":
-                if "other" not in instr or "gap_dist" not in instr["other"]:
-                    raise ValueError(f"'after' instruction at index {i} must include 'gap_dist' in 'other'.")
-                gap = instr["other"]["gap_dist"]
-                if not isinstance(gap, dict) or not all(k in gap for k in ("mu", "sigma")):
-                    raise ValueError(f"'gap_dist' must be a dict with 'mu' and 'sigma' in 'after' at index {i}.")
+            if second_var not in defined_vars or first_var not in defined_vars:
+                raise ValueError(f"'{cmd}' refers to undefined variable(s): {second_var}, {first_var} at index {i}.")
+
+            # If variable_name is present, enforce it tags the 'first' side for consistency
+            if "variable_name" in instr and instr["variable_name"] != second_var:
+                raise ValueError(
+                    f"'{cmd}' at index {i}: 'variable_name' should reference the FIRST event "
+                    f"(the second element in parameters). Expected '{first_var}', got '{instr['variable_name']}'."
+                )
+
+            participated_vars.update({second_var, first_var})
+
+            # Validate required 'other' for specific relations (e.g., after/before)
+            if cmd in rel_requires_other:
+                other = instr.get("other")
+                if not isinstance(other, dict):
+                    raise ValueError(f"'{cmd}' at index {i} must include 'other' dict.")
+                missing = [k for k in rel_requires_other[cmd] if k not in other]
+                if missing:
+                    raise ValueError(f"'{cmd}' at index {i} missing required keys in 'other': {missing}")
+                # Validate gap_dist structure
+                if "gap_dist" in other:
+                    gd = other["gap_dist"]
+                    if not (isinstance(gd, dict) and all(k in gd for k in ("mu", "sigma"))):
+                        raise ValueError(
+                            f"'gap_dist' in '{cmd}' at index {i} must be a dict with 'mu' and 'sigma'."
+                        )
             else:
-                # For other relations, 'other' must not include unsupported fields
+                # No unsupported 'other' payloads for relations that don't use it
                 if "other" in instr and instr["other"] not in (None, {}):
-                    raise ValueError(f"Unexpected 'other' field in '{cmd}' at index {i}; only 'after' supports it.")
+                    raise ValueError(
+                        f"Unexpected 'other' field in '{cmd}' at index {i}; only "
+                        f"{sorted(rel_requires_other.keys())} support it."
+                    )
+
+            # Containment relation duration constraint
+            if cmd in containment_rels:
+                sec = dists_by_var.get(second_var)
+                fst = dists_by_var.get(first_var)
+                if sec is None or fst is None:
+                    raise ValueError(
+                        f"Missing duration distribution for '{second_var}' or '{first_var}' to validate '{cmd}' at index {i}."
+                    )
+                sec_sum = float(sec["mu"]) + float(sec["sigma"])
+                fst_margin = float(fst["mu"]) - float(fst["sigma"])
+                if not (sec_sum <= fst_margin):
+                    raise ValueError(
+                        f"Containment violation for '{cmd}' at index {i}: "
+                        f"{second_var}.mu+sigma={sec_sum:.3f} is not < {first_var}.mu-sigma={fst_margin:.3f}."
+                    )
 
         else:
             raise ValueError(f"Unknown command '{cmd}' at index {i}.")
 
-    # Final check: every defined variable must participate in at least one relation
-    if len(defined_vars)>1:
+    # Final participation check
+    if len(defined_vars) > 1:
         for var in defined_vars:
             if var not in participated_vars:
                 raise ValueError(f"Event variable '{var}' does not participate in any Allen relation.")
