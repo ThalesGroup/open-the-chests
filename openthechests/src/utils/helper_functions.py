@@ -31,7 +31,7 @@ def my_normal(mu, sigma):
     :param sigma: Variance used for normal distribution.
     :return: A sampled duration of minimal value (mu - sigma) and maximal value (mu + sigma.
     """
-    assert mu - sigma >= 0, "Allows negative _time durations"
+    assert mu - sigma >= 0, f"Allows negative _time durations: mu = {mu} and sigma={sigma}"
     res = random.normalvariate(mu, sigma)
     res = max((mu - sigma), res)
     res = min((mu + sigma), res)

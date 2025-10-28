@@ -1,9 +1,11 @@
 # TODO Priority 1: review and refactor script files and add more allen functions
+from copy import deepcopy
+from typing import List, Dict
 
 import numpy as np
 
-from openthechests.src.elements.Event import Event
-from openthechests.src.utils.helper_functions import my_normal
+from openthechests.openthechests.src.elements import Event
+from openthechests.openthechests.src.utils.helper_functions import my_normal
 
 
 def overlapped(second: Event, first: Event):
@@ -15,9 +17,9 @@ def overlapped(second: Event, first: Event):
     :param first: The first event serving as reference to the second one.
     :return: The transformed second event
     """
-    second_earliest_start = max(0, first.end - second.start)
-    second_start = np.random.uniform(second_earliest_start, first.end)
-    new_event = second.shifted(second_start)
+    overlap_size = min(first.duration, second.duration)
+    overlap_size = np.random.uniform(0, overlap_size)
+    new_event = second.shifted(first.end - overlap_size)
     return new_event
 
 
@@ -67,4 +69,62 @@ def met_by(second: Event, first: Event):
     return second.shifted(first.end)
 
 
-allen_functions = {"after": after, "during": during, "met_by": met_by, "overlapped": overlapped}
+def starts(second: Event, first: Event):
+    """
+    Allows to define the allen relation "starts" between two events.
+    The second event is placed to start the first one and end before the first starts.
+
+    :param second: The second event to be placed at the start of the first one.
+    :param first: The first event serving as reference to the second one.
+    :return: The transformed second event
+    """
+
+    assert (first.duration >= second.duration), \
+        f"An event can be longer than the one containing it! {first.duration} > {second.duration}"
+
+    return second.shifted(first.start)
+
+
+def ends(second: Event, first: Event):
+    """
+    Allows to define the allen relation "ends" between two events.
+    The second event is placed to end the first one and start after the first finishes.
+
+    :param second: The second event to be placed at the start of the first one.
+    :param first: The first event serving as reference to the second one.
+    :return: The transformed second event
+    """
+
+    assert (first.duration >= second.duration), \
+        f"An event can be longer than the one containing it! {first.duration} > {second.duration}"
+
+    end_diff = first.end - second.end
+    return second.shifted(end_diff)
+
+
+def equals(second: Event, first: Event):
+    """
+    Allows to define the allen relation "equals" between two events.
+    The second event is placed to have the same start and end times as the first one.
+    Attention this will overwrite the original time of the event.
+
+    :param second: The second event to be placed at the same time as the first one.
+    :param first: The first event serving as reference to the second one.
+    :return: The transformed second event
+    """
+
+    new_event = deepcopy(second)
+    new_event.start = first.start
+    new_event.end = first.end
+    return new_event
+
+
+allen_functions = {"after": after,
+                   "during": during,
+                   "met_by": met_by,
+                   "overlapped": overlapped,
+                   "starts": starts,
+                   "ends": ends,
+                   "equals": equals}
+
+allen_relations = allen_functions.keys()
