@@ -11,7 +11,7 @@ authors = [
 ]
 description = "Training environment for reinforcement learning with event-based context"
 readme = "README.md"
-license = {file = "LICENSE"}
+license-files = ["LICENSE"]
 requires-python = ">=3.9"
 dependencies = [
     "gym>=0.21.0",
@@ -24,7 +24,6 @@ dependencies = [
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: BSD License",
     "Operating System :: OS Independent",
 ]
 
