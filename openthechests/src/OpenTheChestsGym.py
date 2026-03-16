@@ -6,8 +6,8 @@ import gymnasium as gym
 import yaml
 from gymnasium.spaces import Dict, MultiBinary, Discrete, Box
 
-from openthechests.openthechests.src.OpenTheChests import OpenTheChests
-from openthechests.openthechests.src.utils.helper_functions import boxes_to_discrete, parse_yaml_file
+from openthechests.src.OpenTheChests import OpenTheChests
+from openthechests.src.utils.helper_functions import boxes_to_discrete, parse_yaml_file
 
 
 class OpenTheChestsGym(gym.Env):

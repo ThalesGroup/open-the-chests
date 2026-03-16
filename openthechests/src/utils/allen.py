@@ -4,8 +4,8 @@ from typing import List, Dict
 
 import numpy as np
 
-from openthechests.openthechests.src.elements import Event
-from openthechests.openthechests.src.utils.helper_functions import my_normal
+from openthechests.src.elements import Event
+from openthechests.src.utils.helper_functions import my_normal
 
 
 def overlapped(second: Event, first: Event):

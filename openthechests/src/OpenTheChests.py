@@ -1,8 +1,8 @@
-from openthechests.openthechests.src.elements.Generator import Generator
-from openthechests.openthechests.src.elements.InteractiveBox import InteractiveBox
-from openthechests.openthechests.src.elements.Parser import Parser
-from openthechests.openthechests.src.elements.Pattern import Pattern
-from openthechests.openthechests.src.utils.helper_functions import to_stb3_obs_format
+from openthechests.src.elements.Generator import Generator
+from openthechests.src.elements.InteractiveBox import InteractiveBox
+from openthechests.src.elements.Parser import Parser
+from openthechests.src.elements.Pattern import Pattern
+from openthechests.src.utils.helper_functions import to_stb3_obs_format
 
 
 class OpenTheChests:

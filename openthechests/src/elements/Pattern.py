@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import matplotlib.patheffects as path_effects
 
-from openthechests.openthechests.src.utils.allen import allen_relations
+from openthechests.src.utils.allen import allen_relations
 
 from typing import List, Dict
 

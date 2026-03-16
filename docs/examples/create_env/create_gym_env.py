@@ -31,7 +31,7 @@ for i in range(len(from_config.env.patterns[0].instruction)):
     assert from_config.env.patterns[0].instruction[i] == env.env.patterns[0].instruction[i]
 
 # use gym action sampling to take random actions and observe environment for 10 steps
-obs = env.reset()
+obs,_ = env.reset()
 # env.render()
 # don't forget to reset the environment before using it
 for step in range(100):

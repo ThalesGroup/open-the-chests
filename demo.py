@@ -13,7 +13,7 @@ if __name__ == '__main__':
     n_steps = 200
     print("------------------------ START -------------------------")
     print("Type \"quit\" to exit the game.")
-    obs = env.reset()
+    obs, _ = env.reset()
 
     format_obs = lambda d: (
         f"\n"
@@ -46,7 +46,8 @@ if __name__ == '__main__':
             action = verbose_env.action_space.sample()
             print(f"Executing {action} instead.")
 
-        obs, reward, done, info = env.step(action)
+        obs, reward, done, truncated, info = env.step(action)
+        done = done or truncated
         print(f"Observation {format_obs(obs)}.")
         print(f"Reward {reward}.")
 
