@@ -88,6 +88,9 @@ class Parser:
         Convert an event with string type/attributes to a **labelled** version,
         where type and attribute values are replaced with integer indices.
 
+        Events with empty attributes (e.g. from dataset mode) are returned with
+        an empty attribute dict — no encoding is attempted.
+
         Parameters
         ----------
         event : Event
@@ -152,18 +155,23 @@ class Parser:
                 attributes[attr] = random.choice(attr_values)
         return Event(e_type, attributes, start, end)
 
-    def instantiate_pattern(self, instructions: List[dict]) -> List[Event]:
+    def instantiate_pattern(self, pattern) -> List[Event]:
         """
-        Generate a list of events from a set of pattern instructions.
+        Generate a list of events from a pattern, branching on its mode.
 
-        Supports:
-        - 'instantiate' commands to create events.
-        - Allen relation commands (from `allen_functions`) to position events in time.
+        **Config mode** (``pattern.instruction_type == "config"``)
+            Iterates ``pattern.instruction`` and executes ``"instantiate"``
+            and Allen-relation commands to produce events stochastically.
+
+        **Dataset mode** (``pattern.instruction_type == "dataset"``)
+            Randomly samples one pre-loaded trace from ``pattern.traces``.
+            Records event durations so that noise generation (which uses
+            ``_get_random_duration_dist``) has sensible statistics.
 
         Parameters
         ----------
-        instructions : list of dict
-            Pattern instructions (see examples in `Pattern` class).
+        pattern : Pattern
+            Pattern object carrying either instructions (config) or traces (dataset).
 
         Returns
         -------
@@ -173,10 +181,17 @@ class Parser:
         Raises
         ------
         ValueError
-            If an unknown command is encountered.
+            If an unknown command is encountered in config mode.
         """
+        if pattern.instruction_type == "dataset":
+            trace = random.choice(pattern.traces)
+            for event in trace:
+                self._record_duration(event.duration)
+            return sorted(trace)
+
+        # --- Config mode ---
         variables = dict()
-        for instr_line in instructions:
+        for instr_line in pattern.instruction:
             if instr_line["command"] == "instantiate":
                 event = self._make_event(*instr_line["parameters"])
                 variables[instr_line["variable_name"]] = event
@@ -239,12 +254,15 @@ class Parser:
         """
         Validate that event type and attributes are allowed.
 
+        When ``attributes`` is empty (e.g. events from dataset mode that carry
+        no symbolic attributes), attribute validation is skipped entirely.
+
         Parameters
         ----------
         e_type : str or None
             Event type to validate (if not None).
         attributes : dict
-            Attribute dictionary to validate.
+            Attribute dictionary to validate.  Pass ``{}`` to skip attribute checks.
 
         Raises
         ------
@@ -253,10 +271,11 @@ class Parser:
         """
         assert (e_type is None) or e_type in self.all_event_types, \
             f"Unknown event type {e_type}, please select type from all possible types : {self.all_event_types}"
-        assert all([attr in self.all_event_attributes.keys() for attr in attributes]), \
-            f"Unknown attribute key, please select attribute keys from {self.all_event_attributes.keys()}"
-        assert all([val in self.all_event_attributes[key] for key, val in attributes.items()]), \
-            f"Unknown attribute value, please select values according to keys from {self.all_event_attributes}"
+        if attributes:
+            assert all([attr in self.all_event_attributes.keys() for attr in attributes]), \
+                f"Unknown attribute key, please select attribute keys from {self.all_event_attributes.keys()}"
+            assert all([val in self.all_event_attributes[key] for key, val in attributes.items()]), \
+                f"Unknown attribute value, please select values according to keys from {self.all_event_attributes}"
 
     def _record_duration(self, duration: float):
         """

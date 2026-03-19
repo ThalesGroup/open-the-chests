@@ -148,7 +148,7 @@ class Generator:
 
         pattern_start = previous_patter_end + pattern.sample_timeout()
 
-        generated_events = self.parser.instantiate_pattern(pattern.instruction)
+        generated_events = self.parser.instantiate_pattern(pattern)
 
         pattern_end_time = generated_events[-1].end
         noise_events = self._generate_noise_events(pattern.noise, pattern_end_time, len(generated_events))
