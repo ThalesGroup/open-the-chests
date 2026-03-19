@@ -1,4 +1,6 @@
+import csv
 import random
+from collections import defaultdict
 from typing import List, Dict
 
 import matplotlib.pyplot as plt
@@ -209,34 +211,125 @@ class Pattern:
         Parameters
         ----------
         instruction : List[Dict]
-            A list of structured pattern instructions. May contain special commands:
-            - "delay": defines the timeout for the pattern
-            - "noise": defines the noise level
-            All other commands define event instructions.
+            A list of structured pattern instructions. Both modes share this
+            list-of-dicts format. The mode is determined by the presence of a
+            special ``"dataset"`` command:
+
+            **Config mode** (no ``"dataset"`` command):
+            - ``"delay"``: defines the timeout for the pattern
+            - ``"noise"``: defines the noise level
+            - ``"instantiate"``, Allen-relation commands: define event generation
+
+            **Dataset mode** (contains ``{"command": "dataset", "parameters": "<path>"}``):
+            - ``"dataset"``: path to CSV file with pre-recorded traces
+            - ``"delay"``: optional timeout (default 0)
+            - ``"noise"``: optional noise ratio (default 0)
+            No event-instantiation commands are needed in this mode.
         id : int
             The unique identifier for this pattern instance.
         """
         self.id = id
 
-        # Extract 'delay' value if present; default to 0
-        self.timeout = ([cmd["parameters"]
-                         for cmd in instruction
-                         if cmd["command"] == "delay"] or [0]).pop()
-
-        # Extract 'noise' value if present; default to 0
-        self.noise = ([cmd["parameters"]
-                       for cmd in instruction
-                       if cmd["command"] == "noise"] or [0]).pop()
-
-        # Filter out special control commands to keep only event-related ones
-        validate_pattern_instructions(instruction)
-        self.instruction = [
-            cmd for cmd in instruction
-            if cmd["command"] not in ["delay", "noise"]
-        ]
-
         # Used for GUI/display to store the full resolved pattern history
         self.full_pattern = []
+
+        if any(cmd["command"] == "dataset" for cmd in instruction):
+            # --- Dataset mode ---
+            self.instruction_type = "dataset"
+
+            data_file = next(cmd["parameters"]
+                             for cmd in instruction
+                             if cmd["command"] == "dataset")
+
+            # Extract delay/noise as usual; default to 0
+            self.timeout = ([cmd["parameters"]
+                             for cmd in instruction
+                             if cmd["command"] == "delay"] or [0]).pop()
+            self.noise = ([cmd["parameters"]
+                           for cmd in instruction
+                           if cmd["command"] == "noise"] or [0]).pop()
+
+            self.instruction = []
+            self.traces = self._load_traces(data_file)
+
+        else:
+            # --- Config mode ---
+            self.instruction_type = "config"
+
+            # Extract 'delay' value if present; default to 0
+            self.timeout = ([cmd["parameters"]
+                             for cmd in instruction
+                             if cmd["command"] == "delay"] or [0]).pop()
+
+            # Extract 'noise' value if present; default to 0
+            self.noise = ([cmd["parameters"]
+                           for cmd in instruction
+                           if cmd["command"] == "noise"] or [0]).pop()
+
+            # Filter out special control commands to keep only event-related ones
+            validate_pattern_instructions(instruction)
+            self.instruction = [
+                cmd for cmd in instruction
+                if cmd["command"] not in ["delay", "noise"]
+            ]
+
+    @staticmethod
+    def _load_traces(data_file: str):
+        """
+        Load all event traces from a per-activity CSV file for dataset mode.
+
+        The CSV is expected to have the same format produced by the data generation
+        pipeline: one row per sensor event, grouped into traces via the
+        ``unique_activity_key`` column.  Times are stored as ``HH:MM:SS.ffffff``
+        strings and are converted to seconds, then normalized so every trace starts
+        at time 0.
+
+        Expected columns: ``unique_activity_key``, ``device_id``,
+        ``start_time``, ``end_time``.
+
+        Parameters
+        ----------
+        data_file : str
+            Path to the per-activity CSV file.
+
+        Returns
+        -------
+        list[list[Event]]
+            A list of traces, where each trace is a list of :class:`Event` objects
+            sorted by end time.
+        """
+        import pandas as pd
+        from openthechests.src.elements.Event import Event
+
+        def _time_to_seconds(t_str):
+            h, m, s = map(float, str(t_str).split(":"))
+            return h * 3600 + m * 60 + s
+
+        df = pd.read_csv(data_file)
+
+        traces = []
+        for _, group in df.groupby("unique_activity_key"):
+            group = group.sort_values("end_time")
+
+            start_secs = group["start_time"].apply(_time_to_seconds)
+            end_secs = group["end_time"].apply(_time_to_seconds)
+
+            trace_start = start_secs.min()
+
+            events = [
+                Event(
+                    e_type=row["device_id"],
+                    e_attributes={},
+                    t_start=t_start - trace_start,
+                    t_end=t_end - trace_start,
+                )
+                for (_, row), t_start, t_end in zip(
+                    group.iterrows(), start_secs, end_secs
+                )
+            ]
+            traces.append(sorted(events))
+
+        return traces
 
     def sample_timeout(self) -> float:
         """
@@ -282,6 +375,8 @@ class Pattern:
         """
         Visualizes the current pattern as a directed graph of events and temporal relations.
 
+        Not available for dataset-mode patterns (no instruction graph to display).
+
         - Each instantiated event becomes a node.
         - Node color is based on the event's `bg` attribute.
         - Node label color is the `fg` attribute.
@@ -295,6 +390,10 @@ class Pattern:
         -------
         None
         """
+        if self.instruction_type == "dataset":
+            print(f"Pattern {self.id} is a dataset pattern — no instruction graph to visualize.")
+            return
+
         G = nx.DiGraph()
         pos = {}
         node_styles = {}
