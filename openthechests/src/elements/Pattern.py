@@ -53,6 +53,7 @@ def validate_pattern_instructions(instructions: List[Dict]) -> None:
     participated_vars = set()
     delay_seen = False
     noise_seen = False
+    activity_seen = False
 
     # Collect distributions from 'instantiate' to validate containment later
     dists_by_var: Dict[str, Dict[str, float]] = {}
@@ -77,6 +78,14 @@ def validate_pattern_instructions(instructions: List[Dict]) -> None:
             if not isinstance(instr.get("parameters"), (int, float)):
                 raise ValueError("'noise' must have a numeric parameter.")
             noise_seen = True
+
+        # --- activity ---
+        elif cmd == "activity":
+            if activity_seen:
+                raise ValueError("Multiple 'activity' commands found.")
+            if not isinstance(instr.get("parameters"), str):
+                raise ValueError("'activity' must have a string parameter.")
+            activity_seen = True
 
         # --- instantiate ---
         elif cmd == "instantiate":
@@ -222,9 +231,12 @@ class Pattern:
 
             **Dataset mode** (contains ``{"command": "dataset", "parameters": "<path>"}``):
             - ``"dataset"``: path to CSV file with pre-recorded traces
+            - ``"activity"``: optional human-readable activity name (default ``None``)
             - ``"delay"``: optional timeout (default 0)
             - ``"noise"``: optional noise ratio (default 0)
             No event-instantiation commands are needed in this mode.
+
+            Both modes accept an optional ``"activity"`` command for readability.
         id : int
             The unique identifier for this pattern instance.
         """
@@ -232,6 +244,12 @@ class Pattern:
 
         # Used for GUI/display to store the full resolved pattern history
         self.full_pattern = []
+
+        # --- Activity name (both modes) ---
+        self.activity_name = next(
+            (cmd["parameters"] for cmd in instruction if cmd["command"] == "activity"),
+            None,
+        )
 
         if any(cmd["command"] == "dataset" for cmd in instruction):
             # --- Dataset mode ---
@@ -270,7 +288,7 @@ class Pattern:
             validate_pattern_instructions(instruction)
             self.instruction = [
                 cmd for cmd in instruction
-                if cmd["command"] not in ["delay", "noise"]
+                if cmd["command"] not in ["delay", "noise", "activity"]
             ]
 
     @staticmethod
@@ -391,7 +409,8 @@ class Pattern:
         None
         """
         if self.instruction_type == "dataset":
-            print(f"Pattern {self.id} is a dataset pattern — no instruction graph to visualize.")
+            name = f" ({self.activity_name})" if self.activity_name else ""
+            print(f"Pattern {self.id}{name} is a dataset pattern — no instruction graph to visualize.")
             return
 
         G = nx.DiGraph()
@@ -452,5 +471,8 @@ class Pattern:
         ax.set_xlim(-1, max(p[0] for p in pos.values()) + 1.5)
         ax.set_ylim(-1, 1)
         plt.axis('off')
-        plt.title("Pattern Visualization (Events & Temporal Relations)", fontsize=12)
+        title = "Pattern Visualization (Events & Temporal Relations)"
+        if self.activity_name:
+            title = f"{self.activity_name} — {title}"
+        plt.title(title, fontsize=12)
         plt.show()
