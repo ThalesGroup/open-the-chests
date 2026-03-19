@@ -60,6 +60,8 @@ class OpenTheChests:
         Returns whether the environment expects discrete actions.
     get_all_types() -> list
         Returns all event and noise types used in the environment.
+    decode_event_type(event_or_index) -> str
+        Decodes a labelled event or integer index back to its string type name.
     get_num_boxes() -> int
         Returns the number of interactive boxes (chests) in the environment.
     check_end() -> bool
@@ -172,6 +174,36 @@ class OpenTheChests:
             Combined list of event attributes and noise attributes.
         """
         return self.parser.all_attributes
+
+    def decode_event_type(self, event_or_index) -> str:
+        """
+        Decodes a labelled event type back to its original string name.
+
+        Accepts either a labelled ``Event`` object (as returned in ``obs["context"]``)
+        or a plain integer index, and returns the corresponding string type from the
+        parser's combined type list.
+
+        Parameters
+        ----------
+        event_or_index : Event or int
+            A labelled event whose ``.type`` is an integer index, or the integer
+            index itself.
+
+        Returns
+        -------
+        str
+            The string type name (e.g. ``"tap_bathroom"`` or ``"cat_presence"``).
+
+        Examples
+        --------
+        >>> obs, *_ = env.step([0, 0, 0])
+        >>> env.decode_event_type(obs["context"])
+        'tap_bathroom'
+        >>> env.decode_event_type(0)
+        'tap_bathroom'
+        """
+        index = event_or_index if isinstance(event_or_index, int) else event_or_index.type
+        return self.parser.all_types[index]
 
     def get_num_boxes(self):
         """
