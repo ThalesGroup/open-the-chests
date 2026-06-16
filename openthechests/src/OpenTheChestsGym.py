@@ -128,9 +128,9 @@ class OpenTheChestsGym(gym.Env):
             "open": MultiBinary(num_boxes),
             "e_type": Discrete(num_event_types),
             **attr_space,
-            "start": Box(low=0.0, high=np.inf, shape=(1,), dtype=np.float32),
-            "end": Box(low=0.0, high=np.inf, shape=(1,), dtype=np.float32),
-            "duration": Box(low=0.0, high=np.inf, shape=(1,), dtype=np.float32)
+            "start": Box(low=0.0, high=np.inf, shape=(1,), dtype=np.float64),
+            "end": Box(low=0.0, high=np.inf, shape=(1,), dtype=np.float64),
+            "duration": Box(low=0.0, high=np.inf, shape=(1,), dtype=np.float64)
         })
 
     @classmethod

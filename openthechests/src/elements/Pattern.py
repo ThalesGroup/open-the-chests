@@ -255,9 +255,9 @@ class Pattern:
             # --- Dataset mode ---
             self.instruction_type = "dataset"
 
-            data_file = next(cmd["parameters"]
-                             for cmd in instruction
-                             if cmd["command"] == "dataset")
+            dataset_cmd = next(cmd for cmd in instruction if cmd["command"] == "dataset")
+            data_file = dataset_cmd["parameters"]
+            data_filters = dataset_cmd.get("filters", None)
 
             # Extract delay/noise as usual; default to 0
             self.timeout = ([cmd["parameters"]
@@ -268,7 +268,7 @@ class Pattern:
                            if cmd["command"] == "noise"] or [0]).pop()
 
             self.instruction = []
-            self.traces = self._load_traces(data_file)
+            self.traces = self._load_traces(data_file, filters=data_filters)
 
         else:
             # --- Config mode ---
@@ -292,7 +292,7 @@ class Pattern:
             ]
 
     @staticmethod
-    def _load_traces(data_file: str):
+    def _load_traces(data_file: str, filters: dict | None = None):
         """
         Load all event traces from a per-activity CSV file for dataset mode.
 
@@ -309,6 +309,11 @@ class Pattern:
         ----------
         data_file : str
             Path to the per-activity CSV file.
+        filters : dict, optional
+            Optional dictionary of ``{column_name: value}`` pairs used to restrict
+            which rows are loaded.  Only rows where every specified column equals
+            the given value are kept.  For example, ``{"subject": "s1"}`` loads
+            only traces recorded by subject *s1*.
 
         Returns
         -------
@@ -324,6 +329,16 @@ class Pattern:
             return h * 3600 + m * 60 + s
 
         df = pd.read_csv(data_file)
+
+        if filters:
+            for col, value in filters.items():
+                df = df[df[col] == value]
+
+        if df.empty:
+            raise ValueError(
+                f"No rows remain in '{data_file}' after applying filters {filters}. "
+                f"Check that the column names and values are correct."
+            )
 
         traces = []
         for _, group in df.groupby("unique_activity_key"):

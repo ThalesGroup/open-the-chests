@@ -1,5 +1,4 @@
 import math
-from copy import deepcopy
 
 
 class Event:
@@ -101,10 +100,12 @@ class Event:
             f"Shift would result in negative start time: {self.start + delta}"
         )
 
-        new = deepcopy(self)
-        new.start += delta
-        new.end += delta
-        return new
+        # A shifted event differs only in its start/end times; its type and
+        # attributes are unchanged, so construct the shifted copy directly. A
+        # deep copy here recursively cloned the attributes dict on every sampled
+        # event and dominated event-generation time under repeated sampling.
+        return Event(self.type, dict(self.attributes),
+                     self.start + delta, self.end + delta)
 
     def to_dict(self) -> dict:
         """Returns dictionary representation of the event."""
